@@ -361,10 +361,9 @@
 
       if (resultData && resultData.headerImgUrl) {
         const logoImg = document.getElementById('exam-logo-img');
-        const fallbackSvg = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='260' height='70' viewBox='0 0 260 70'><rect x='5' y='5' width='60' height='60' rx='16' fill='%230044CC'/><path d='M35 18L48 25V37C48 45 35 50 35 50C35 50 22 45 22 37V25L35 18Z' fill='%23FFFFFF'/><path d='M35 24L41 28V35C41 40 35 43 35 43C35 43 29 40 29 35V28L35 24Z' fill='%230044CC'/><circle cx='35' cy='32' r='3' fill='%23FFFFFF'/><text x='78' y='33' font-family='sans-serif' font-weight='900' font-size='20' fill='%230044CC' letter-spacing='0.5'>CBT RANK</text><text x='78' y='49' font-family='sans-serif' font-weight='700' font-size='9.5' fill='%2364748B' letter-spacing='0.8'>OFFICIAL EXAM SCORECARD</text></svg>";
         logoImg.onerror = function() {
           this.onerror = null;
-          this.src = fallbackSvg;
+          this.src = 'https://g26.digialm.com/EForms/images/onlineAppForm/form95988/OSSSC.jpg';
         };
         logoImg.src = resultData.headerImgUrl;
       }
