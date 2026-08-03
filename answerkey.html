@@ -855,16 +855,19 @@
       let headerImgUrl = '';
       const infoRows = [];
 
-      // 1. Extract Candidate Info from .main-info-pnl or table rows
-      const mainInfoPnl = doc.querySelector('.main-info-pnl, table');
-      if (mainInfoPnl) {
-        const imgEl = mainInfoPnl.querySelector('img');
-        if (imgEl) {
-          const rawSrc = imgEl.getAttribute('src') || imgEl.src;
+      // 1. Extract Candidate Info & Header Banner Image
+      const allImgs = doc.querySelectorAll('.main-info-pnl img, table img, img');
+      allImgs.forEach(img => {
+        if (!headerImgUrl) {
+          const rawSrc = img.getAttribute('src') || img.src || '';
           if (rawSrc && !rawSrc.startsWith('data:image')) {
             headerImgUrl = rawSrc;
           }
         }
+      });
+
+      const mainInfoPnl = doc.querySelector('.main-info-pnl, table');
+      if (mainInfoPnl) {
 
         const rows = mainInfoPnl.querySelectorAll('tr');
         rows.forEach(tr => {
