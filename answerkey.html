@@ -847,8 +847,27 @@
       return null;
     }
 
+    // Replicates digialm.php make_absolute_url function 1:1
+    function makeAbsoluteUrl(src, baseUrl) {
+      if (!src) return '';
+      if (/^https?:\/\//i.test(src) || src.startsWith('data:')) return src;
+      if (!baseUrl || !/^https?:\/\//i.test(baseUrl)) return src;
+      try {
+        const base = new URL(baseUrl);
+        if (src.startsWith('/')) {
+          return base.origin + src;
+        } else {
+          const pathParts = base.pathname.split('/');
+          pathParts.pop(); // remove filename
+          return base.origin + pathParts.join('/') + '/' + src;
+        }
+      } catch (e) {
+        return src;
+      }
+    }
+
     // Client-side HTML Parser Engine for Digialm & Cbexams (Extracts Candidate Info & Scores)
-    function parseResponseSheetHtml(htmlText) {
+    function parseResponseSheetHtml(htmlText, baseUrl) {
       const doc = new DOMParser().parseFromString(htmlText || '', 'text/html');
 
       let correctCount = 0;
@@ -864,16 +883,31 @@
       let headerImgUrl = '';
       const infoRows = [];
 
-      // 1. Extract Candidate Info & Header Banner Image
-      const allImgs = doc.querySelectorAll('.main-info-pnl img, table img, img');
-      allImgs.forEach(img => {
-        if (!headerImgUrl) {
-          const rawSrc = img.getAttribute('src') || img.src || '';
-          if (rawSrc && !rawSrc.startsWith('data:image')) {
-            headerImgUrl = rawSrc;
+      // 1. Extract Candidate Info & Header Banner Image (Matching digialm.php 1:1)
+      const mainInfoPnlNode = doc.querySelector('.main-info-pnl');
+      if (mainInfoPnlNode) {
+        const pnlImgs = mainInfoPnlNode.querySelectorAll('img');
+        pnlImgs.forEach(img => {
+          if (!headerImgUrl) {
+            const rawSrc = img.getAttribute('src') || '';
+            if (rawSrc && !rawSrc.startsWith('data:image')) {
+              headerImgUrl = makeAbsoluteUrl(rawSrc, baseUrl);
+            }
           }
-        }
-      });
+        });
+      }
+
+      if (!headerImgUrl) {
+        const allImgs = doc.querySelectorAll('table img, img');
+        allImgs.forEach(img => {
+          if (!headerImgUrl) {
+            const rawSrc = img.getAttribute('src') || '';
+            if (rawSrc && !rawSrc.startsWith('data:image')) {
+              headerImgUrl = makeAbsoluteUrl(rawSrc, baseUrl);
+            }
+          }
+        });
+      }
 
       const mainInfoPnl = doc.querySelector('.main-info-pnl, table');
       if (mainInfoPnl) {
@@ -1128,7 +1162,7 @@
       }
 
       // Perform calculation & score parsing
-      const result = parseResponseSheetHtml(htmlText);
+      const result = parseResponseSheetHtml(htmlText, urlVal);
       const right = result.correctCount;
       const wrong = result.wrongCount;
       const unatt = result.unattemptedCount;
