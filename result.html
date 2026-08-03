@@ -370,9 +370,9 @@
         document.getElementById('exam-name-text').textContent = resultData.examName;
       }
 
-      const totalCorrect = resultData.correctCount || 82;
-      const totalWrong = resultData.wrongCount || 14;
-      const totalUnatt = resultData.unattemptedCount || 4;
+      const totalCorrect = resultData.correctCount || 0;
+      const totalWrong = resultData.wrongCount || 0;
+      const totalUnatt = resultData.unattemptedCount || 0;
 
       // Render Metadata Cards
       const metaGrid = document.getElementById('metadata-grid');
@@ -388,14 +388,14 @@
         }
       } else {
         metaRows = [
-          { label: 'Candidate Name', value: resultData.candidateName || 'Verified Candidate' },
+          { label: 'Candidate Name', value: resultData.candidateName || 'N/A' },
           { label: 'Roll / Participant No', value: resultData.rollNo || (formData.ans_key_url ? (formData.ans_key_url.match(/[\/=](\d{8,12})/) || [])[1] : '') || 'N/A', isMono: true },
           { label: 'Category', value: cat },
           { label: 'State / UT', value: state },
           { label: 'Gender', value: gender },
           { label: 'Exam Date & Shift', value: (resultData.testDate || 'N/A') + (resultData.testTime ? ` (${resultData.testTime})` : '') },
           { label: 'Test Center', value: resultData.testCenter || 'N/A' },
-          { label: 'Paper Language', value: resultData.paperLanguage || 'English' }
+          { label: 'Paper Language', value: resultData.paperLanguage || 'N/A' }
         ];
       }
 
@@ -406,15 +406,8 @@
         </div>
       `).join('');
 
-      // Section Data Array (Parsed dynamically from DOM or fallback)
-      const sectionsData = (resultData.sections && resultData.sections.length > 0)
-        ? resultData.sections
-        : [
-            { name: 'General Intelligence & Reasoning', total: 25, correct: Math.floor(totalCorrect * 0.28), wrong: Math.floor(totalWrong * 0.25) },
-            { name: 'General Awareness', total: 25, correct: Math.floor(totalCorrect * 0.22), wrong: Math.floor(totalWrong * 0.25) },
-            { name: 'Quantitative Aptitude', total: 25, correct: Math.floor(totalCorrect * 0.26), wrong: Math.floor(totalWrong * 0.25) },
-            { name: 'English Comprehension', total: 25, correct: totalCorrect - (Math.floor(totalCorrect * 0.28) + Math.floor(totalCorrect * 0.22) + Math.floor(totalCorrect * 0.26)), wrong: totalWrong - Math.floor(totalWrong * 0.75) }
-          ];
+      // Section Data Array (Parsed dynamically from DOM)
+      const sectionsData = (resultData.sections && resultData.sections.length > 0) ? resultData.sections : [];
 
       function renderTablesAndMetrics() {
         const rVal = parseFloat(document.getElementById('right-val-input').value) || 1.0;
@@ -428,7 +421,10 @@
         let grandScore = 0;
 
         const tbody = document.getElementById('sec-table-body');
-        tbody.innerHTML = sectionsData.map(sec => {
+        if (sectionsData.length === 0) {
+          tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; color:#64748b; padding:20px;">No section data parsed. Please enter a valid Answer Key URL on the calculator page.</td></tr>`;
+        } else {
+          tbody.innerHTML = sectionsData.map(sec => {
           const unatt = sec.total - (sec.correct + sec.wrong);
           const attempted = sec.correct + sec.wrong;
           const score = (sec.correct * rVal - sec.wrong * wVal).toFixed(2);
