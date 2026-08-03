@@ -247,8 +247,8 @@
       
       <!-- 1. HEADER & CANDIDATE METADATA -->
       <div class="info-section-header">
-        <div id="logo-container" style="display:block; text-align:center; margin-bottom: 8px; width: 100%;">
-          <img src="https://g26.digialm.com/EForms/images/onlineAppForm/form95988/OSSSC.jpg" id="exam-logo-img" class="exam-logo" alt="Exam Official Logo" style="max-height: 120px; width: auto; max-width: 100%; object-fit: contain; margin: 0 auto; display: block; border-radius: 4px;">
+        <div id="logo-container" style="display:none; text-align:center; margin-bottom: 8px; width: 100%;">
+          <img src="" id="exam-logo-img" class="exam-logo" alt="Exam Official Logo" style="max-height: 120px; width: auto; max-width: 100%; object-fit: contain; margin: 0 auto; display: block; border-radius: 4px;">
         </div>
         <h1 class="exam-name-title" id="exam-name-text">Staff Selection Commission (SSC) — Official Answer Key Report</h1>
         
@@ -360,12 +360,10 @@
       const gender = formData.gender ? (formData.gender.charAt(0).toUpperCase() + formData.gender.slice(1)) : 'Male';
 
       if (resultData && resultData.headerImgUrl) {
-        const logoImg = document.getElementById('exam-logo-img');
-        logoImg.onerror = function() {
-          this.onerror = null;
-          this.src = 'https://g26.digialm.com/EForms/images/onlineAppForm/form95988/OSSSC.jpg';
-        };
-        logoImg.src = resultData.headerImgUrl;
+        document.getElementById('exam-logo-img').src = resultData.headerImgUrl;
+        document.getElementById('logo-container').style.display = 'block';
+      } else {
+        document.getElementById('logo-container').style.display = 'none';
       }
       if (resultData && resultData.examName) {
         document.getElementById('exam-name-text').textContent = resultData.examName;
