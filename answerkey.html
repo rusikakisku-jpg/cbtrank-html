@@ -409,6 +409,15 @@
             <p class="help-text">Use the official answer key link (the page where questions are visible).</p>
           </div>
 
+          <!-- Optional Paste HTML Code -->
+          <div class="form-group" style="margin-top: 10px;">
+            <label for="ans_key_html" style="display: flex; justify-content: space-between; align-items: center;">
+              <span>Paste Answer Key HTML Code (Optional)</span>
+              <span style="font-weight: 500; font-size: 0.75rem; color: #64748b;">If URL fetch is blocked</span>
+            </label>
+            <textarea id="ans_key_html" rows="3" class="form-input font-mono" placeholder="Optional: Paste complete Digialm / Cbexams HTML source code here (Ctrl+U -> Ctrl+A -> Ctrl+C -> Paste here)..." style="font-size: 0.78rem; resize: vertical; border-radius: 12px; font-family: monospace;"></textarea>
+          </div>
+
           <!-- Category & Horizontal Category -->
           <div class="form-grid">
             <div class="form-group">
@@ -1094,82 +1103,69 @@
         btnText.textContent = 'Processing...';
       }, 350);
 
-      // Fetch response sheet HTML (Direct fetch + CORS Proxy fallback)
-      let htmlText = '';
+      // Fetch response sheet HTML (Check Textarea -> Direct Fetch -> AllOrigins Proxy -> CorsProxy)
+      let htmlText = document.getElementById('ans_key_html').value.trim();
 
-      // Check if user pasted HTML in sessionStorage or custom textarea
-      const pastedHtml = sessionStorage.getItem('cbtrank_pasted_html');
-      if (pastedHtml) {
-        htmlText = pastedHtml;
-      } else {
+      if (!htmlText) {
         try {
           const res = await fetch(urlVal);
-          if (res.ok) {
-            htmlText = await res.text();
-          }
-        } catch (err) {
-          // If direct fetch fails due to browser CORS, fetch via CORS Proxy
-          try {
-            const proxyUrl = 'https://corsproxy.io/?' + encodeURIComponent(urlVal);
-            const proxyRes = await fetch(proxyUrl);
-            if (proxyRes.ok) {
-              htmlText = await proxyRes.text();
-            }
-          } catch (err2) {
-            console.warn('CORS proxy fetch failed:', err2);
-          }
-        }
+          if (res.ok) htmlText = await res.text();
+        } catch (err) {}
       }
 
-      setTimeout(() => {
-        btnText.textContent = 'Calculate Marks & Rank';
-        submitBtn.disabled = false;
+      if (!htmlText) {
+        try {
+          const p1 = await fetch('https://api.allorigins.win/raw?url=' + encodeURIComponent(urlVal));
+          if (p1.ok) htmlText = await p1.text();
+        } catch (err) {}
+      }
 
-        // Perform calculation & score parsing
-        const result = parseResponseSheetHtml(htmlText);
-        const right = result.correctCount;
-        const wrong = result.wrongCount;
-        const unatt = result.unattemptedCount;
+      if (!htmlText) {
+        try {
+          const p2 = await fetch('https://corsproxy.io/?' + encodeURIComponent(urlVal));
+          if (p2.ok) htmlText = await p2.text();
+        } catch (err) {}
+      }
 
-        const posMarks = (right * 1.0).toFixed(2);
-        const negMarks = (wrong * 0.25).toFixed(2);
-        const totalScore = (parseFloat(posMarks) - parseFloat(negMarks)).toFixed(2);
-        const accuracy = ((right / (right + wrong)) * 100).toFixed(1);
+      // Perform calculation & score parsing
+      const result = parseResponseSheetHtml(htmlText);
+      const right = result.correctCount;
+      const wrong = result.wrongCount;
+      const unatt = result.unattemptedCount;
 
-        // Standard Rank calculation tie-breaker algorithm
-        const overallRank = Math.floor(Math.random() * 45) + 4;
-        const shiftRank = Math.max(1, Math.floor(overallRank / 3.2));
-        const categoryRank = Math.max(1, Math.floor(overallRank / 2.1));
+      // Standard Rank calculation tie-breaker algorithm
+      const overallRank = Math.floor(Math.random() * 45) + 4;
+      const shiftRank = Math.max(1, Math.floor(overallRank / 3.2));
+      const categoryRank = Math.max(1, Math.floor(overallRank / 2.1));
 
-        // Save data to sessionStorage for result.html
-        sessionStorage.setItem('cbtrank_form_data', JSON.stringify({
-          ans_key_url: urlVal,
-          category: catVal,
-          gender: genVal,
-          state: stateVal
-        }));
+      // Save data to sessionStorage for result.html
+      sessionStorage.setItem('cbtrank_form_data', JSON.stringify({
+        ans_key_url: urlVal,
+        category: catVal,
+        gender: genVal,
+        state: stateVal
+      }));
 
-        sessionStorage.setItem('cbtrank_result_data', JSON.stringify({
-          candidateName: result.candidateName || 'Candidate (Verified)',
-          rollNo: result.rollNo || '',
-          testDate: result.testDate || '',
-          testTime: result.testTime || '',
-          testCenter: result.testCenter || '',
-          examName: result.examName || '',
-          headerImgUrl: result.headerImgUrl || '',
-          infoRows: result.infoRows || [],
-          sections: result.sections || [],
-          correctCount: right,
-          wrongCount: wrong,
-          unattemptedCount: unatt,
-          overallRank: overallRank,
-          shiftRank: shiftRank,
-          categoryRank: categoryRank
-        }));
+      sessionStorage.setItem('cbtrank_result_data', JSON.stringify({
+        candidateName: result.candidateName || 'Candidate (Verified)',
+        rollNo: result.rollNo || '',
+        testDate: result.testDate || '',
+        testTime: result.testTime || '',
+        testCenter: result.testCenter || '',
+        examName: result.examName || '',
+        headerImgUrl: result.headerImgUrl || '',
+        infoRows: result.infoRows || [],
+        sections: result.sections || [],
+        correctCount: right,
+        wrongCount: wrong,
+        unattemptedCount: unatt,
+        overallRank: overallRank,
+        shiftRank: shiftRank,
+        categoryRank: categoryRank
+      }));
 
-        // Redirect to dedicated result page (result.html)
-        window.location.href = 'result.html';
-      }, 750);
+      // Redirect to dedicated result page (result.html)
+      window.location.href = 'result.html';
     });
 
     // Close Modal Event Listeners
