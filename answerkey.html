@@ -971,26 +971,42 @@
             let chosenOpt = null;
             let rightOpt = null;
 
+            // Extract Chosen Option matching digialm.php lines 428-457
             const tds = panel.querySelectorAll('td');
             tds.forEach(td => {
               const txt = td.textContent || '';
-              if (txt.includes('Chosen Option')) {
+              if (txt.toLowerCase().includes('chosen option')) {
                 const parts = txt.split(':');
                 if (parts.length > 1) {
                   chosenOpt = chosenToIndex(parts[1].trim());
+                } else {
+                  const nextTd = td.nextElementSibling;
+                  if (nextTd) chosenOpt = chosenToIndex(nextTd.textContent.trim());
                 }
               }
             });
 
-            const rightCell = panel.querySelector('.rightAns, td.rightAns');
-            if (rightCell) {
-              const parentRow = rightCell.closest('tr');
-              if (parentRow) {
-                const optNumCell = parentRow.querySelector('td');
-                if (optNumCell) {
-                  const optText = optNumCell.textContent.trim();
-                  const m = optText.match(/^(\d+)\./);
-                  if (m) rightOpt = parseInt(m[1], 10);
+            // Extract Right Option matching digialm.php lines 480-620
+            const rowTbls = panel.querySelectorAll('.questionRowTbl');
+            if (rowTbls && rowTbls.length > 0) {
+              rowTbls.forEach(tbl => {
+                const trs = tbl.querySelectorAll('tr');
+                trs.forEach((tr, index) => {
+                  if (tr.querySelector('.rightAns') || tr.classList.contains('rightAns') || tr.innerHTML.includes('rightAns')) {
+                    rightOpt = index + 1;
+                  }
+                });
+              });
+            }
+
+            if (!rightOpt) {
+              const rightAnsTd = panel.querySelector('td.rightAns, .rightAns');
+              if (rightAnsTd) {
+                const parentTr = rightAnsTd.closest('tr');
+                if (parentTr && parentTr.parentNode) {
+                  const siblings = Array.from(parentTr.parentNode.children);
+                  const pos = siblings.indexOf(parentTr);
+                  if (pos !== -1) rightOpt = pos + 1;
                 }
               }
             }
