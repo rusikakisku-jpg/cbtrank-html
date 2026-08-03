@@ -942,13 +942,15 @@
         });
       }
 
-      // Default fallback info if not parsed from raw HTML
-      if (!candidateName) candidateName = 'ARJUN MAJHI';
-      if (!rollNo) rollNo = '1967053364';
-      if (!testDate) testDate = '26/04/2026';
-      if (!testTime) testTime = '9:00 AM - 12:00 PM';
-      if (!testCenter) testCenter = 'Institute Of Technical Education And Research';
-      if (!examName) examName = 'Combined Recruitment Examination 2026';
+      // Dynamic extraction of roll number from URL if not found in DOM
+      if (!rollNo && baseUrl) {
+        const urlMatch = baseUrl.match(/\/pub\/([^\/]+)\//i) || baseUrl.match(/[\/=](\d{8,12})/);
+        if (urlMatch) rollNo = urlMatch[1];
+      }
+
+      if (!candidateName) {
+        candidateName = rollNo ? `Candidate (${rollNo})` : 'Verified Candidate';
+      }
 
       // 2. Extract Section-wise Performance & Question Panel Scores
       const sections = [];

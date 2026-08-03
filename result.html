@@ -388,13 +388,13 @@
         }
       } else {
         metaRows = [
-          { label: 'Candidate Name', value: resultData.candidateName || 'ARJUN MAJHI' },
-          { label: 'Roll / Participant No', value: resultData.rollNo || '1967053364', isMono: true },
+          { label: 'Candidate Name', value: resultData.candidateName || 'Verified Candidate' },
+          { label: 'Roll / Participant No', value: resultData.rollNo || (formData.ans_key_url ? (formData.ans_key_url.match(/[\/=](\d{8,12})/) || [])[1] : '') || 'N/A', isMono: true },
           { label: 'Category', value: cat },
           { label: 'State / UT', value: state },
           { label: 'Gender', value: gender },
-          { label: 'Exam Date & Shift', value: (resultData.testDate || '26/04/2026') + (resultData.testTime ? ` (${resultData.testTime})` : ' (9:00 AM - 12:00 PM)') },
-          { label: 'Test Center', value: resultData.testCenter || 'Institute Of Technical Education And Research' },
+          { label: 'Exam Date & Shift', value: (resultData.testDate || 'N/A') + (resultData.testTime ? ` (${resultData.testTime})` : '') },
+          { label: 'Test Center', value: resultData.testCenter || 'N/A' },
           { label: 'Paper Language', value: resultData.paperLanguage || 'English' }
         ];
       }
