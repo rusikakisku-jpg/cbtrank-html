@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Privacy Policy - CBT RANK</title>
+  <meta name="description" content="Official Privacy Policy for CBT RANK covering data collection, automated scoring algorithms, cookies, and Google AdSense policies.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap"></noscript>
+  <style>
+    @font-face { font-family: 'Inter'; font-display: swap; }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
+      background-color: #f8fafc;
+      color: #0f172a;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      padding-top: 70px;
+      -webkit-font-smoothing: antialiased;
+    }
+    a { text-decoration: none; color: inherit; }
+
+    /* NAVBAR */
+    .navbar {
+      position: fixed; top: 0; left: 0;
+      width: 100%; z-index: 1000;
+      background-color: #0044cc;
+      color: #fff;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    }
+    .navbar-inner {
+      width: 95%; max-width: 1200px;
+      margin: 0 auto; height: 70px;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .nav-logo { display: flex; align-items: center; gap: 10px; }
+    .logo-circle {
+      width: 42px; height: 42px; border-radius: 50%;
+      background: #fff; color: #0044cc;
+      font-weight: 900; font-size: 13px;
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: inset 0 1px 4px rgba(0,0,0,0.1);
+      flex-shrink: 0;
+    }
+    .logo-text { font-size: 22px; font-weight: 800; color: #fff; letter-spacing: 0.5px; }
+    .nav-links { display: flex; list-style: none; gap: 24px; }
+    .nav-links a { color: #fff; font-weight: 500; font-size: 0.92rem; transition: opacity 0.2s; }
+    .nav-links a:hover, .nav-links a.active { opacity: 0.85; font-weight: 700; }
+    .hamburger {
+      display: none; flex-direction: column;
+      justify-content: center; align-items: center; gap: 5px;
+      width: 40px; height: 40px;
+      background: none; border: none; cursor: pointer;
+      border-radius: 8px; transition: background 0.2s;
+    }
+    .hamburger:hover { background: rgba(255,255,255,0.15); }
+    .hamburger span {
+      display: block; width: 22px; height: 2px;
+      background: #fff; border-radius: 2px; transition: all 0.3s ease;
+    }
+    .hamburger.open span:nth-child(1) { transform: rotate(45deg) translate(5px, 5px); }
+    .hamburger.open span:nth-child(2) { opacity: 0; }
+    .hamburger.open span:nth-child(3) { transform: rotate(-45deg) translate(5px, -5px); }
+    .mobile-drawer {
+      display: none; background: #003399;
+      border-top: 1px solid rgba(255,255,255,0.15);
+      overflow: hidden; max-height: 0;
+      transition: max-height 0.3s ease, padding 0.3s ease;
+      padding: 0 24px;
+    }
+    .mobile-drawer.open { display: block; max-height: 300px; padding: 12px 24px 16px; }
+    .mobile-drawer a {
+      display: block; color: #fff; font-weight: 600; font-size: 0.95rem;
+      padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.15);
+      transition: color 0.2s;
+    }
+    .mobile-drawer a:last-child { border-bottom: none; }
+    .mobile-drawer a:hover { color: #bfdbfe; }
+
+    /* MAIN CONTENT */
+    main { flex: 1; width: 95%; max-width: 900px; margin: 0 auto; padding: 28px 0 48px; }
+
+    .content-card {
+      background: #fff;
+      border: 1.5px solid #e2e8f0;
+      border-radius: 20px;
+      padding: 32px;
+      box-shadow: 0 4px 20px rgba(15, 23, 42, 0.04);
+      display: flex; flex-direction: column; gap: 20px;
+    }
+
+    .page-title {
+      font-size: 2rem; font-weight: 900; color: #0044cc;
+      text-align: center; letter-spacing: -0.02em;
+    }
+
+    .last-updated {
+      text-align: center; font-size: 0.75rem; color: #64748b; margin-top: -12px; font-weight: 600;
+    }
+
+    .lead-text {
+      font-size: 0.95rem; color: #334155; line-height: 1.7; font-weight: 500;
+    }
+
+    .section-title {
+      font-size: 1.15rem; font-weight: 800; color: #0044cc; margin-bottom: 8px;
+    }
+
+    .feature-list {
+      padding-left: 24px; display: flex; flex-direction: column; gap: 8px;
+      color: #334155; font-size: 0.9rem; line-height: 1.65;
+    }
+
+    /* FOOTER */
+    footer { background: #0044cc; color: #fff; border-top: 3px solid #003399; padding: 20px 0; margin-top: auto; }
+    .footer-inner {
+      width: 90%; max-width: 1100px; margin: 0 auto;
+      display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap;
+    }
+    .footer-links { list-style: none; display: flex; flex-wrap: wrap; gap: 18px; }
+    .footer-links a { color: #fff; font-weight: 500; font-size: 0.88rem; }
+    .footer-links a:hover { text-decoration: underline; }
+    .footer-copy { font-size: 0.88rem; font-weight: 500; white-space: nowrap; color: #fff; }
+
+    /* FLOATING TELEGRAM */
+    .float-telegram {
+      position: fixed; bottom: 20px; right: 20px; z-index: 9999;
+      width: 70px; height: 70px; display: flex; align-items: center; justify-content: center;
+      transition: transform 0.2s ease;
+    }
+    .float-telegram:hover { transform: scale(1.12); }
+    .float-telegram img { width: 55px; height: 55px; }
+
+    @media (max-width: 768px) {
+      .content-card { padding: 20px; }
+      .page-title { font-size: 1.6rem; }
+      .footer-inner { flex-direction: column; text-align: center; gap: 14px; }
+      .footer-links { justify-content: center; gap: 12px; }
+      .nav-links { display: none; }
+      .hamburger { display: flex; }
+    }
+  </style>
+  <script src="components.js"></script>
+</head>
+<body>
+
+  <!-- NAVBAR -->
+  <header class="navbar">
+    <div class="navbar-inner">
+      <a href="index.html" class="nav-logo">
+        <div class="logo-circle">CBT</div>
+        <span class="logo-text">CBT RANK</span>
+      </a>
+      <nav>
+        <ul class="nav-links">
+          <li><a href="index.html">Home</a></li>
+          <li><a href="answerkey.html">Answer Key</a></li>
+        </ul>
+      </nav>
+      <button class="hamburger" id="hamburger" aria-label="Toggle Menu">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+    <div class="mobile-drawer" id="mobile-drawer">
+      <a href="index.html">Home</a>
+      <a href="answerkey.html">Answer Key</a>
+    </div>
+  </header>
+
+  <!-- MAIN CONTENT -->
+  <main>
+    <div class="content-card">
+      <h1 class="page-title">Privacy Policy</h1>
+      <p class="last-updated">Last updated: 01 Aug 2026</p>
+
+      <p class="lead-text">
+        Welcome to <strong>CBT RANK</strong>. We respect your privacy and are committed to protecting the personal information you share with us. This Privacy Policy explains what information we collect, why we collect it, how we use and protect it, and the choices you have regarding your data.
+      </p>
+
+      <div>
+        <h2 class="section-title">1. Information We Collect</h2>
+        <p class="lead-text" style="margin-bottom:8px">We collect information you provide directly and data collected automatically when you use our site:</p>
+        <ul class="feature-list">
+          <li><strong>Information you provide:</strong> Name, email address and any message or details you submit through contact forms or support requests.</li>
+          <li><strong>Usage information:</strong> Pages visited, time spent on pages, IP address, device and browser information, referral source, and other analytics data.</li>
+          <li><strong>Cookies &amp; similar technologies:</strong> Small files stored on your device to improve site functionality and remember preferences.</li>
+          <li><strong>Answer key &amp; exam inputs:</strong> When you paste or upload an answer key (your responses) for analysis, we collect the answer data you provide along with any optional metadata you submit.</li>
+        </ul>
+      </div>
+
+      <div>
+        <h2 class="section-title">2. How We Use Your Information</h2>
+        <p class="lead-text" style="margin-bottom:8px">We use the collected information for the following purposes:</p>
+        <ul class="feature-list">
+          <li>To respond to your inquiries, support requests, and feedback.</li>
+          <li>To provide, maintain and improve our services, content and user experience.</li>
+          <li>To analyze site usage and performance for product development and optimization.</li>
+          <li><strong>To generate automated exam analysis and scorecards:</strong> When you submit an answer key, we process that data to calculate scores, total rank, shift rank, and category rank.</li>
+        </ul>
+      </div>
+
+      <div>
+        <h2 class="section-title">3. Answer Key Analysis &amp; Automated Scoring</h2>
+        <ul class="feature-list">
+          <li><strong>100% Automated Processing:</strong> All calculations, scoring, and rank estimations are 100% program-driven and performed automatically by software algorithms.</li>
+          <li><strong>Aggregation &amp; Anonymization:</strong> Individual submissions are aggregated and anonymized to calculate overall averages and ranks.</li>
+        </ul>
+      </div>
+
+      <div>
+        <h2 class="section-title">4. Data Sharing &amp; Security</h2>
+        <p class="lead-text">
+          We prioritize your privacy and data security. <strong>We do not sell, rent, trade, or share your personal information or submitted answer keys with any third parties under any circumstances.</strong> All data is kept strictly secure and used solely for the automated calculations on our website.
+        </p>
+      </div>
+
+      <div>
+        <h2 class="section-title">5. Contact Us</h2>
+        <p class="lead-text">
+          If you have questions, requests, or concerns about this Privacy Policy, please contact us at:<br>
+          <strong>Email:</strong> contact.cbtrank@gmail.com
+        </p>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="footer-inner">
+      <ul class="footer-links">
+        <li><a href="index.html">Home</a></li>
+        <li><a href="about-us.html">About Us</a></li>
+        <li><a href="contact-us.html">Contact Us</a></li>
+        <li><a href="privacy-policy.html">Privacy Policy</a></li>
+        <li><a href="terms-and-conditions.html">Terms and Conditions</a></li>
+        <li><a href="disclaimer.html">Disclaimer</a></li>
+      </ul>
+      <div class="footer-copy" id="footer-copy"></div>
+    </div>
+  </footer>
+
+  <!-- Floating Telegram -->
+  <a href="https://t.me/cbtrank" class="float-telegram" target="_blank" rel="noopener noreferrer" title="Join Telegram Channel">
+    <img src="https://cdn-icons-png.flaticon.com/512/2111/2111646.png" alt="Telegram">
+  </a>
+
+  <script>
+    // Hamburger
+    const hamburger = document.getElementById('hamburger');
+    const mobileDrawer = document.getElementById('mobile-drawer');
+    hamburger.addEventListener('click', () => {
+      const isOpen = hamburger.classList.toggle('open');
+      if (isOpen) mobileDrawer.classList.add('open');
+      else mobileDrawer.classList.remove('open');
+    });
+
+    // Footer Copy
+    document.getElementById('footer-copy').textContent = `© ${new Date().getFullYear()} CBTRANK.COM | All Rights Reserved`;
+  </script>
+</body>
+</html>

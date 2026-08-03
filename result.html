@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Detailed Scorecard & Rank Analysis | CBT RANK</title>
+  <meta name="description" content="View your detailed CBT exam scorecard, shift rank, category rank, subject breakdown, and accuracy analysis.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap"></noscript>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <style>
+    @font-face { font-family: 'Inter'; font-display: swap; }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
+      background-color: #f8fafc;
+      color: #0f172a;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      padding-top: 70px;
+      -webkit-font-smoothing: antialiased;
+    }
+    a { text-decoration: none; color: inherit; }
+
+    /* NAVBAR */
+    .navbar {
+      position: fixed; top: 0; left: 0;
+      width: 100%; z-index: 1000;
+      background-color: #0044cc;
+      color: #fff;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    }
+    .navbar-inner {
+      width: 95%; max-width: 1200px;
+      margin: 0 auto; height: 70px;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .nav-logo { display: flex; align-items: center; gap: 10px; }
+    .logo-circle {
+      width: 42px; height: 42px; border-radius: 50%;
+      background: #fff; color: #0044cc;
+      font-weight: 900; font-size: 13px;
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: inset 0 1px 4px rgba(0,0,0,0.1);
+      flex-shrink: 0;
+    }
+    .logo-text { font-size: 22px; font-weight: 800; color: #fff; letter-spacing: 0.5px; }
+    .nav-links { display: flex; list-style: none; gap: 24px; }
+    .nav-links a { color: #fff; font-weight: 500; font-size: 0.92rem; transition: opacity 0.2s; }
+    .nav-links a:hover, .nav-links a.active { opacity: 0.85; font-weight: 700; }
+    .hamburger {
+      display: none; flex-direction: column;
+      justify-content: center; align-items: center; gap: 5px;
+      width: 40px; height: 40px;
+      background: none; border: none; cursor: pointer;
+      border-radius: 8px; transition: background 0.2s;
+    }
+    .hamburger:hover { background: rgba(255,255,255,0.15); }
+    .hamburger span {
+      display: block; width: 22px; height: 2px;
+      background: #fff; border-radius: 2px; transition: all 0.3s ease;
+    }
+    .hamburger.open span:nth-child(1) { transform: rotate(45deg) translate(5px, 5px); }
+    .hamburger.open span:nth-child(2) { opacity: 0; }
+    .hamburger.open span:nth-child(3) { transform: rotate(-45deg) translate(5px, -5px); }
+    .mobile-drawer {
+      display: none; background: #003399;
+      border-top: 1px solid rgba(255,255,255,0.15);
+      overflow: hidden; max-height: 0;
+      transition: max-height 0.3s ease, padding 0.3s ease;
+      padding: 0 24px;
+    }
+    .mobile-drawer.open { display: block; max-height: 300px; padding: 12px 24px 16px; }
+    .mobile-drawer a {
+      display: block; color: #fff; font-weight: 600; font-size: 0.95rem;
+      padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.15);
+      transition: color 0.2s;
+    }
+    .mobile-drawer a:last-child { border-bottom: none; }
+    .mobile-drawer a:hover { color: #bfdbfe; }
+
+    /* MAIN CONTAINER */
+    main { flex: 1; width: 95%; max-width: 960px; margin: 0 auto; padding: 20px 0 48px; }
+
+    /* TOP ACTION BAR */
+    .top-action-bar {
+      display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap;
+      margin-bottom: 16px; background: #fff; border: 1.5px solid #cbd5e1; border-radius: 16px; padding: 12px 18px;
+    }
+    .top-action-bar h2 { font-size: 1.1rem; font-weight: 900; color: #0044cc; }
+    .action-btns { display: flex; gap: 8px; flex-wrap: wrap; }
+    .btn-action-ui {
+      background: #f1f5f9; color: #0f172a; border: 1px solid #cbd5e1; border-radius: 10px;
+      padding: 8px 14px; font-size: 0.82rem; font-weight: 800; cursor: pointer; transition: all 0.2s ease;
+      display: inline-flex; align-items: center; gap: 6px;
+    }
+    .btn-action-ui:hover { background: #e2e8f0; transform: translateY(-1px); }
+    .btn-action-ui.primary { background: #0044cc; color: #fff; border-color: #0044cc; }
+    .btn-action-ui.primary:hover { background: #003399; }
+    .btn-action-ui.success { background: #059669; color: #fff; border-color: #059669; }
+    .btn-action-ui.success:hover { background: #047857; }
+
+    .scorecard-card {
+      background: rgba(255,255,255,0.98);
+      border: 1px solid #cbd5e1;
+      border-radius: 24px;
+      padding: 24px;
+      box-shadow: 0 10px 30px rgba(15, 23, 42, 0.06);
+      display: flex; flex-direction: column; gap: 20px;
+    }
+
+    /* 1. EXAM & CANDIDATE INFO SECTION */
+    .info-section-header {
+      text-align: center; border-bottom: 1px solid #e2e8f0; padding-bottom: 16px;
+      display: flex; flex-direction: column; align-items: center; gap: 8px;
+    }
+    .exam-logo { max-height: 65px; width: auto; object-fit: contain; }
+    .exam-name-title { font-size: 1.15rem; font-weight: 900; color: #0f172a; letter-spacing: -0.01em; }
+
+    .metadata-grid {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px;
+      margin-top: 6px; width: 100%;
+    }
+    .meta-box {
+      background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 10px 14px;
+    }
+    .meta-box label { font-size: 0.65rem; font-weight: 800; color: #64748b; text-transform: uppercase; letter-spacing: 0.04em; display: block; }
+    .meta-box span { font-size: 0.88rem; font-weight: 800; color: #0f172a; display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .meta-box span.mono { font-family: monospace; color: #0044cc; }
+
+    /* 2. INLINE RE-CALCULATE MARKS CONTROL */
+    .recalc-header {
+      display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 10px;
+    }
+    .recalc-header h3 { font-size: 0.78rem; font-weight: 900; color: #0f172a; text-transform: uppercase; letter-spacing: 0.04em; }
+
+    .recalc-controls {
+      display: flex; align-items: center; gap: 12px;
+      background: #f1f5f9; border: 1px solid #cbd5e1; border-radius: 12px; padding: 6px 12px; font-size: 0.78rem;
+    }
+    .recalc-controls label { font-weight: 900; color: #0f172a; display: flex; align-items: center; gap: 4px; }
+    .recalc-controls input {
+      width: 60px; background: #fff; border: 1px solid #cbd5e1; border-radius: 6px;
+      padding: 4px 6px; text-align: center; font-family: monospace; font-weight: 900; font-size: 0.82rem; outline: none;
+    }
+
+    /* 3. SECTION PERFORMANCE TABLE */
+    .table-responsive { width: 100%; overflow-x: auto; border: 1px solid #e2e8f0; border-radius: 16px; }
+    .sec-table { width: 100%; border-collapse: collapse; font-size: 0.82rem; }
+    .sec-table th { background: #f1f5f9; color: #0f172a; font-weight: 900; padding: 10px 14px; text-align: left; border-bottom: 1px solid #cbd5e1; font-size: 0.72rem; text-transform: uppercase; }
+    .sec-table td { padding: 10px 14px; border-bottom: 1px solid #f1f5f9; font-weight: 700; }
+    .sec-table tbody { font-family: inherit; }
+    .sec-table tfoot { background: #f8fafc; font-weight: 900; font-family: inherit; border-top: 2px solid #cbd5e1; }
+
+    .text-green { color: #16a34a; font-weight: 900; }
+    .text-red { color: #dc2626; font-weight: 900; }
+    .text-blue { color: #2563eb; font-weight: 900; }
+
+    /* 4. OVERALL KEY METRIC CARDS */
+    .metrics-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; }
+    .metric-card {
+      border-radius: 14px; padding: 14px; text-align: center; border: 1px solid #cbd5e1;
+      display: flex; flex-direction: column; justify-content: center; align-items: center;
+    }
+    .metric-card.blue { background: #eff6ff; border-color: #bfdbfe; }
+    .metric-card.emerald { background: #ecfdf5; border-color: #a7f3d0; }
+    .metric-card.purple { background: #faf5ff; border-color: #e9d5ff; }
+    .metric-card.indigo { background: #eef2ff; border-color: #c7d2fe; }
+    .metric-card.amber { background: #fffbeb; border-color: #fde68a; }
+
+    .metric-card .lbl { font-size: 0.65rem; font-weight: 900; color: #64748b; text-transform: uppercase; letter-spacing: 0.04em; }
+    .metric-card .val { font-size: 1.5rem; font-weight: 900; font-family: monospace; margin-top: 2px; }
+    .metric-card.blue .val { color: #2563eb; }
+    .metric-card.emerald .val { color: #16a34a; }
+    .metric-card.purple .val { color: #9333ea; }
+    .metric-card.indigo .val { color: #4f46e5; }
+    .metric-card.amber .val { color: #d97706; }
+    .metric-card .sub { font-size: 0.68rem; color: #94a3b8; font-weight: 600; margin-top: 2px; }
+
+    /* 5. JSON VIEWER */
+    .json-toggle-btn {
+      width: 100%; background: #f1f5f9; border: 1px solid #cbd5e1; border-radius: 12px;
+      padding: 10px 16px; font-weight: 800; font-size: 0.8rem; color: #334155;
+      cursor: pointer; display: flex; justify-content: space-between; align-items: center;
+    }
+    .json-toggle-btn:hover { background: #e2e8f0; }
+
+    .json-box {
+      background: #0f172a; color: #4ade80; padding: 16px; border-radius: 12px;
+      font-family: monospace; font-size: 0.75rem; overflow-x: auto; max-height: 300px; margin-top: 8px;
+    }
+
+    /* FOOTER */
+    footer { background: #0044cc; color: #fff; border-top: 3px solid #003399; padding: 20px 0; margin-top: auto; }
+    .footer-inner {
+      width: 90%; max-width: 1100px; margin: 0 auto;
+      display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap;
+    }
+    .footer-links { list-style: none; display: flex; flex-wrap: wrap; gap: 18px; }
+    .footer-links a { color: #fff; font-weight: 500; font-size: 0.88rem; }
+    .footer-links a:hover { text-decoration: underline; }
+    .footer-copy { font-size: 0.88rem; font-weight: 500; white-space: nowrap; color: #fff; }
+
+    /* FLOATING DOWNLOAD BUTTON (Hides Telegram float on result page) */
+    body .float-telegram { display: none !important; }
+    
+    .float-download-btn {
+      position: fixed !important; bottom: 24px !important; right: 24px !important; z-index: 999999 !important;
+      width: 60px; height: 60px; border-radius: 50%;
+      background: #0044cc; color: #fff; border: 2.5px solid #ffffff;
+      box-shadow: 0 8px 24px rgba(0, 68, 204, 0.45);
+      display: flex !important; align-items: center; justify-content: center;
+      cursor: pointer; transition: transform 0.2s ease, background 0.2s ease;
+    }
+    .float-download-btn:hover { transform: scale(1.12); background: #003399; }
+    .float-download-btn svg { width: 28px; height: 28px; fill: #ffffff; }
+
+    /* PRINT STYLES */
+    @media print {
+      body { padding-top: 0; background: #fff; }
+      .navbar, footer, .float-telegram, .float-download-btn, .top-action-bar, .recalc-controls { display: none !important; }
+      main { width: 100%; max-width: 100%; padding: 0; margin: 0; }
+      .scorecard-card { border: none; box-shadow: none; padding: 0; }
+    }
+
+    @media (max-width: 768px) {
+      .scorecard-card { padding: 16px; }
+      .footer-inner { flex-direction: column; text-align: center; gap: 14px; }
+      .footer-links { justify-content: center; gap: 12px; }
+      .nav-links { display: none; }
+      .hamburger { display: flex; }
+    }
+  </style>
+  <script src="components.js"></script>
+</head>
+<body>
+
+  <!-- MAIN CONTENT -->
+  <main>
+    
+    <!-- SCORECARD CARD -->
+    <div class="scorecard-card" id="cbrank-scorecard-card">
+      
+      <!-- 1. HEADER & CANDIDATE METADATA -->
+      <div class="info-section-header">
+        <div id="logo-container" style="display:block; text-align:center; margin-bottom: 8px; width: 100%;">
+          <img src="https://g26.digialm.com/EForms/images/onlineAppForm/form95988/OSSSC.jpg" id="exam-logo-img" class="exam-logo" alt="Exam Official Logo" style="max-height: 120px; width: auto; max-width: 100%; object-fit: contain; margin: 0 auto; display: block; border-radius: 4px;">
+        </div>
+        <h1 class="exam-name-title" id="exam-name-text">Staff Selection Commission (SSC) — Official Answer Key Report</h1>
+        
+        <div class="metadata-grid" id="metadata-grid">
+          <!-- Dynamically Injected Candidate Info Cards -->
+        </div>
+      </div>
+
+      <!-- 2. SECTION PERFORMANCE SUMMARY TABLE -->
+      <div style="display:flex; flex-direction:column; gap:10px">
+        <div class="recalc-header">
+          <h3>Section-Wise Performance Summary</h3>
+          <div class="recalc-controls">
+            <label><span class="text-green">+Right:</span> <input type="number" id="right-val-input" value="1.0" step="0.01"></label>
+            <label><span class="text-red">-Wrong:</span> <input type="number" id="wrong-val-input" value="0.25" step="0.01"></label>
+          </div>
+        </div>
+
+        <div class="table-responsive">
+          <table class="sec-table">
+            <thead>
+              <tr>
+                <th>Section Name</th>
+                <th>Total</th>
+                <th>Attempted</th>
+                <th>Unattempted</th>
+                <th class="text-green">Right</th>
+                <th class="text-red">Wrong</th>
+                <th>Raw Score</th>
+              </tr>
+            </thead>
+            <tbody id="sec-table-body">
+              <!-- Dynamically Populated -->
+            </tbody>
+            <tfoot>
+              <tr id="sec-table-foot">
+                <!-- Dynamically Populated Totals -->
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+      </div>
+
+      <!-- 3. OVERALL SCORE & RANK ANALYSIS CARDS -->
+      <div style="display:flex; flex-direction:column; gap:10px">
+        <h3 style="font-size:0.78rem; font-weight:900; color:#0f172a; text-transform:uppercase; letter-spacing:0.04em">
+          Overall Score &amp; Rank Analysis
+        </h3>
+        
+        <div class="metrics-grid">
+          <div class="metric-card blue">
+            <span class="lbl">Raw Score</span>
+            <div class="val" id="metric-raw-score">0.00</div>
+            <span class="sub" id="metric-marks-sub">+1.0 / -0.25</span>
+          </div>
+
+          <div class="metric-card emerald">
+            <span class="lbl">Est. Normalized</span>
+            <div class="val" id="metric-norm-score">0.00</div>
+            <span class="sub" id="metric-pct-sub">Pct: 98.4%</span>
+          </div>
+
+          <div class="metric-card purple">
+            <span class="lbl">Overall Rank</span>
+            <div class="val" id="metric-overall-rank">#1</div>
+            <span class="sub" id="metric-total-cand">Total: 1,420</span>
+          </div>
+
+          <div class="metric-card indigo">
+            <span class="lbl">Category Rank</span>
+            <div class="val" id="metric-cat-rank">#1</div>
+            <span class="sub" id="metric-cat-cand">Cat: UR</span>
+          </div>
+
+          <div class="metric-card amber">
+            <span class="lbl">Shift Rank</span>
+            <div class="val" id="metric-shift-rank">#1</div>
+            <span class="sub" id="metric-shift-cand">Shift Total: 120</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- Floating Download Icon Button -->
+  <button type="button" class="float-download-btn" id="float-download-btn" title="Download Scorecard Image" aria-label="Download Scorecard Image">
+    <svg viewBox="0 0 24 24">
+      <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
+    </svg>
+  </button>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      // 1. Load Session Data matching Next.js app/result/page.js
+      let formRaw = sessionStorage.getItem('cbtrank_form_data');
+      let resultRaw = sessionStorage.getItem('cbtrank_result_data');
+
+      let formData = {};
+      let resultData = {};
+
+      try {
+        if (formRaw) formData = JSON.parse(formRaw);
+        if (resultRaw) resultData = JSON.parse(resultRaw);
+      } catch (e) {}
+
+      const cat = formData.category || 'UR';
+      const state = formData.state || 'Delhi';
+      const gender = formData.gender ? (formData.gender.charAt(0).toUpperCase() + formData.gender.slice(1)) : 'Male';
+
+      if (resultData && resultData.headerImgUrl) {
+        const logoImg = document.getElementById('exam-logo-img');
+        const fallbackSvg = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='260' height='70' viewBox='0 0 260 70'><rect x='5' y='5' width='60' height='60' rx='16' fill='%230044CC'/><path d='M35 18L48 25V37C48 45 35 50 35 50C35 50 22 45 22 37V25L35 18Z' fill='%23FFFFFF'/><path d='M35 24L41 28V35C41 40 35 43 35 43C35 43 29 40 29 35V28L35 24Z' fill='%230044CC'/><circle cx='35' cy='32' r='3' fill='%23FFFFFF'/><text x='78' y='33' font-family='sans-serif' font-weight='900' font-size='20' fill='%230044CC' letter-spacing='0.5'>CBT RANK</text><text x='78' y='49' font-family='sans-serif' font-weight='700' font-size='9.5' fill='%2364748B' letter-spacing='0.8'>OFFICIAL EXAM SCORECARD</text></svg>";
+        logoImg.onerror = function() {
+          this.onerror = null;
+          this.src = fallbackSvg;
+        };
+        logoImg.src = resultData.headerImgUrl;
+      }
+      if (resultData && resultData.examName) {
+        document.getElementById('exam-name-text').textContent = resultData.examName;
+      }
+
+      const totalCorrect = resultData.correctCount || 82;
+      const totalWrong = resultData.wrongCount || 14;
+      const totalUnatt = resultData.unattemptedCount || 4;
+
+      // Render Metadata Cards
+      const metaGrid = document.getElementById('metadata-grid');
+      let metaRows = [];
+
+      if (resultData.infoRows && resultData.infoRows.length > 0) {
+        metaRows = resultData.infoRows.map(r => ({ label: r.label, value: r.value, isMono: r.label.toLowerCase().includes('id') || r.label.toLowerCase().includes('roll') }));
+        if (!resultData.infoRows.some(r => r.label.toLowerCase().includes('category'))) {
+          metaRows.push({ label: 'Category', value: cat });
+        }
+        if (!resultData.infoRows.some(r => r.label.toLowerCase().includes('state'))) {
+          metaRows.push({ label: 'State / UT', value: state });
+        }
+      } else {
+        metaRows = [
+          { label: 'Candidate Name', value: resultData.candidateName || 'ARJUN MAJHI' },
+          { label: 'Roll / Participant No', value: resultData.rollNo || '1967053364', isMono: true },
+          { label: 'Category', value: cat },
+          { label: 'State / UT', value: state },
+          { label: 'Gender', value: gender },
+          { label: 'Exam Date & Shift', value: (resultData.testDate || '26/04/2026') + (resultData.testTime ? ` (${resultData.testTime})` : ' (9:00 AM - 12:00 PM)') },
+          { label: 'Test Center', value: resultData.testCenter || 'Institute Of Technical Education And Research' },
+          { label: 'Paper Language', value: resultData.paperLanguage || 'English' }
+        ];
+      }
+
+      metaGrid.innerHTML = metaRows.map(m => `
+        <div class="meta-box">
+          <label>${m.label}</label>
+          <span class="${m.isMono ? 'mono' : ''}">${m.value}</span>
+        </div>
+      `).join('');
+
+      // Section Data Array (Parsed dynamically from DOM or fallback)
+      const sectionsData = (resultData.sections && resultData.sections.length > 0)
+        ? resultData.sections
+        : [
+            { name: 'General Intelligence & Reasoning', total: 25, correct: Math.floor(totalCorrect * 0.28), wrong: Math.floor(totalWrong * 0.25) },
+            { name: 'General Awareness', total: 25, correct: Math.floor(totalCorrect * 0.22), wrong: Math.floor(totalWrong * 0.25) },
+            { name: 'Quantitative Aptitude', total: 25, correct: Math.floor(totalCorrect * 0.26), wrong: Math.floor(totalWrong * 0.25) },
+            { name: 'English Comprehension', total: 25, correct: totalCorrect - (Math.floor(totalCorrect * 0.28) + Math.floor(totalCorrect * 0.22) + Math.floor(totalCorrect * 0.26)), wrong: totalWrong - Math.floor(totalWrong * 0.75) }
+          ];
+
+      function renderTablesAndMetrics() {
+        const rVal = parseFloat(document.getElementById('right-val-input').value) || 1.0;
+        const wVal = parseFloat(document.getElementById('wrong-val-input').value) || 0.25;
+
+        let grandTotal = 0;
+        let grandAttempted = 0;
+        let grandUnatt = 0;
+        let grandCorrect = 0;
+        let grandWrong = 0;
+        let grandScore = 0;
+
+        const tbody = document.getElementById('sec-table-body');
+        tbody.innerHTML = sectionsData.map(sec => {
+          const unatt = sec.total - (sec.correct + sec.wrong);
+          const attempted = sec.correct + sec.wrong;
+          const score = (sec.correct * rVal - sec.wrong * wVal).toFixed(2);
+
+          grandTotal += sec.total;
+          grandAttempted += attempted;
+          grandUnatt += unatt;
+          grandCorrect += sec.correct;
+          grandWrong += sec.wrong;
+          grandScore += parseFloat(score);
+
+          return `
+            <tr>
+              <td>${sec.name}</td>
+              <td>${sec.total}</td>
+              <td>${attempted}</td>
+              <td>${unatt}</td>
+              <td class="text-green">${sec.correct}</td>
+              <td class="text-red">${sec.wrong}</td>
+              <td class="text-blue">${score}</td>
+            </tr>
+          `;
+        }).join('');
+
+        // Foot Row
+        document.getElementById('sec-table-foot').innerHTML = `
+          <td style="font-weight:900">TOTAL</td>
+          <td>${grandTotal}</td>
+          <td>${grandAttempted}</td>
+          <td>${grandUnatt}</td>
+          <td class="text-green">${grandCorrect}</td>
+          <td class="text-red">${grandWrong}</td>
+          <td class="text-blue">${grandScore.toFixed(2)}</td>
+        `;
+
+        // Update Key Metric Cards
+        const overallRank = resultData.overallRank || 14;
+        const categoryRank = resultData.categoryRank || 5;
+        const shiftRank = resultData.shiftRank || 2;
+        const normScore = (grandScore * 1.042).toFixed(2);
+        const accuracy = ((grandCorrect / grandAttempted) * 100).toFixed(1);
+
+        document.getElementById('metric-raw-score').textContent = grandScore.toFixed(2);
+        document.getElementById('metric-marks-sub').textContent = `+${rVal} / -${wVal}`;
+
+        document.getElementById('metric-norm-score').textContent = normScore;
+        document.getElementById('metric-pct-sub').textContent = `Pct: ${accuracy}%`;
+
+        document.getElementById('metric-overall-rank').textContent = `#${overallRank}`;
+        document.getElementById('metric-cat-rank').textContent = `#${categoryRank}`;
+        document.getElementById('metric-cat-cand').textContent = `Cat: ${cat}`;
+
+        document.getElementById('metric-shift-rank').textContent = `#${shiftRank}`;
+
+        // Update JSON Box
+        const fullJson = {
+          success: true,
+          candidateName: resultData.candidateName || 'ARJUN MAJHI',
+          rollNo: resultData.rollNo || '1967053364',
+          category: cat,
+          state: state,
+          gender: gender,
+          marksRight: rVal,
+          marksWrong: wVal,
+          rawScore: grandScore.toFixed(2),
+          normalizedScore: normScore,
+          overallRank: overallRank,
+          categoryRank: categoryRank,
+          shiftRank: shiftRank,
+          sections: sectionsData
+        };
+        document.getElementById('json-content').textContent = JSON.stringify(fullJson, null, 2);
+      }
+
+      // Initial Render
+      renderTablesAndMetrics();
+
+      // Listen for Live Input Changes (+Right / -Wrong)
+      document.getElementById('right-val-input').addEventListener('input', renderTablesAndMetrics);
+      document.getElementById('wrong-val-input').addEventListener('input', renderTablesAndMetrics);
+
+      // Floating Download Icon Button Click Listener
+      const floatDlBtn = document.getElementById('float-download-btn');
+      if (floatDlBtn) {
+        floatDlBtn.addEventListener('click', async () => {
+          const card = document.getElementById('cbrank-scorecard-card');
+          if (!card) return;
+
+          floatDlBtn.style.opacity = '0.5';
+
+          try {
+            const canvas = await html2canvas(card, {
+              scale: 2,
+              useCORS: true,
+              allowTaint: true,
+              backgroundColor: '#ffffff'
+            });
+
+            const dataUrl = canvas.toDataURL('image/png');
+            const link = document.createElement('a');
+            const roll = (resultData && resultData.rollNo) ? resultData.rollNo : 'Candidate';
+            link.download = `CBT_Scorecard_${roll}.png`;
+            link.href = dataUrl;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+          } catch (err) {
+            console.error('PNG export error:', err);
+          } finally {
+            floatDlBtn.style.opacity = '1';
+          }
+        });
+      }
+    });
+  </script>
+</body>
+</html>
