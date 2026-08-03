@@ -1094,15 +1094,31 @@
         btnText.textContent = 'Processing...';
       }, 350);
 
-      // Fetch or parse simulation
+      // Fetch response sheet HTML (Direct fetch + CORS Proxy fallback)
       let htmlText = '';
-      try {
-        const res = await fetch(urlVal, { mode: 'cors' });
-        if (res.ok) {
-          htmlText = await res.text();
+
+      // Check if user pasted HTML in sessionStorage or custom textarea
+      const pastedHtml = sessionStorage.getItem('cbtrank_pasted_html');
+      if (pastedHtml) {
+        htmlText = pastedHtml;
+      } else {
+        try {
+          const res = await fetch(urlVal);
+          if (res.ok) {
+            htmlText = await res.text();
+          }
+        } catch (err) {
+          // If direct fetch fails due to browser CORS, fetch via CORS Proxy
+          try {
+            const proxyUrl = 'https://corsproxy.io/?' + encodeURIComponent(urlVal);
+            const proxyRes = await fetch(proxyUrl);
+            if (proxyRes.ok) {
+              htmlText = await proxyRes.text();
+            }
+          } catch (err2) {
+            console.warn('CORS proxy fetch failed:', err2);
+          }
         }
-      } catch (err) {
-        // Fallback calculation engine handles seamless presentation
       }
 
       setTimeout(() => {
