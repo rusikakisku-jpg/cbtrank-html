@@ -1179,6 +1179,21 @@
         } catch (err) {}
       }
 
+      if (!htmlText) {
+        try {
+          const p3 = await fetch('https://thingproxy.freeboard.io/fetch/' + urlVal);
+          if (p3.ok) htmlText = await p3.text();
+        } catch (err) {}
+      }
+
+      if (!htmlText) {
+        showToast('Digialm Security WAF Active: Please paste your Answer Key HTML Source Code (Ctrl+U -> Ctrl+A -> Ctrl+C) in the box below to calculate!');
+        document.getElementById('ans_key_html').focus();
+        btnText.textContent = 'Calculate Marks & Rank';
+        submitBtn.disabled = false;
+        return;
+      }
+
       // Perform calculation & score parsing
       const result = parseResponseSheetHtml(htmlText, urlVal);
       const right = result.correctCount;
