@@ -1247,6 +1247,16 @@
       if (e.target === modal) modal.classList.remove('open');
     });
 
+    // Demo Sample Link Fill
+    document.getElementById('btn-demo-fill').addEventListener('click', () => {
+      document.getElementById('ans_key_url').value = 'https://rrb.digialm.com/per/g06/pub/33128/touchstone/AssessmentQPHTMLMode1/33128O2673/33128O2673S25D19095/17791176142984750/227253160788488_33128O2673S25D19095E3.html';
+      document.getElementById('category').value = 'UR';
+      document.getElementById('gender').value = 'male';
+      document.getElementById('state').value = 'Delhi';
+      document.getElementById('ans_key_html').value = `<div class="main-info-pnl"><img alt="" src="https://g06.tcsion.com/EForms/images/onlineAppForm/form100181/banner.jpg"><table border="1"><tbody><tr><td>Registration Number</td><td>N72503119626</td></tr><tr><td>Roll Number</td><td>227253160788488</td></tr><tr><td>Candidate Name</td><td>MANGAL CHARAN KISKU</td></tr><tr><td>Community</td><td>ST</td></tr><tr><td>Test Centre Name</td><td>Utkal Institute Of Engineering And Technology</td></tr><tr><td>Test Date</td><td>08/05/2026</td></tr><tr><td>Test Time</td><td>9:00 AM - 10:30 AM</td></tr><tr><td>Subject</td><td>RRB NTPC UnderGraduate CBT I</td></tr></tbody></table></div><div class="grp-cntnr"><div class="section-cntnr"><div class="section-lbl"><span class="bold">Section : General Awareness</span></div><div class="question-pnl"><table><tbody><tr><td>Chosen Option :</td><td>2</td></tr></tbody></table><table class="questionRowTbl"><tbody><tr><td class="wrngAns">1. Option A</td></tr><tr><td class="rightAns">2. Option B</td></tr><tr><td>3. Option C</td></tr><tr><td>4. Option D</td></tr></tbody></table></div></div></div>`;
+      showToast('Demo Sample Loaded! Click "Calculate Marks & Rank" to test.');
+    });
+
     // Footer Copy
     document.getElementById('footer-copy').textContent = `© ${new Date().getFullYear()} CBTRANK.COM | All Rights Reserved`;
   </script>
