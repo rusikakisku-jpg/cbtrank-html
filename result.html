@@ -514,7 +514,9 @@
       let metaRows = [];
 
       if (resultData.infoRows && resultData.infoRows.length > 0) {
-        metaRows = resultData.infoRows.map(r => ({ label: r.label, value: r.value, isMono: r.label.toLowerCase().includes('id') || r.label.toLowerCase().includes('roll') }));
+        metaRows = resultData.infoRows
+          .filter(r => !r.label.toLowerCase().includes('title') && !r.label.toLowerCase().includes('header') && r.value !== dynamicTitle)
+          .map(r => ({ label: r.label, value: r.value, isMono: r.label.toLowerCase().includes('id') || r.label.toLowerCase().includes('roll') }));
         if (!resultData.infoRows.some(r => r.label.toLowerCase().includes('category'))) {
           metaRows.push({ label: 'Category', value: cat });
         }
