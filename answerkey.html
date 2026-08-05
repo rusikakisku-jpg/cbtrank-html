@@ -509,9 +509,10 @@
 
   <!-- JAVASCRIPT LOGIC -->
   <script>
-    // Live Endpoints (Both HTTP and HTTPS-compatible wrappers for Cloudflare Pages)
-    const VPS_1 = "http://147.93.154.159/digialm.php";
-    const VPS_2 = "http://200.97.175.162:8585/api.php";
+    // Live Endpoints (Cloudflare Pages Relative Native Edge Route First!)
+    const PAGES_FUNCTION_API = "/api/digialm?url=";
+    const VPS_1 = "http://147.93.154.159/digialm.php?url=";
+    const VPS_2 = "http://200.97.175.162:8585/api.php?url=";
 
     // URL Validation regex patterns
     const DIGIALM_PATTERN = /(?:digialm\.com|tcsion\.com|AssessmentQP|touchstone|per\/g)/i;
@@ -583,12 +584,11 @@
 
       let apiData = null;
 
-      // Multi-tier API Fetching (Direct HTTP + HTTPS Cors Proxy Wrappers for Cloudflare Pages)
+      // Multi-tier API Fetching (Cloudflare Pages Function relative route first!)
       const fetchEndpoints = [
-        `${VPS_1}?url=${encodeURIComponent(urlVal)}`,
-        `https://api.allorigins.win/raw?url=${encodeURIComponent(`${VPS_1}?url=${encodeURIComponent(urlVal)}`)}`,
-        `${VPS_2}?url=${encodeURIComponent(urlVal)}`,
-        `https://corsproxy.io/?${encodeURIComponent(`${VPS_1}?url=${encodeURIComponent(urlVal)}`)}`
+        `${PAGES_FUNCTION_API}${encodeURIComponent(urlVal)}`,
+        `${VPS_1}${encodeURIComponent(urlVal)}`,
+        `${VPS_2}${encodeURIComponent(urlVal)}`
       ];
 
       for (const ep of fetchEndpoints) {
