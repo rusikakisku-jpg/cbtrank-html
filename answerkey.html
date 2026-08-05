@@ -236,11 +236,6 @@
     .feature-box ul { list-style: none; padding: 0; margin: 0; font-size: 0.78rem; color: #334155; font-weight: 600; }
     .feature-box ul li { margin-bottom: 4px; }
 
-    .example-box {
-      background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 14px;
-      padding: 16px; font-size: 0.78rem; color: #475569; margin-top: 12px; line-height: 1.6;
-    }
-
     /* FOOTER */
     footer { background: #0044cc; color: #fff; border-top: 3px solid #003399; padding: 20px 0; margin-top: auto; }
     .footer-inner {
@@ -306,7 +301,7 @@
       </div>
       <div style="flex:1">
         <p class="toast-title">Error</p>
-        <p class="toast-msg" id="toast-msg">Please enter your official answerkey url. Either link is broken or expired.</p>
+        <p class="toast-msg" id="toast-msg">please enter your official answerkey url   either link is broken or expired</p>
       </div>
       <button class="toast-close" id="toast-close-btn">&times;</button>
     </div>
@@ -588,25 +583,22 @@
 
       let apiData = null;
 
-      // 4. Fetch Data via Primary API (Bright Data ISP Proxy Endpoint)
-      try {
-        const res = await fetch(`${PRIMARY_API}?url=${encodeURIComponent(urlVal)}`);
-        if (res.ok) {
-          const json = await res.json();
-          if (json && json.success) {
-            apiData = json;
-          }
-        }
-      } catch (err) {}
+      // Multi-tier API Endpoints
+      const fetchTargets = [
+        `${PRIMARY_API}?url=${encodeURIComponent(urlVal)}`,
+        `${SECONDARY_API}?url=${encodeURIComponent(urlVal)}`,
+        `https://api.allorigins.win/raw?url=${encodeURIComponent(`${PRIMARY_API}?url=${encodeURIComponent(urlVal)}`)}`
+      ];
 
-      // 5. Fallback to Secondary API if Primary fails
-      if (!apiData) {
+      for (const target of fetchTargets) {
+        if (apiData && apiData.success) break;
         try {
-          const res2 = await fetch(`${SECONDARY_API}?url=${encodeURIComponent(urlVal)}`);
-          if (res2.ok) {
-            const json2 = await res2.json();
-            if (json2 && json2.success) {
-              apiData = json2;
+          const res = await fetch(target);
+          if (res.ok) {
+            const json = await res.json();
+            if (json && json.success) {
+              apiData = json;
+              break;
             }
           }
         } catch (err) {}
