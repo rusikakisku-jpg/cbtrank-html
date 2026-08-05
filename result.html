@@ -447,7 +447,7 @@
           testTime: "9:00 AM - 10:30 AM",
           testCenter: "Utkal Institute Of Engineering And Technology",
           examName: "RRB NTPC CBT-1 Examination",
-          headerImgUrl: "https://g06.tcsion.com/EForms/images/onlineAppForm/form100181/banner.jpg",
+          headerImgUrl: "",
           infoRows: [
             { label: "Registration Number", value: "N72503119626" },
             { label: "Roll Number", value: "227253160788488" },
@@ -476,8 +476,8 @@
       const state = formData.state || 'Delhi';
       const gender = formData.gender ? (formData.gender.charAt(0).toUpperCase() + formData.gender.slice(1)) : 'Male';
 
-      const bannerUrl = (resultData && resultData.headerImgUrl) ? resultData.headerImgUrl : 'https://g06.tcsion.com/EForms/images/onlineAppForm/form100181/banner.jpg';
-      if (bannerUrl) {
+      const bannerUrl = (resultData && resultData.headerImgUrl) ? resultData.headerImgUrl.trim() : '';
+      if (bannerUrl && bannerUrl !== '') {
         document.getElementById('exam-logo-img').src = bannerUrl;
         document.getElementById('logo-container').style.display = 'block';
       } else {
