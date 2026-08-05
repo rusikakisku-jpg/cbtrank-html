@@ -205,145 +205,228 @@
     .footer-links a:hover { text-decoration: underline; }
     .footer-copy { font-size: 0.88rem; font-weight: 500; white-space: nowrap; color: #fff; }
 
-    /* FLOATING DOWNLOAD BUTTON (Hides Telegram float on result page) */
-    body .float-telegram { display: none !important; }
-    
-    .float-download-btn {
-      position: fixed !important; bottom: 24px !important; right: 24px !important; z-index: 999999 !important;
-      width: 60px; height: 60px; border-radius: 50%;
-      background: #0044cc; color: #fff; border: 2.5px solid #ffffff;
-      box-shadow: 0 8px 24px rgba(0, 68, 204, 0.45);
-      display: flex !important; align-items: center; justify-content: center;
-      cursor: pointer; transition: transform 0.2s ease, background 0.2s ease;
+    /* FLOATING DOWNLOAD & TELEGRAM BUTTONS */
+    .float-download {
+      position: fixed; bottom: 100px; right: 20px; z-index: 9999;
+      width: 54px; height: 54px; border-radius: 50%;
+      background: linear-gradient(135deg, #0044cc, #4f46e5); color: #fff; border: none;
+      display: flex; align-items: center; justify-content: center; cursor: pointer;
+      box-shadow: 0 4px 16px rgba(0, 68, 204, 0.4); transition: transform 0.2s ease;
     }
-    .float-download-btn:hover { transform: scale(1.12); background: #003399; }
-    .float-download-btn svg { width: 28px; height: 28px; fill: #ffffff; }
+    .float-download:hover { transform: scale(1.1); }
 
-    /* PRINT STYLES */
-    @media print {
-      body { padding-top: 0; background: #fff; }
-      .navbar, footer, .float-telegram, .float-download-btn, .top-action-bar, .recalc-controls { display: none !important; }
-      main { width: 100%; max-width: 100%; padding: 0; margin: 0; }
-      .scorecard-card { border: none; box-shadow: none; padding: 0; }
+    .float-telegram {
+      position: fixed; bottom: 20px; right: 20px; z-index: 9999;
+      width: 70px; height: 70px; display: flex; align-items: center; justify-content: center;
+      transition: transform 0.2s ease;
     }
+    .float-telegram:hover { transform: scale(1.12); }
+    .float-telegram img { width: 55px; height: 55px; }
 
-    @media (max-width: 768px) {
-      .scorecard-card { padding: 16px; }
+    @media (max-width: 640px) {
+      .card-body { padding: 16px 16px; }
       .footer-inner { flex-direction: column; text-align: center; gap: 14px; }
       .footer-links { justify-content: center; gap: 12px; }
-      .nav-links { display: none; }
-      .hamburger { display: flex; }
+      .top-action-bar { flex-direction: column; align-items: flex-start; }
     }
   </style>
   <script src="components.js"></script>
 </head>
 <body>
 
+  <!-- NAVBAR -->
+  <header class="navbar">
+    <div class="navbar-inner">
+      <a href="index.html" class="nav-logo">
+        <div class="logo-circle">CBT</div>
+        <span class="logo-text">CBT RANK</span>
+      </a>
+      <nav>
+        <ul class="nav-links">
+          <li><a href="index.html">Home</a></li>
+          <li><a href="answerkey.html">Answer Key</a></li>
+        </ul>
+      </nav>
+      <button class="hamburger" id="hamburger" aria-label="Toggle Menu">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+    <div class="mobile-drawer" id="mobile-drawer">
+      <a href="index.html">Home</a>
+      <a href="answerkey.html">Answer Key</a>
+    </div>
+  </header>
+
   <!-- MAIN CONTENT -->
   <main>
-    
-    <!-- SCORECARD CARD -->
+
+    <!-- TOP ACTION BAR -->
+    <div class="top-action-bar">
+      <h2>Candidate Scorecard & Rank Analysis</h2>
+      <div class="action-btns">
+        <a href="answerkey.html" class="btn-action-ui primary">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+          Check Another URL
+        </a>
+      </div>
+    </div>
+
+    <!-- MAIN SCORECARD CARD -->
     <div class="scorecard-card" id="cbrank-scorecard-card">
-      
-      <!-- 1. HEADER & CANDIDATE METADATA -->
+
+      <!-- 1. EXAM & CANDIDATE INFO HEADER -->
       <div class="info-section-header">
-        <div id="logo-container" style="display:none; text-align:center; margin-bottom: 8px; width: 100%;">
-          <img src="" id="exam-logo-img" class="exam-logo" alt="Exam Official Logo" style="max-height: 120px; width: auto; max-width: 100%; object-fit: contain; margin: 0 auto; display: block; border-radius: 4px;">
+        <div id="logo-container" style="display:none;">
+          <img id="exam-logo-img" class="exam-logo" alt="Exam Header Logo">
         </div>
-        <h1 class="exam-name-title" id="exam-name-text">Staff Selection Commission (SSC) — Official Answer Key Report</h1>
-        
+        <h1 class="exam-name-title" id="exam-name-text">CBT Examination Scorecard</h1>
+
+        <!-- METADATA GRID -->
         <div class="metadata-grid" id="metadata-grid">
-          <!-- Dynamically Injected Candidate Info Cards -->
+          <!-- Dynamic metadata boxes rendered here -->
         </div>
       </div>
 
-      <!-- 2. SECTION PERFORMANCE SUMMARY TABLE -->
-      <div style="display:flex; flex-direction:column; gap:10px">
+      <!-- 2. RE-CALCULATE CONTROL & SECTION BREAKDOWN TABLE -->
+      <div>
         <div class="recalc-header">
-          <h3>Section-Wise Performance Summary</h3>
+          <h3>Subject-Wise Performance Breakdown</h3>
           <div class="recalc-controls">
-            <label><span class="text-green">+Right:</span> <input type="number" id="right-val-input" value="1.0" step="0.01"></label>
-            <label><span class="text-red">-Wrong:</span> <input type="number" id="wrong-val-input" value="0.25" step="0.01"></label>
+            <label>Correct: <input type="number" id="right-val-input" value="1.0" step="0.25"></label>
+            <label>Wrong: <input type="number" id="wrong-val-input" value="0.25" step="0.05"></label>
           </div>
         </div>
 
-        <div class="table-responsive">
+        <div class="table-responsive" style="margin-top: 10px;">
           <table class="sec-table">
             <thead>
               <tr>
-                <th>Section Name</th>
-                <th>Total</th>
+                <th>Section / Subject</th>
+                <th>Total Qs</th>
                 <th>Attempted</th>
                 <th>Unattempted</th>
-                <th class="text-green">Right</th>
-                <th class="text-red">Wrong</th>
-                <th>Raw Score</th>
+                <th>Correct</th>
+                <th>Wrong</th>
+                <th>Marks</th>
               </tr>
             </thead>
             <tbody id="sec-table-body">
-              <!-- Dynamically Populated -->
+              <!-- Dynamic section rows -->
             </tbody>
-            <tfoot>
-              <tr id="sec-table-foot">
-                <!-- Dynamically Populated Totals -->
-              </tr>
+            <tfoot id="sec-table-foot">
+              <!-- Dynamic total footer -->
             </tfoot>
           </table>
         </div>
       </div>
 
-      <!-- 3. OVERALL SCORE & RANK ANALYSIS CARDS -->
-      <div style="display:flex; flex-direction:column; gap:10px">
-        <h3 style="font-size:0.78rem; font-weight:900; color:#0f172a; text-transform:uppercase; letter-spacing:0.04em">
-          Overall Score &amp; Rank Analysis
-        </h3>
-        
+      <!-- 3. OVERALL KEY METRICS GRID -->
+      <div>
+        <h3 style="font-size: 0.78rem; font-weight: 900; color: #0f172a; text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 10px;">Overall Key Analysis</h3>
+
         <div class="metrics-grid">
           <div class="metric-card blue">
-            <span class="lbl">Raw Score</span>
-            <div class="val" id="metric-raw-score">0.00</div>
+            <span class="lbl">Raw Marks</span>
+            <span class="val" id="metric-raw-score">0.00</span>
             <span class="sub" id="metric-marks-sub">+1.0 / -0.25</span>
           </div>
 
           <div class="metric-card emerald">
-            <span class="lbl">Est. Normalized</span>
-            <div class="val" id="metric-norm-score">0.00</div>
-            <span class="sub" id="metric-pct-sub">Pct: 98.4%</span>
+            <span class="lbl">Normalized Score</span>
+            <span class="val" id="metric-norm-score">0.00</span>
+            <span class="sub" id="metric-pct-sub">Accuracy: 0%</span>
           </div>
 
           <div class="metric-card purple">
             <span class="lbl">Overall Rank</span>
-            <div class="val" id="metric-overall-rank">#1</div>
-            <span class="sub" id="metric-total-cand">Total: 1,420</span>
+            <span class="val" id="metric-overall-rank">#--</span>
+            <span class="sub">All India Rank</span>
           </div>
 
           <div class="metric-card indigo">
             <span class="lbl">Category Rank</span>
-            <div class="val" id="metric-cat-rank">#1</div>
-            <span class="sub" id="metric-cat-cand">Cat: UR</span>
+            <span class="val" id="metric-cat-rank">#--</span>
+            <span class="sub" id="metric-cat-cand">Cat: General</span>
           </div>
 
           <div class="metric-card amber">
             <span class="lbl">Shift Rank</span>
-            <div class="val" id="metric-shift-rank">#1</div>
-            <span class="sub" id="metric-shift-cand">Shift Total: 120</span>
+            <span class="val" id="metric-shift-rank">#--</span>
+            <span class="sub">Shift Rank</span>
           </div>
         </div>
       </div>
 
+      <!-- 4. JSON RESPONSE VIEWER -->
+      <div>
+        <button type="button" class="json-toggle-btn" id="json-toggle-btn">
+          <span>RAW JSON DATA RESPONSE</span>
+          <span id="json-toggle-icon">▼</span>
+        </button>
+        <div id="json-box-wrapper" style="display:none;">
+          <pre class="json-box" id="json-content"></pre>
+        </div>
+      </div>
+
     </div>
+
   </main>
 
-  <!-- Floating Download Icon Button -->
-  <button type="button" class="float-download-btn" id="float-download-btn" title="Download Scorecard Image" aria-label="Download Scorecard Image">
-    <svg viewBox="0 0 24 24">
+  <!-- FOOTER -->
+  <footer>
+    <div class="footer-inner">
+      <ul class="footer-links">
+        <li><a href="index.html">Home</a></li>
+        <li><a href="about-us.html">About Us</a></li>
+        <li><a href="contact-us.html">Contact Us</a></li>
+        <li><a href="privacy-policy.html">Privacy Policy</a></li>
+        <li><a href="terms-and-conditions.html">Terms & Conditions</a></li>
+        <li><a href="disclaimer.html">Disclaimer</a></li>
+      </ul>
+      <p class="footer-copy" id="footer-copy">© 2026 CBTRANK.COM | All Rights Reserved</p>
+    </div>
+  </footer>
+
+  <!-- FLOATING DOWNLOAD & TELEGRAM ICON BUTTONS -->
+  <button id="float-download-btn" class="float-download" title="Download Scorecard PNG">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
       <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
     </svg>
   </button>
 
+  <a href="https://t.me/cbt_rank" target="_blank" class="float-telegram" aria-label="Join Telegram Channel">
+    <img src="https://cdn-icons-png.flaticon.com/512/2111/2111646.png" alt="Telegram Logo">
+  </a>
+
   <script>
     document.addEventListener('DOMContentLoaded', () => {
-      // 1. Load Session Data matching Next.js app/result/page.js
+      // Mobile Hamburger
+      const hamburger = document.getElementById('hamburger');
+      const mobileDrawer = document.getElementById('mobile-drawer');
+      if (hamburger && mobileDrawer) {
+        hamburger.addEventListener('click', () => {
+          hamburger.classList.toggle('open');
+          mobileDrawer.classList.toggle('open');
+        });
+      }
+
+      // JSON viewer toggle
+      const jsonToggleBtn = document.getElementById('json-toggle-btn');
+      const jsonBoxWrapper = document.getElementById('json-box-wrapper');
+      const jsonToggleIcon = document.getElementById('json-toggle-icon');
+      if (jsonToggleBtn && jsonBoxWrapper) {
+        jsonToggleBtn.addEventListener('click', () => {
+          if (jsonBoxWrapper.style.display === 'none') {
+            jsonBoxWrapper.style.display = 'block';
+            jsonToggleIcon.textContent = '▲';
+          } else {
+            jsonBoxWrapper.style.display = 'none';
+            jsonToggleIcon.textContent = '▼';
+          }
+        });
+      }
+
+      // 1. Load Session Data
       let formRaw = sessionStorage.getItem('cbtrank_form_data');
       let resultRaw = sessionStorage.getItem('cbtrank_result_data');
 
@@ -355,11 +438,45 @@
         if (resultRaw) resultData = JSON.parse(resultRaw);
       } catch (e) {}
 
+      // Fallback sample data if visited directly without submitting form
+      if (!resultData || !resultData.sections || resultData.sections.length === 0) {
+        resultData = {
+          candidateName: "MANGAL CHARAN KISKU",
+          rollNo: "227253160788488",
+          testDate: "08/05/2026",
+          testTime: "9:00 AM - 10:30 AM",
+          testCenter: "Utkal Institute Of Engineering And Technology",
+          examName: "RRB NTPC CBT-1 Examination",
+          headerImgUrl: "https://g06.tcsion.com/EForms/images/onlineAppForm/form100181/banner.jpg",
+          infoRows: [
+            { label: "Registration Number", value: "N72503119626" },
+            { label: "Roll Number", value: "227253160788488" },
+            { label: "Candidate Name", value: "MANGAL CHARAN KISKU" },
+            { label: "Community", value: "ST" },
+            { label: "Test Centre Name", value: "Utkal Institute Of Engineering And Technology" },
+            { label: "Test Date", value: "08/05/2026" },
+            { label: "Test Time", value: "9:00 AM - 10:30 AM" },
+            { label: "Subject", value: "RRB NTPC CBT-1 Examination" }
+          ],
+          sections: [
+            { name: "Mathematics", total: 30, correct: 12, wrong: 2, unattempted: 16 },
+            { name: "General Intelligence & Reasoning", total: 30, correct: 15, wrong: 1, unattempted: 14 },
+            { name: "General Awareness", total: 40, correct: 10, wrong: 2, unattempted: 28 }
+          ],
+          correctCount: 37,
+          wrongCount: 5,
+          unattemptedCount: 58,
+          overallRank: 12,
+          shiftRank: 3,
+          categoryRank: 4
+        };
+      }
+
       const cat = formData.category || 'UR';
       const state = formData.state || 'Delhi';
       const gender = formData.gender ? (formData.gender.charAt(0).toUpperCase() + formData.gender.slice(1)) : 'Male';
 
-      const bannerUrl = (resultData && resultData.headerImgUrl) ? resultData.headerImgUrl : 'https://g26.digialm.com/EForms/images/onlineAppForm/form95988/OSSSC.jpg';
+      const bannerUrl = (resultData && resultData.headerImgUrl) ? resultData.headerImgUrl : 'https://g06.tcsion.com/EForms/images/onlineAppForm/form100181/banner.jpg';
       if (bannerUrl) {
         document.getElementById('exam-logo-img').src = bannerUrl;
         document.getElementById('logo-container').style.display = 'block';
@@ -369,10 +486,6 @@
       if (resultData && resultData.examName) {
         document.getElementById('exam-name-text').textContent = resultData.examName;
       }
-
-      const totalCorrect = resultData.correctCount || 0;
-      const totalWrong = resultData.wrongCount || 0;
-      const totalUnatt = resultData.unattemptedCount || 0;
 
       // Render Metadata Cards
       const metaGrid = document.getElementById('metadata-grid');
@@ -389,13 +502,12 @@
       } else {
         metaRows = [
           { label: 'Candidate Name', value: resultData.candidateName || 'N/A' },
-          { label: 'Roll / Participant No', value: resultData.rollNo || (formData.ans_key_url ? (formData.ans_key_url.match(/[\/=](\d{8,12})/) || [])[1] : '') || 'N/A', isMono: true },
+          { label: 'Roll / Participant No', value: resultData.rollNo || 'N/A', isMono: true },
           { label: 'Category', value: cat },
           { label: 'State / UT', value: state },
           { label: 'Gender', value: gender },
           { label: 'Exam Date & Shift', value: (resultData.testDate || 'N/A') + (resultData.testTime ? ` (${resultData.testTime})` : '') },
-          { label: 'Test Center', value: resultData.testCenter || 'N/A' },
-          { label: 'Paper Language', value: resultData.paperLanguage || 'N/A' }
+          { label: 'Test Center', value: resultData.testCenter || 'N/A' }
         ];
       }
 
@@ -406,7 +518,7 @@
         </div>
       `).join('');
 
-      // Section Data Array (Parsed dynamically from DOM)
+      // Section Data Array
       const sectionsData = (resultData.sections && resultData.sections.length > 0) ? resultData.sections : [];
 
       function renderTablesAndMetrics() {
@@ -425,53 +537,56 @@
           tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; color:#64748b; padding:20px;">No section data parsed. Please enter a valid Answer Key URL on the calculator page.</td></tr>`;
         } else {
           tbody.innerHTML = sectionsData.map(sec => {
-          const unatt = sec.total - (sec.correct + sec.wrong);
-          const attempted = sec.correct + sec.wrong;
-          const score = (sec.correct * rVal - sec.wrong * wVal).toFixed(2);
+            const unatt = sec.total - (sec.correct + sec.wrong);
+            const attempted = sec.correct + sec.wrong;
+            const score = (sec.correct * rVal - sec.wrong * wVal).toFixed(2);
 
-          grandTotal += sec.total;
-          grandAttempted += attempted;
-          grandUnatt += unatt;
-          grandCorrect += sec.correct;
-          grandWrong += sec.wrong;
-          grandScore += parseFloat(score);
+            grandTotal += sec.total;
+            grandAttempted += attempted;
+            grandUnatt += unatt;
+            grandCorrect += sec.correct;
+            grandWrong += sec.wrong;
+            grandScore += parseFloat(score);
 
-          return `
+            return `
+              <tr>
+                <td>${sec.name}</td>
+                <td>${sec.total}</td>
+                <td>${attempted}</td>
+                <td>${unatt}</td>
+                <td class="text-green">${sec.correct}</td>
+                <td class="text-red">${sec.wrong}</td>
+                <td class="text-blue">${score}</td>
+              </tr>
+            `;
+          }).join('');
+
+          // Foot Row
+          document.getElementById('sec-table-foot').innerHTML = `
             <tr>
-              <td>${sec.name}</td>
-              <td>${sec.total}</td>
-              <td>${attempted}</td>
-              <td>${unatt}</td>
-              <td class="text-green">${sec.correct}</td>
-              <td class="text-red">${sec.wrong}</td>
-              <td class="text-blue">${score}</td>
+              <td style="font-weight:900">TOTAL</td>
+              <td>${grandTotal}</td>
+              <td>${grandAttempted}</td>
+              <td>${grandUnatt}</td>
+              <td class="text-green">${grandCorrect}</td>
+              <td class="text-red">${grandWrong}</td>
+              <td class="text-blue">${grandScore.toFixed(2)}</td>
             </tr>
           `;
-        }).join('');
-
-        // Foot Row
-        document.getElementById('sec-table-foot').innerHTML = `
-          <td style="font-weight:900">TOTAL</td>
-          <td>${grandTotal}</td>
-          <td>${grandAttempted}</td>
-          <td>${grandUnatt}</td>
-          <td class="text-green">${grandCorrect}</td>
-          <td class="text-red">${grandWrong}</td>
-          <td class="text-blue">${grandScore.toFixed(2)}</td>
-        `;
+        }
 
         // Update Key Metric Cards
-        const overallRank = resultData.overallRank || 14;
-        const categoryRank = resultData.categoryRank || 5;
-        const shiftRank = resultData.shiftRank || 2;
+        const overallRank = resultData.overallRank || 12;
+        const categoryRank = resultData.categoryRank || 4;
+        const shiftRank = resultData.shiftRank || 3;
         const normScore = (grandScore * 1.042).toFixed(2);
-        const accuracy = ((grandCorrect / grandAttempted) * 100).toFixed(1);
+        const accuracy = grandAttempted > 0 ? ((grandCorrect / grandAttempted) * 100).toFixed(1) : "0.0";
 
         document.getElementById('metric-raw-score').textContent = grandScore.toFixed(2);
         document.getElementById('metric-marks-sub').textContent = `+${rVal} / -${wVal}`;
 
         document.getElementById('metric-norm-score').textContent = normScore;
-        document.getElementById('metric-pct-sub').textContent = `Pct: ${accuracy}%`;
+        document.getElementById('metric-pct-sub').textContent = `Accuracy: ${accuracy}%`;
 
         document.getElementById('metric-overall-rank').textContent = `#${overallRank}`;
         document.getElementById('metric-cat-rank').textContent = `#${categoryRank}`;
@@ -482,8 +597,8 @@
         // Update JSON Box
         const fullJson = {
           success: true,
-          candidateName: resultData.candidateName || 'ARJUN MAJHI',
-          rollNo: resultData.rollNo || '1967053364',
+          candidateName: resultData.candidateName || 'MANGAL CHARAN KISKU',
+          rollNo: resultData.rollNo || '227253160788488',
           category: cat,
           state: state,
           gender: gender,
@@ -506,38 +621,8 @@
       document.getElementById('right-val-input').addEventListener('input', renderTablesAndMetrics);
       document.getElementById('wrong-val-input').addEventListener('input', renderTablesAndMetrics);
 
-      // Floating Download Icon Button Click Listener
-      const floatDlBtn = document.getElementById('float-download-btn');
-      if (floatDlBtn) {
-        floatDlBtn.addEventListener('click', async () => {
-          const card = document.getElementById('cbrank-scorecard-card');
-          if (!card) return;
-
-          floatDlBtn.style.opacity = '0.5';
-
-          try {
-            const canvas = await html2canvas(card, {
-              scale: 2,
-              useCORS: true,
-              allowTaint: true,
-              backgroundColor: '#ffffff'
-            });
-
-            const dataUrl = canvas.toDataURL('image/png');
-            const link = document.createElement('a');
-            const roll = (resultData && resultData.rollNo) ? resultData.rollNo : 'Candidate';
-            link.download = `CBT_Scorecard_${roll}.png`;
-            link.href = dataUrl;
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-          } catch (err) {
-            console.error('PNG export error:', err);
-          } finally {
-            floatDlBtn.style.opacity = '1';
-          }
-        });
-      }
+      // Footer Copy
+      document.getElementById('footer-copy').textContent = `© ${new Date().getFullYear()} CBTRANK.COM | All Rights Reserved`;
     });
   </script>
 </body>
