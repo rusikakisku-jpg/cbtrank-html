@@ -86,13 +86,6 @@
     /* MAIN CONTAINER */
     main { flex: 1; width: 95%; max-width: 960px; margin: 0 auto; padding: 20px 0 48px; }
 
-    /* TOP ACTION BAR */
-    .top-action-bar {
-      display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap;
-      margin-bottom: 16px; background: #fff; border: 1.5px solid #cbd5e1; border-radius: 16px; padding: 12px 18px;
-    }
-    .top-action-bar h2 { font-size: 1.1rem; font-weight: 900; color: #0044cc; }
-    .action-btns { display: flex; gap: 8px; flex-wrap: wrap; }
     .btn-action-ui {
       background: #f1f5f9; color: #0f172a; border: 1px solid #cbd5e1; border-radius: 10px;
       padding: 8px 14px; font-size: 0.82rem; font-weight: 800; cursor: pointer; transition: all 0.2s ease;
@@ -179,17 +172,72 @@
     .metric-card.amber .val { color: #d97706; }
     .metric-card .sub { font-size: 0.68rem; color: #94a3b8; font-weight: 600; margin-top: 2px; }
 
-    /* 5. JSON VIEWER */
+    /* 5. CANDIDATE RESPONSE SHEET VIEWER STYLES */
     .json-toggle-btn {
-      width: 100%; background: #f1f5f9; border: 1px solid #cbd5e1; border-radius: 12px;
-      padding: 10px 16px; font-weight: 800; font-size: 0.8rem; color: #334155;
+      width: 100%; background: #0044cc; border: 1px solid #0044cc; border-radius: 12px;
+      padding: 12px 18px; font-weight: 900; font-size: 0.85rem; color: #ffffff;
       cursor: pointer; display: flex; justify-content: space-between; align-items: center;
+      box-shadow: 0 4px 12px rgba(0, 68, 204, 0.2); transition: all 0.2s ease;
     }
-    .json-toggle-btn:hover { background: #e2e8f0; }
+    .json-toggle-btn:hover { background: #003399; }
 
-    .json-box {
-      background: #0f172a; color: #4ade80; padding: 16px; border-radius: 12px;
-      font-family: monospace; font-size: 0.75rem; overflow-x: auto; max-height: 300px; margin-top: 8px;
+    .response-pill {
+      background: #f1f5f9; color: #334155; border: 1px solid #cbd5e1;
+      padding: 6px 14px; border-radius: 20px; font-size: 0.78rem; font-weight: 800;
+      cursor: pointer; transition: all 0.2s ease;
+    }
+    .response-pill.active, .response-pill:hover {
+      background: #0044cc; color: #fff; border-color: #0044cc;
+    }
+
+    .q-card {
+      background: #ffffff; border: 1.5px solid #e2e8f0; border-radius: 16px;
+      padding: 16px 20px; box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04);
+      display: flex; flex-direction: column; gap: 12px;
+    }
+    .q-card-header {
+      display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap;
+      border-bottom: 1px solid #f1f5f9; padding-bottom: 10px;
+    }
+    .q-no-badge {
+      font-size: 0.88rem; font-weight: 900; color: #0f172a; display: flex; align-items: center; gap: 8px;
+    }
+    .q-sec-lbl {
+      background: #e2e8f0; color: #475569; padding: 2px 8px; border-radius: 6px; font-size: 0.7rem; font-weight: 800;
+    }
+
+    .badge-correct { background: #dcfce7; color: #15803d; border: 1px solid #86efac; padding: 4px 10px; border-radius: 8px; font-size: 0.75rem; font-weight: 900; }
+    .badge-wrong { background: #fee2e2; color: #b91c1c; border: 1px solid #fca5a5; padding: 4px 10px; border-radius: 8px; font-size: 0.75rem; font-weight: 900; }
+    .badge-unatt { background: #f1f5f9; color: #64748b; border: 1px solid #cbd5e1; padding: 4px 10px; border-radius: 8px; font-size: 0.75rem; font-weight: 900; }
+
+    .q-body-text { font-size: 0.92rem; font-weight: 700; color: #0f172a; line-height: 1.5; }
+    .q-img-elem { max-width: 100%; height: auto; border-radius: 8px; margin-top: 8px; border: 1px solid #e2e8f0; }
+
+    .q-options-grid { display: flex; flex-direction: column; gap: 8px; margin-top: 4px; }
+    .opt-row {
+      background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px;
+      padding: 10px 14px; font-size: 0.85rem; font-weight: 700; color: #334155;
+      display: flex; align-items: center; justify-content: space-between; gap: 10px;
+    }
+    .opt-row.is-right {
+      background: #f0fdf4; border-color: #86efac; color: #166534; font-weight: 800;
+    }
+    .opt-row.is-chosen {
+      background: #eff6ff; border-color: #93c5fd; color: #1e40af; font-weight: 800;
+    }
+    .opt-row.is-wrong-chosen {
+      background: #fef2f2; border-color: #fca5a5; color: #991b1b; font-weight: 800;
+    }
+
+    .opt-badge-tag {
+      font-size: 0.68rem; font-weight: 900; padding: 3px 8px; border-radius: 6px; text-transform: uppercase; white-space: nowrap;
+    }
+    .opt-badge-tag.right { background: #22c55e; color: #fff; }
+    .opt-badge-tag.wrong { background: #ef4444; color: #fff; }
+
+    .q-meta-footer {
+      display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap;
+      background: #f8fafc; border-top: 1px solid #f1f5f9; padding: 8px 12px; border-radius: 8px; font-size: 0.75rem; font-weight: 800; color: #64748b;
     }
 
     .no-data-card {
@@ -232,7 +280,6 @@
       .card-body { padding: 16px 16px; }
       .footer-inner { flex-direction: column; text-align: center; gap: 14px; }
       .footer-links { justify-content: center; gap: 12px; }
-      .top-action-bar { flex-direction: column; align-items: flex-start; }
     }
   </style>
   <script src="components.js"></script>
@@ -351,14 +398,24 @@
         </div>
       </div>
 
-      <!-- 4. JSON RESPONSE VIEWER -->
+      <!-- 4. CANDIDATE RESPONSE SHEET VIEWER -->
       <div>
         <button type="button" class="json-toggle-btn" id="json-toggle-btn">
-          <span>RAW JSON DATA RESPONSE</span>
+          <span>📋 VIEW CANDIDATE RESPONSE SHEET (QUESTIONS & ANSWERS)</span>
           <span id="json-toggle-icon">▼</span>
         </button>
-        <div id="json-box-wrapper" style="display:none;">
-          <pre class="json-box" id="json-content"></pre>
+        <div id="json-box-wrapper" style="display:none; margin-top: 16px;">
+          
+          <!-- SECTION FILTER PILLS -->
+          <div id="response-filter-pills" style="display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px;">
+            <!-- Filter pills generated dynamically -->
+          </div>
+
+          <!-- QUESTIONS LIST CONTAINER -->
+          <div id="response-questions-container" style="display: flex; flex-direction: column; gap: 16px;">
+            <!-- Dynamic Question Cards -->
+          </div>
+
         </div>
       </div>
 
@@ -411,7 +468,7 @@
         });
       }
 
-      // JSON viewer toggle
+      // Response Sheet toggle button
       const jsonToggleBtn = document.getElementById('json-toggle-btn');
       const jsonBoxWrapper = document.getElementById('json-box-wrapper');
       const jsonToggleIcon = document.getElementById('json-toggle-icon');
@@ -446,7 +503,7 @@
         return;
       }
 
-      // 3. Fetch Live API Data for urlVal
+      // 4. Fetch Live API Data for urlVal
       let apiData = null;
 
       const fetchEndpoints = [
@@ -481,7 +538,7 @@
         return;
       }
 
-      // 4. Format Candidate Info Rows & Sections
+      // 5. Format Candidate Info Rows & Sections
       const sectionsList = [];
       if (apiData.section_summary) {
         Object.keys(apiData.section_summary).forEach(secName => {
@@ -519,10 +576,11 @@
         sections: sectionsList,
         overallRank: overallRank,
         shiftRank: shiftRank,
-        categoryRank: categoryRank
+        categoryRank: categoryRank,
+        questions: apiData.questions_summary || []
       };
 
-      // 5. Image Banner Rendering (Shows ONLY if image banner exists)
+      // 6. Image Banner Rendering (Shows ONLY if image banner exists)
       const bannerUrl = (resultData.headerImgUrl) ? resultData.headerImgUrl.trim() : '';
       if (bannerUrl && bannerUrl !== '') {
         document.getElementById('exam-logo-img').src = bannerUrl;
@@ -531,7 +589,7 @@
         document.getElementById('logo-container').style.display = 'none';
       }
 
-      // 6. Exam Title / Headline Text Rendering (Shows ONLY if title/subject text exists)
+      // 7. Exam Title / Headline Text Rendering (Shows ONLY if title/subject text exists)
       let dynamicTitle = "";
       if (resultData.infoRows && resultData.infoRows.length > 0) {
         const titleRow = resultData.infoRows.find(r => 
@@ -555,7 +613,7 @@
         examTitleElement.style.display = 'none';
       }
 
-      // 7. Render Metadata Cards (Filter out Title from Metadata Boxes)
+      // 8. Render Metadata Cards (Filter out Title from Metadata Boxes)
       const metaGrid = document.getElementById('metadata-grid');
       let metaRows = [];
 
@@ -588,7 +646,7 @@
         </div>
       `).join('');
 
-      // 8. Section Data Array & Metric Card Rendering
+      // 9. Section Data Array & Metric Card Rendering
       const sectionsData = (resultData.sections && resultData.sections.length > 0) ? resultData.sections : [];
 
       function renderTablesAndMetrics() {
@@ -663,33 +721,139 @@
         document.getElementById('metric-cat-cand').textContent = `Cat: ${cat}`;
 
         document.getElementById('metric-shift-rank').textContent = `#${shiftRank}`;
-
-        // Update JSON Box
-        const fullJson = {
-          success: true,
-          candidateName: resultData.candidateName,
-          rollNo: resultData.rollNo,
-          category: cat,
-          state: state,
-          gender: gender,
-          marksRight: rVal,
-          marksWrong: wVal,
-          rawScore: grandScore.toFixed(2),
-          normalizedScore: normScore,
-          overallRank: overallRank,
-          categoryRank: categoryRank,
-          shiftRank: shiftRank,
-          sections: sectionsData
-        };
-        document.getElementById('json-content').textContent = JSON.stringify(fullJson, null, 2);
       }
 
-      // Initial Render
+      // Initial Render Metrics
       renderTablesAndMetrics();
 
       // Listen for Live Input Changes (+Right / -Wrong)
       document.getElementById('right-val-input').addEventListener('input', renderTablesAndMetrics);
       document.getElementById('wrong-val-input').addEventListener('input', renderTablesAndMetrics);
+
+      // 10. CANDIDATE RESPONSE SHEET VIEWER RENDERER
+      function renderResponseSheet(questions, activeFilter = 'ALL') {
+        const container = document.getElementById('response-questions-container');
+        const pillsContainer = document.getElementById('response-filter-pills');
+
+        if (!questions || questions.length === 0) {
+          container.innerHTML = `<div style="text-align:center; padding:30px; color:#64748b; font-weight:700;">No question response data parsed for this Answer Key.</div>`;
+          pillsContainer.innerHTML = '';
+          return;
+        }
+
+        // Extract unique sections
+        const sections = ['ALL'];
+        questions.forEach(q => {
+          if (q.section && !sections.includes(q.section)) sections.push(q.section);
+        });
+        if (!sections.includes('Correct')) sections.push('Correct', 'Wrong', 'Unattempted');
+
+        // Render Filter Pills
+        pillsContainer.innerHTML = sections.map(sec => {
+          let count = 0;
+          if (sec === 'ALL') count = questions.length;
+          else if (sec === 'Correct') count = questions.filter(q => q.status === 'Correct').length;
+          else if (sec === 'Wrong') count = questions.filter(q => q.status === 'Wrong').length;
+          else if (sec === 'Unattempted') count = questions.filter(q => q.status === 'Unattempted').length;
+          else count = questions.filter(q => q.section === sec).length;
+
+          const isActive = (activeFilter === sec);
+          return `<button type="button" class="response-pill ${isActive ? 'active' : ''}" data-filter="${sec}">${sec} (${count})</button>`;
+        }).join('');
+
+        // Add click listeners to pills
+        pillsContainer.querySelectorAll('.response-pill').forEach(btn => {
+          btn.addEventListener('click', () => {
+            renderResponseSheet(questions, btn.getAttribute('data-filter'));
+          });
+        });
+
+        // Filter questions
+        let filteredQ = questions;
+        if (activeFilter === 'Correct') filteredQ = questions.filter(q => q.status === 'Correct');
+        else if (activeFilter === 'Wrong') filteredQ = questions.filter(q => q.status === 'Wrong');
+        else if (activeFilter === 'Unattempted') filteredQ = questions.filter(q => q.status === 'Unattempted');
+        else if (activeFilter !== 'ALL') filteredQ = questions.filter(q => q.section === activeFilter);
+
+        if (filteredQ.length === 0) {
+          container.innerHTML = `<div style="text-align:center; padding:30px; color:#64748b; font-weight:700;">No questions match filter "${activeFilter}".</div>`;
+          return;
+        }
+
+        container.innerHTML = filteredQ.map(q => {
+          let badgeHtml = `<span class="badge-unatt">-- Unattempted</span>`;
+          if (q.status === 'Correct') badgeHtml = `<span class="badge-correct">✓ Correct (+1.0)</span>`;
+          else if (q.status === 'Wrong') badgeHtml = `<span class="badge-wrong">✕ Wrong (-0.25)</span>`;
+
+          // Render Question Text / Image / HTML
+          let qContentHtml = '';
+          if (q.question_html && q.question_html.trim() !== '') {
+            qContentHtml = `<div class="q-body-text">${q.question_html}</div>`;
+          } else if (q.question_text && q.question_text.trim() !== '') {
+            qContentHtml = `<div class="q-body-text">${q.question_text}</div>`;
+          }
+          if (q.question_image && q.question_image.trim() !== '') {
+            qContentHtml += `<br><img src="${q.question_image}" class="q-img-elem" alt="Question Image">`;
+          }
+
+          // Render Options
+          let optionsHtml = '';
+          if (q.options && q.options.length > 0) {
+            optionsHtml = `<div class="q-options-grid">` + q.options.map((opt, oidx) => {
+              const num = opt.option_no || (oidx + 1);
+              const isRight = opt.is_correct || (q.right_option_no === num);
+              const isChosen = (q.chosen_option == num || q.chosen_option === `Option ${num}` || q.chosen_option === `${num}`);
+
+              let rowClass = 'opt-row';
+              let badgeTag = '';
+
+              if (isRight && isChosen) {
+                rowClass += ' is-right';
+                badgeTag = `<span class="opt-badge-tag right">✓ Right & Chosen</span>`;
+              } else if (isRight) {
+                rowClass += ' is-right';
+                badgeTag = `<span class="opt-badge-tag right">✓ Right Answer</span>`;
+              } else if (isChosen) {
+                rowClass += ' is-wrong-chosen';
+                badgeTag = `<span class="opt-badge-tag wrong">✕ Your Choice (Wrong)</span>`;
+              }
+
+              let optContent = opt.option_text || '';
+              if (opt.option_html && opt.option_html.trim() !== '') optContent = opt.option_html;
+              if (opt.option_image && opt.option_image.trim() !== '') optContent += `<br><img src="${opt.option_image}" class="q-img-elem" alt="Option Image">`;
+
+              return `
+                <div class="${rowClass}">
+                  <div><strong>(${num})</strong> ${optContent}</div>
+                  ${badgeTag}
+                </div>
+              `;
+            }).join('') + `</div>`;
+          }
+
+          return `
+            <div class="q-card">
+              <div class="q-card-header">
+                <div class="q-no-badge">
+                  Q.${q.q_no}
+                  <span class="q-sec-lbl">${q.section || 'General'}</span>
+                </div>
+                ${badgeHtml}
+              </div>
+              ${qContentHtml}
+              ${optionsHtml}
+              <div class="q-meta-footer">
+                <span>Chosen Option: <strong style="color:${q.status === 'Correct' ? '#15803d' : (q.status === 'Wrong' ? '#b91c1c' : '#64748b')}">${q.chosen_option || 'Not Answered'}</strong></span>
+                <span>Right Option: <strong style="color:#15803d">Option ${q.right_option_no || 'N/A'}</strong></span>
+                <span>Question ID: ${q.question_id || 'N/A'}</span>
+              </div>
+            </div>
+          `;
+        }).join('');
+      }
+
+      // Initial Render Response Sheet
+      renderResponseSheet(resultData.questions, 'ALL');
 
       // Footer Copy
       document.getElementById('footer-copy').textContent = `© ${new Date().getFullYear()} CBTRANK.COM | All Rights Reserved`;
