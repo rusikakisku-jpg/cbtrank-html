@@ -341,7 +341,7 @@
               <label for="category">Category <span class="star">*</span></label>
               <select id="category" class="form-select" required>
                 <option value="">Select Category</option>
-                <option value="UR">UR / General</option>
+                <option value="UR">UR</option>
                 <option value="OBC">OBC</option>
                 <option value="EWS">EWS</option>
                 <option value="SC">SC</option>
@@ -427,7 +427,7 @@
           <!-- Mandatory Privacy Consent -->
           <div class="consent-row">
             <label class="checkbox-container">
-              <input type="checkbox" id="privacy_consent" checked required>
+              <input type="checkbox" id="privacy_consent" required>
               <span class="consent-text">I allow CBTRANK to calculate & display my normalized score & rank analysis.</span>
             </label>
           </div>
@@ -441,10 +441,6 @@
             </svg>
           </button>
         </form>
-
-        <div style="text-align: center;">
-          <button type="button" class="demo-fill-btn" id="btn-demo-fill">⚡ Fill Demo RRB NTPC Answer Key Link</button>
-        </div>
       </div>
     </div>
 
@@ -652,44 +648,9 @@
       const shiftRank = Math.max(1, Math.floor(overallRank / 3.2));
       const categoryRank = Math.max(1, Math.floor(overallRank / 2.1));
 
-      // Save data to sessionStorage for result page
-      sessionStorage.setItem('cbtrank_form_data', JSON.stringify({
-        ans_key_url: urlVal,
-        category: catVal,
-        gender: genVal,
-        state: stateVal
-      }));
-
-      sessionStorage.setItem('cbtrank_result_data', JSON.stringify({
-        candidateName: (apiData.candidate_info && apiData.candidate_info['Candidate Name']) ? apiData.candidate_info['Candidate Name'] : 'Candidate (Verified)',
-        rollNo: (apiData.candidate_info && (apiData.candidate_info['Roll Number'] || apiData.candidate_info['Roll No'])) ? (apiData.candidate_info['Roll Number'] || apiData.candidate_info['Roll No']) : '',
-        testDate: (apiData.candidate_info && apiData.candidate_info['Test Date']) ? apiData.candidate_info['Test Date'] : '',
-        testTime: (apiData.candidate_info && apiData.candidate_info['Test Time']) ? apiData.candidate_info['Test Time'] : '',
-        testCenter: (apiData.candidate_info && apiData.candidate_info['Test Centre Name']) ? apiData.candidate_info['Test Centre Name'] : '',
-        examName: (apiData.candidate_info && apiData.candidate_info['Subject']) ? apiData.candidate_info['Subject'] : 'CBT Examination',
-        headerImgUrl: apiData.header_image || '',
-        infoRows: infoRowsList,
-        sections: sectionsList,
-        correctCount: right,
-        wrongCount: wrong,
-        unattemptedCount: unatt,
-        overallRank: overallRank,
-        shiftRank: shiftRank,
-        categoryRank: categoryRank
-      }));
-
-      // Redirect to result page (Detects .php or .html)
-      const isPhpEnv = window.location.pathname.endsWith('.php');
-      window.location.href = isPhpEnv ? 'result.php' : 'result.html';
-    });
-
-    // Demo Sample Link Fill
-    document.getElementById('btn-demo-fill').addEventListener('click', () => {
-      document.getElementById('ans_key_url').value = 'https://rrb.digialm.com/per/g06/pub/33128/touchstone/AssessmentQPHTMLMode1/33128O2673/33128O2673S25D19095/17791176142984750/227253160788488_33128O2673S25D19095E3.html';
-      document.getElementById('category').value = 'UR';
-      document.getElementById('gender').value = 'male';
-      document.getElementById('state').value = 'Delhi';
-      showToast('Demo Sample Loaded! Click "Calculate Marks & Rank" to test.');
+      // Redirect to result page with URL query parameters (ZERO sessionStorage used!)
+      const targetResultPage = window.location.pathname.endsWith('.php') ? 'result.php' : 'result.html';
+      window.location.href = `${targetResultPage}?url=${encodeURIComponent(urlVal)}&category=${encodeURIComponent(catVal)}&gender=${encodeURIComponent(genVal)}&state=${encodeURIComponent(stateVal)}`;
     });
 
     // Footer Copy
