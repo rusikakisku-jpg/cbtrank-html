@@ -312,11 +312,16 @@
   <!-- MAIN CONTENT -->
   <main>
 
-    <!-- MAIN SCORECARD CARD -->
-    <div class="scorecard-card" id="cbrank-scorecard-card">
+    <!-- MAIN SCORECARD CARD WITH FULL-CARD WATERMARK -->
+    <div class="scorecard-card" id="cbrank-scorecard-card" style="position: relative; overflow: hidden;">
+
+      <!-- REAL FADED DIAGONAL BACKGROUND WATERMARK ACROSS ENTIRE SCORECARD -->
+      <div style="position: absolute; top: 40%; left: 50%; transform: translate(-50%, -50%) rotate(-25deg); font-size: 6rem; font-weight: 900; color: rgba(0, 68, 204, 0.05); letter-spacing: 12px; pointer-events: none; user-select: none; z-index: 0; white-space: nowrap; text-transform: uppercase; font-family: 'Inter', sans-serif;">
+        CBT RANK
+      </div>
 
       <!-- 1. EXAM & CANDIDATE INFO HEADER -->
-      <div class="info-section-header">
+      <div class="info-section-header" style="position: relative; z-index: 1;">
         <div id="logo-container" style="display:none;">
           <img id="exam-logo-img" class="exam-logo" alt="Exam Header Logo">
         </div>
@@ -329,7 +334,7 @@
       </div>
 
       <!-- 2. RE-CALCULATE CONTROL & SECTION BREAKDOWN TABLE -->
-      <div>
+      <div style="position: relative; z-index: 1;">
         <div class="recalc-header">
           <h3>Subject-Wise Performance Breakdown</h3>
           <div class="recalc-controls">
@@ -361,22 +366,9 @@
         </div>
       </div>
 
-      <!-- 3. OVERALL KEY METRIC CARDS WITH REAL DIAGONAL WATERMARK -->
-      <div style="position: relative; overflow: hidden; padding: 16px 12px; border-radius: 18px; background: #ffffff; border: 1px solid #cbd5e1;">
-
-        <!-- REAL FADED DIAGONAL BACKGROUND WATERMARK -->
-        <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(-15deg); font-size: 4.5rem; font-weight: 900; color: rgba(0, 68, 204, 0.06); letter-spacing: 6px; pointer-events: none; user-select: none; z-index: 0; white-space: nowrap; text-transform: uppercase;">
-          CBT RANK
-        </div>
-
-        <!-- CLEAN CENTERED TOP BRAND WATERMARK -->
-        <div style="text-align: center; margin-bottom: 6px; position: relative; z-index: 1;">
-          <span style="font-size: 0.85rem; font-weight: 900; color: #0044cc; letter-spacing: 4px; text-transform: uppercase;">
-            CBT RANK
-          </span>
-        </div>
-
-        <h3 style="font-size: 0.78rem; font-weight: 900; color: #0f172a; text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 12px; text-align: center; position: relative; z-index: 1;">Overall Key Analysis</h3>
+      <!-- 3. OVERALL KEY METRIC CARDS -->
+      <div style="position: relative; z-index: 1; padding: 12px 8px; border-radius: 18px; background: rgba(248, 250, 252, 0.6); border: 1px solid #e2e8f0;">
+        <h3 style="font-size: 0.78rem; font-weight: 900; color: #0f172a; text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 12px; text-align: center;">Overall Key Analysis</h3>
 
         <div class="metrics-grid" style="position: relative; z-index: 1;">
           <div class="metric-card blue">
