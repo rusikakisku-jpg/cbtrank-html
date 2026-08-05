@@ -509,9 +509,9 @@
 
   <!-- JAVASCRIPT LOGIC -->
   <script>
-    // Live API Endpoints with Automatic Failover
-    const PRIMARY_API = "http://147.93.154.159/digialm.php";
-    const SECONDARY_API = "http://200.97.175.162:8585/api.php";
+    // Live Endpoints (Both HTTP and HTTPS-compatible wrappers for Cloudflare Pages)
+    const VPS_1 = "http://147.93.154.159/digialm.php";
+    const VPS_2 = "http://200.97.175.162:8585/api.php";
 
     // URL Validation regex patterns
     const DIGIALM_PATTERN = /(?:digialm\.com|tcsion\.com|AssessmentQP|touchstone|per\/g)/i;
@@ -583,19 +583,22 @@
 
       let apiData = null;
 
-      // Multi-tier API Endpoints
-      const fetchTargets = [
-        `${PRIMARY_API}?url=${encodeURIComponent(urlVal)}`,
-        `${SECONDARY_API}?url=${encodeURIComponent(urlVal)}`,
-        `https://api.allorigins.win/raw?url=${encodeURIComponent(`${PRIMARY_API}?url=${encodeURIComponent(urlVal)}`)}`
+      // Multi-tier API Fetching (Direct HTTP + HTTPS Cors Proxy Wrappers for Cloudflare Pages)
+      const fetchEndpoints = [
+        `${VPS_1}?url=${encodeURIComponent(urlVal)}`,
+        `https://api.allorigins.win/raw?url=${encodeURIComponent(`${VPS_1}?url=${encodeURIComponent(urlVal)}`)}`,
+        `${VPS_2}?url=${encodeURIComponent(urlVal)}`,
+        `https://corsproxy.io/?${encodeURIComponent(`${VPS_1}?url=${encodeURIComponent(urlVal)}`)}`
       ];
 
-      for (const target of fetchTargets) {
+      for (const ep of fetchEndpoints) {
         if (apiData && apiData.success) break;
         try {
-          const res = await fetch(target);
+          const res = await fetch(ep);
           if (res.ok) {
-            const json = await res.json();
+            const rawText = await res.text();
+            let json = null;
+            try { json = JSON.parse(rawText); } catch (pj) {}
             if (json && json.success) {
               apiData = json;
               break;
@@ -604,7 +607,7 @@
         } catch (err) {}
       }
 
-      // 6. Handle Invalid / Expired / Broken URL
+      // 4. Handle Invalid / Expired / Broken URL
       if (!apiData || !apiData.success) {
         showToast('please enter your official answerkey url   either link is broken or expired');
         btnText.textContent = 'Calculate Marks & Rank';
@@ -613,7 +616,7 @@
         return;
       }
 
-      // 7. Format Section Data & Metadata for result.html
+      // 5. Format Section Data & Metadata for result.html
       const sectionsList = [];
       if (apiData.section_summary) {
         Object.keys(apiData.section_summary).forEach(secName => {
