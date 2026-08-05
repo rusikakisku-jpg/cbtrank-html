@@ -434,7 +434,12 @@
       const state = searchParams.get('state') || 'Delhi';
       const gender = searchParams.get('gender') ? (searchParams.get('gender').charAt(0).toUpperCase() + searchParams.get('gender').slice(1)) : 'Male';
 
-      // 2. Handle missing URL (Direct Visit)
+      // 2. Clean Browser Address Bar immediately (Removes dirty %3A%2F%2F URL string!)
+      if (window.history && window.history.replaceState && urlVal) {
+        window.history.replaceState({}, document.title, window.location.pathname);
+      }
+
+      // 3. Handle missing URL (Direct Visit)
       if (!urlVal) {
         document.getElementById('cbrank-scorecard-card').style.display = 'none';
         document.getElementById('no-data-card').style.display = 'block';
