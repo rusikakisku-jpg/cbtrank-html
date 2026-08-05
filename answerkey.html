@@ -509,7 +509,9 @@
 
   <!-- JAVASCRIPT LOGIC -->
   <script>
-    // Live Endpoints (Cloudflare Pages Relative Native Edge Route First!)
+    // Live Endpoints (Local Relative VPS Proxy Endpoint First!)
+    const DIGIALM_LOCAL_API = "digialm.php?url=";
+    const API_LOCAL_API = "api.php?url=";
     const PAGES_FUNCTION_API = "/api/digialm?url=";
     const VPS_1 = "http://147.93.154.159/digialm.php?url=";
     const VPS_2 = "http://200.97.175.162:8585/api.php?url=";
@@ -584,8 +586,10 @@
 
       let apiData = null;
 
-      // Multi-tier API Fetching (Cloudflare Pages Function relative route first!)
+      // Multi-tier API Fetching (Local relative endpoint first for VPS execution!)
       const fetchEndpoints = [
+        `${DIGIALM_LOCAL_API}${encodeURIComponent(urlVal)}`,
+        `${API_LOCAL_API}${encodeURIComponent(urlVal)}`,
         `${PAGES_FUNCTION_API}${encodeURIComponent(urlVal)}`,
         `${VPS_1}${encodeURIComponent(urlVal)}`,
         `${VPS_2}${encodeURIComponent(urlVal)}`
@@ -616,7 +620,7 @@
         return;
       }
 
-      // 5. Format Section Data & Metadata for result.html
+      // 5. Format Section Data & Metadata for result page
       const sectionsList = [];
       if (apiData.section_summary) {
         Object.keys(apiData.section_summary).forEach(secName => {
@@ -648,7 +652,7 @@
       const shiftRank = Math.max(1, Math.floor(overallRank / 3.2));
       const categoryRank = Math.max(1, Math.floor(overallRank / 2.1));
 
-      // Save data to sessionStorage for result.html
+      // Save data to sessionStorage for result page
       sessionStorage.setItem('cbtrank_form_data', JSON.stringify({
         ans_key_url: urlVal,
         category: catVal,
@@ -674,8 +678,9 @@
         categoryRank: categoryRank
       }));
 
-      // Redirect to result page
-      window.location.href = 'result.html';
+      // Redirect to result page (Detects .php or .html)
+      const isPhpEnv = window.location.pathname.endsWith('.php');
+      window.location.href = isPhpEnv ? 'result.php' : 'result.html';
     });
 
     // Demo Sample Link Fill
