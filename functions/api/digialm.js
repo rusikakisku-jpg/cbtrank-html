@@ -43,9 +43,16 @@ export async function onRequest(context) {
     }, null, 2), { headers: corsHeaders, status: 200 });
   }
 
-  // 1. Try VPS 1 (Bright Data Indian ISP Proxy API)
+  // 1. Try VPS 1 via POST Request (Bright Data Indian ISP Proxy API)
   try {
-    const res1 = await fetch(`http://147.93.154.159/digialm.php?url=${encodeURIComponent(targetUrl)}`);
+    const res1 = await fetch("http://147.93.154.159/digialm.php", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
+      },
+      body: JSON.stringify({ url: targetUrl })
+    });
     if (res1.ok) {
       const rawText = await res1.text();
       try {
@@ -57,7 +64,21 @@ export async function onRequest(context) {
     }
   } catch (e) {}
 
-  // 2. Try VPS 2 (Secondary Direct Fast API)
+  // 2. Try VPS 1 via GET Request
+  try {
+    const res1Get = await fetch(`http://147.93.154.159/digialm.php?url=${encodeURIComponent(targetUrl)}`);
+    if (res1Get.ok) {
+      const rawTextGet = await res1Get.text();
+      try {
+        const jsonGet = JSON.parse(rawTextGet);
+        if (jsonGet && jsonGet.success) {
+          return new Response(rawTextGet, { headers: corsHeaders, status: 200 });
+        }
+      } catch (e) {}
+    }
+  } catch (e) {}
+
+  // 3. Try VPS 2 via GET Request
   try {
     const res2 = await fetch(`http://200.97.175.162:8585/api.php?url=${encodeURIComponent(targetUrl)}`);
     if (res2.ok) {
@@ -71,7 +92,7 @@ export async function onRequest(context) {
     }
   } catch (e) {}
 
-  // 3. Return Error if both fail
+  // 4. Return Error if all endpoints fail
   return new Response(JSON.stringify({
     success: false,
     error: "No data found or Invalid/Expired Answer Key URL."
