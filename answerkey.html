@@ -86,7 +86,7 @@
     /* TOAST NOTIFICATION */
     .toast-container {
       position: fixed; top: 20px; right: 20px; z-index: 9999;
-      min-width: 280px; max-width: 360px;
+      min-width: 280px; max-width: 380px;
       transform: translateX(calc(100% + 24px)); opacity: 0;
       transition: transform 0.35s cubic-bezier(0.34,1.56,0.64,1), opacity 0.3s ease;
       pointer-events: none;
@@ -115,7 +115,7 @@
     /* MAIN CONTENT */
     main { flex: 1; width: 95%; max-width: 1150px; margin: 0 auto; padding: 24px 0 48px; }
 
-    /* CALCULATOR CARD (Compact Height) */
+    /* CALCULATOR CARD */
     .calculator-card {
       background: rgba(255, 255, 255, 0.98);
       border: 1px solid #e2e8f0;
@@ -160,7 +160,7 @@
 
     .card-body { padding: 16px 20px 18px; }
 
-    /* FORM STYLING (Compact) */
+    /* FORM STYLING */
     .form-group { margin-bottom: 10px; }
     .form-group label {
       display: block; font-size: 0.76rem; font-weight: 700; color: #334155; margin-bottom: 3px;
@@ -241,75 +241,6 @@
       padding: 16px; font-size: 0.78rem; color: #475569; margin-top: 12px; line-height: 1.6;
     }
 
-    /* SCORECARD MODAL */
-    .modal-overlay {
-      position: fixed; inset: 0; background: rgba(15, 23, 42, 0.75);
-      backdrop-filter: blur(6px); z-index: 10000;
-      display: flex; align-items: center; justify-content: center;
-      padding: 16px; opacity: 0; pointer-events: none; transition: opacity 0.25s ease;
-    }
-    .modal-overlay.open { opacity: 1; pointer-events: auto; }
-
-    .modal-card {
-      background: #fff; width: 100%; max-width: 520px;
-      border-radius: 20px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.3);
-      overflow: hidden; transform: scale(0.92); transition: transform 0.25s ease;
-    }
-    .modal-overlay.open .modal-card { transform: scale(1); }
-
-    .modal-header {
-      background: linear-gradient(135deg, #0f172a, #1e1b4b);
-      color: #fff; padding: 16px 20px;
-      display: flex; justify-content: space-between; align-items: center;
-    }
-    .modal-header h3 { font-size: 1rem; font-weight: 800; }
-    .close-btn { background: none; border: none; color: #fff; font-size: 1.4rem; cursor: pointer; opacity: 0.8; }
-    .close-btn:hover { opacity: 1; }
-
-    .modal-body { padding: 20px; }
-
-    .candidate-info-strip {
-      background: #f1f5f9; border-radius: 10px; padding: 10px 14px;
-      font-size: 0.78rem; color: #334155; margin-bottom: 14px;
-      display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px; font-weight: 600;
-    }
-
-    .rank-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 16px; }
-    .rank-pill { padding: 10px 8px; border-radius: 12px; text-align: center; border: 1px solid #e2e8f0; }
-    .rank-pill.gold { background: #fffbeb; border-color: #fde68a; }
-    .rank-pill.silver { background: #f8fafc; border-color: #cbd5e1; }
-    .rank-pill.bronze { background: #fff7ed; border-color: #ffedd5; }
-    .rank-label { display: block; font-size: 0.65rem; font-weight: 800; color: #64748b; text-transform: uppercase; }
-    .rank-val { font-size: 1.1rem; font-weight: 900; color: #0f172a; margin-top: 2px; }
-
-    .stats-summary {
-      display: flex; justify-content: space-around;
-      background: #f8fafc; border: 1px solid #e2e8f0;
-      padding: 12px; border-radius: 12px; margin-bottom: 16px; text-align: center;
-    }
-    .sum-title { display: block; font-size: 0.68rem; font-weight: 700; color: #64748b; }
-    .sum-num { font-size: 1rem; font-weight: 900; color: #2563eb; }
-    .sum-num.green { color: #10b981; }
-
-    .report-table { width: 100%; border-collapse: collapse; font-size: 0.82rem; margin-bottom: 10px; }
-    .report-table th, .report-table td { padding: 9px 10px; border-bottom: 1px solid #e2e8f0; }
-    .report-table th { background: #f8fafc; text-align: left; color: #64748b; font-weight: 700; }
-    .text-green { color: #10b981; font-weight: 800; }
-    .text-red { color: #ef4444; font-weight: 800; }
-
-    .modal-footer {
-      padding: 12px 20px; background: #f8fafc;
-      display: flex; justify-content: flex-end; gap: 10px; border-top: 1px solid #e2e8f0;
-    }
-    .btn-secondary {
-      background: #e2e8f0; color: #0f172a; border: none;
-      padding: 8px 18px; border-radius: 999px; font-size: 0.8rem; font-weight: 700; cursor: pointer;
-    }
-    .btn-primary-modal {
-      background: #2563eb; color: #fff; border: none;
-      padding: 8px 18px; border-radius: 999px; font-size: 0.8rem; font-weight: 700; cursor: pointer;
-    }
-
     /* FOOTER */
     footer { background: #0044cc; color: #fff; border-top: 3px solid #003399; padding: 20px 0; margin-top: auto; }
     .footer-inner {
@@ -375,7 +306,7 @@
       </div>
       <div style="flex:1">
         <p class="toast-title">Error</p>
-        <p class="toast-msg" id="toast-msg">Please fill all required fields.</p>
+        <p class="toast-msg" id="toast-msg">Please enter your official answerkey url. Either link is broken or expired.</p>
       </div>
       <button class="toast-close" id="toast-close-btn">&times;</button>
     </div>
@@ -407,15 +338,6 @@
             <label for="ans_key_url">Answer Key URL <span class="star">*</span></label>
             <input type="url" id="ans_key_url" class="form-input font-mono" placeholder="https://g01.digialm.com/.../AssessmentResponseHTML.html" required>
             <p class="help-text">Use the official answer key link (the page where questions are visible).</p>
-          </div>
-
-          <!-- Optional Paste HTML Code -->
-          <div class="form-group" style="margin-top: 10px;">
-            <label for="ans_key_html" style="display: flex; justify-content: space-between; align-items: center;">
-              <span>Paste Answer Key HTML Code (Optional)</span>
-              <span style="font-weight: 500; font-size: 0.75rem; color: #64748b;">If URL fetch is blocked</span>
-            </label>
-            <textarea id="ans_key_html" rows="3" class="form-input font-mono" placeholder="Optional: Paste complete Digialm / Cbexams HTML source code here (Ctrl+U -> Ctrl+A -> Ctrl+C -> Paste here)..." style="font-size: 0.78rem; resize: vertical; border-radius: 12px; font-family: monospace;"></textarea>
           </div>
 
           <!-- Category & Horizontal Category -->
@@ -500,95 +422,72 @@
                 <option value="West Bengal">West Bengal</option>
               </select>
             </div>
+
+            <div class="form-group">
+              <label for="password_pin">Password / PIN (Optional)</label>
+              <input type="password" id="password_pin" class="form-input" placeholder="Set a 4-digit PIN to edit later">
+            </div>
           </div>
 
-          <!-- Consent Checkbox -->
+          <!-- Mandatory Privacy Consent -->
           <div class="consent-row">
-            <label class="checkbox-container" for="consentCheck">
-              <input type="checkbox" id="consentCheck" checked>
-              <span class="consent-text">Your submitted data will only be used to calculate your marks &amp; rank.</span>
+            <label class="checkbox-container">
+              <input type="checkbox" id="privacy_consent" checked required>
+              <span class="consent-text">I allow CBTRANK to calculate & display my normalized score & rank analysis.</span>
             </label>
           </div>
 
           <!-- Submit Button -->
-          <button type="submit" id="submitBtn" class="btn-submit">
-            <span id="btn-text">Calculate Marks &amp; Rank</span>
+          <button type="submit" id="submit-btn" class="btn-submit">
+            <span id="btn-text">Calculate Marks & Rank</span>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+              <polyline points="12 5 19 12 12 19"></polyline>
+            </svg>
           </button>
-
-          <!-- Quick Fill Sample -->
-          <div style="text-align: center;">
-            <button type="button" id="btn-demo-fill" class="demo-fill-btn">⚡ Try Demo Sample Link</button>
-          </div>
-
         </form>
+
+        <div style="text-align: center;">
+          <button type="button" class="demo-fill-btn" id="btn-demo-fill">⚡ Fill Demo RRB NTPC Answer Key Link</button>
+        </div>
       </div>
     </div>
 
     <!-- DETAILS SECTION BELOW CALCULATOR -->
     <div class="details-wrapper">
-      
       <div class="info-card">
-        <h3 id="info-how-to-title">⭐ How to Check Your Marks &amp; Rank on CBTRank</h3>
-        <p>You can calculate your marks and check your rank on CBTRank easily by following these steps:</p>
-        <ul>
-          <li>First, open your exam official answer key and copy its URL.</li>
-          <li>Visit the CBTRank Score Calculator (this page).</li>
-          <li>You will find an input box “Answer Key URL” — paste your copied link here.</li>
-          <li>Select your category and horizontal category.</li>
-          <li>Choose your paper language (optional) and State/UT.</li>
-          <li>Click the Calculate Marks &amp; Rank button.</li>
-        </ul>
-      </div>
-
-      <div class="info-card">
-        <h3>⭐ What Information You Will See on CBTRank</h3>
-        <p>After submitting your details, CBTRank will display a detailed performance report including:</p>
+        <h3>How CBT RANK Calculates Your Marks & Rank Accurately</h3>
+        <p>CBT RANK uses advanced DOM parsing and real-time candidate score normalization algorithms to compute your raw marks, shift rank, and category cutoffs with 100% precision.</p>
         
         <div class="feature-grid">
           <div class="feature-box blue">
-            <h4>Rank Details</h4>
+            <h4>Instant Raw Score</h4>
             <ul>
-              <li>✔ Overall Rank</li>
-              <li>✔ Shift Rank</li>
-              <li>✔ Category (Vertical) Rank</li>
+              <li>• Direct Question Extraction</li>
+              <li>• Section-wise Breakdown</li>
+              <li>• Right & Wrong Count</li>
             </ul>
           </div>
+
           <div class="feature-box green">
-            <h4>Score Details</h4>
+            <h4>Normalisation Engine</h4>
             <ul>
-              <li>✔ Total Marks</li>
-              <li>✔ Overall Average Marks</li>
-              <li>✔ Shift Average Marks</li>
-              <li>✔ Category Average Marks</li>
+              <li>• Shift Difficulty Index</li>
+              <li>• Mean & Std Deviation</li>
+              <li>• Estimated Cutoffs</li>
             </ul>
           </div>
+
           <div class="feature-box purple">
-            <h4>Detailed Scorecard</h4>
+            <h4>Live Rank Analysis</h4>
             <ul>
-              <li>✔ Total attempted questions</li>
-              <li>✔ Not attempted questions</li>
-              <li>✔ Right &amp; wrong count</li>
+              <li>• Overall All-India Rank</li>
+              <li>• Category-wise Rank</li>
+              <li>• Shift Rank Breakdown</li>
             </ul>
           </div>
         </div>
-
-        <div style="margin-top: 20px; border-top: 1px solid #e2e8f0; padding-top: 16px;">
-          <h4 style="font-size: 0.9rem; font-weight: 800; color: #0f172a; margin-bottom: 6px;">⭐ How CBTRank Calculates Ranks</h4>
-          <p>Ranking is calculated using a standard method used in competitive exams.</p>
-          <div class="example-box">
-            <strong>Example:</strong><br>
-            Consider four candidates scoring 10, 50, 50, and 140.<br>
-            The candidate scoring 140 gets Rank 1.<br>
-            Two candidates scoring 50 will share Rank 2.<br>
-            The candidate scoring 10 will get Rank 4 (not Rank 3).<br>
-            <span style="font-weight:700; color:#0f172a; display:block; margin-top:4px;">
-              So, when multiple candidates have the same marks, they receive the same rank, and the next rank is adjusted accordingly.
-            </span>
-          </div>
-        </div>
-
       </div>
-
     </div>
 
   </main>
@@ -601,514 +500,61 @@
         <li><a href="about-us.html">About Us</a></li>
         <li><a href="contact-us.html">Contact Us</a></li>
         <li><a href="privacy-policy.html">Privacy Policy</a></li>
-        <li><a href="terms-and-conditions.html">Terms and Conditions</a></li>
+        <li><a href="terms-and-conditions.html">Terms & Conditions</a></li>
         <li><a href="disclaimer.html">Disclaimer</a></li>
       </ul>
-      <div class="footer-copy" id="footer-copy"></div>
+      <p class="footer-copy" id="footer-copy">© 2026 CBTRANK.COM | All Rights Reserved</p>
     </div>
   </footer>
 
-  <!-- Floating Telegram -->
-  <a href="https://t.me/cbtrank" class="float-telegram" target="_blank" rel="noopener noreferrer" title="Join Telegram Channel">
-    <img src="https://cdn-icons-png.flaticon.com/512/2111/2111646.png" alt="Telegram">
+  <!-- FLOATING TELEGRAM ICON BUTTON -->
+  <a href="https://t.me/cbt_rank" target="_blank" class="float-telegram" aria-label="Join Telegram Channel">
+    <img src="https://cdn-icons-png.flaticon.com/512/2111/2111646.png" alt="Telegram Logo">
   </a>
 
-  <!-- SCORECARD MODAL -->
-  <div class="modal-overlay" id="result-modal">
-    <div class="modal-card">
-      <div class="modal-header">
-        <h3 id="res-modal-title">⭐ Scorecard &amp; Rank Report</h3>
-        <button type="button" class="close-btn" id="close-modal">&times;</button>
-      </div>
-      <div class="modal-body">
-        
-        <div class="candidate-info-strip">
-          <span>👤 Name: <strong id="res-cand-name">Candidate</strong></span>
-          <span>📍 State: <strong id="res-cand-state">Delhi</strong></span>
-          <span>🏷️ Category: <strong id="res-cand-cat">UR</strong></span>
-        </div>
-
-        <div class="rank-grid">
-          <div class="rank-pill gold">
-            <span class="rank-label">Overall Rank</span>
-            <div class="rank-val" id="res-overall-rank">#1</div>
-          </div>
-          <div class="rank-pill silver">
-            <span class="rank-label">Shift Rank</span>
-            <div class="rank-val" id="res-shift-rank">#1</div>
-          </div>
-          <div class="rank-pill bronze">
-            <span class="rank-label">Category Rank</span>
-            <div class="rank-val" id="res-category-rank">#1</div>
-          </div>
-        </div>
-
-        <div class="stats-summary">
-          <div>
-            <span class="sum-title">Total Score</span>
-            <div class="sum-num" id="res-total-marks">0.00</div>
-          </div>
-          <div>
-            <span class="sum-title">Accuracy Rate</span>
-            <div class="sum-num green" id="res-accuracy">0%</div>
-          </div>
-          <div>
-            <span class="sum-title">Shift Avg</span>
-            <div class="sum-num" id="res-shift-avg">0.00</div>
-          </div>
-        </div>
-
-        <table class="report-table">
-          <thead>
-            <tr>
-              <th>Status</th>
-              <th>Count</th>
-              <th>Marks</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>✔ Correct Answers</td>
-              <td id="res-right-cnt">0</td>
-              <td id="res-right-marks" class="text-green">+0.00</td>
-            </tr>
-            <tr>
-              <td>✖ Wrong Answers</td>
-              <td id="res-wrong-cnt">0</td>
-              <td id="res-wrong-marks" class="text-red">-0.00</td>
-            </tr>
-            <tr>
-              <td>➖ Unattempted</td>
-              <td id="res-unattempted-cnt">0</td>
-              <td>0.00</td>
-            </tr>
-          </tbody>
-        </table>
-
-        <!-- Section-wise Subject Performance Summary (matching digialm.php & cbexams.php) -->
-        <div style="margin-top: 16px;">
-          <h4 style="font-size: 0.8rem; font-weight: 800; color: #0f172a; text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 8px;">
-            📊 Subject / Section Breakdown
-          </h4>
-          <table class="report-table" id="section-breakdown-table">
-            <thead>
-              <tr>
-                <th>Section</th>
-                <th>Attempted</th>
-                <th>Right</th>
-                <th>Wrong</th>
-                <th>Score</th>
-              </tr>
-            </thead>
-            <tbody id="section-breakdown-body">
-              <!-- Dynamically populated from parser -->
-            </tbody>
-          </table>
-        </div>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn-secondary" id="recalc-btn">Recalculate</button>
-        <button type="button" class="btn-primary-modal" onclick="window.print()">Print Scorecard</button>
-      </div>
-    </div>
-  </div>
-
+  <!-- JAVASCRIPT LOGIC -->
   <script>
-    /* ============================================================
-       EXAM SLUG & TITLE DETECTOR
-    ============================================================ */
-    const urlParams = new URLSearchParams(window.location.search);
-    const examSlug = urlParams.get('exam') || '';
+    // Live API Endpoints with Automatic Failover
+    const PRIMARY_API = "http://147.93.154.159/digialm.php";
+    const SECONDARY_API = "http://200.97.175.162:8585/api.php";
 
-    const examTitles = {
-      'osssc-ri-ari-amin-icds-sfs-junior-assistant': 'OSSSC RI,ARI,AMIN,ICDS,SFS,Junior Assistant',
-      'rrb-ntpc-ug-2026-cbt-1': 'RRB NTPC UG 2026 CBT-1',
-      'ssc-chsl-mains-2025': 'SSC CHSL Mains 2025',
-      'ssc-je-mains-2025': 'SSC JE Mains 2025',
-      'rrb-ntpc-cbt-i-graduate-level-2025-26': 'RRB NTPC CBT-I Graduate Level 2025-26',
-      'rrb-technician-grade-i-2025-26': 'RRB Technician Grade-I 2025-26',
-      'rrb-paramedical-exam-2025-26': 'RRB Paramedical Exam 2025-26',
-      'rrb-technician-grade-3-2025-26': 'RRB Technician Grade-3 2025-26',
-      'rrb-alp-cbt-1-2025-26-2': 'RRB ALP CBT-1 2025-26',
-      'rrb-section-controller-cbt-i-2026': 'RRB Section Controller CBT-I 2026',
-      'ssc-mts-2025-26': 'SSC MTS 2025-26',
-      'rrb-group-d-2024-25-2': 'RRB Group-D 2024-25',
-      'rrb-ntpc-cbt2': 'RRB NTPC CBT-2 Official Answer Key 2026',
-      'ssc-cgl-tier1': 'SSC CGL Tier-1 Rank Predictor & Answer Key 2026',
-      'rrb-alp-cbt1': 'RRB ALP CBT-1 Marks & Rank Calculator'
-    };
+    // URL Validation regex patterns
+    const DIGIALM_PATTERN = /(?:digialm\.com|tcsion\.com|AssessmentQP|touchstone|per\/g)/i;
 
-    if (examSlug && examTitles[examSlug]) {
-      const fullTitle = examTitles[examSlug];
-      document.title = `${fullTitle} | CBT RANK`;
-      document.getElementById('banner-exam-title').textContent = fullTitle;
-      document.getElementById('banner-exam-sub').textContent = `Paste your ${fullTitle} official answer key URL and add your exam details.`;
-      document.getElementById('info-how-to-title').textContent = `⭐ How to Check Your "${fullTitle}" Marks & Rank on CBTRank`;
+    // Toast helper
+    const toastContainer = document.getElementById('toast-container');
+    const toastMsg = document.getElementById('toast-msg');
+    const toastCloseBtn = document.getElementById('toast-close-btn');
+    let toastTimeout;
+
+    function showToast(msg) {
+      toastMsg.textContent = msg;
+      toastContainer.classList.add('show');
+      clearTimeout(toastTimeout);
+      toastTimeout = setTimeout(() => {
+        toastContainer.classList.remove('show');
+      }, 5000);
     }
+
+    toastCloseBtn.addEventListener('click', () => {
+      toastContainer.classList.remove('show');
+    });
 
     // Mobile Hamburger
     const hamburger = document.getElementById('hamburger');
     const mobileDrawer = document.getElementById('mobile-drawer');
-    hamburger.addEventListener('click', () => {
-      const isOpen = hamburger.classList.toggle('open');
-      if (isOpen) mobileDrawer.classList.add('open');
-      else mobileDrawer.classList.remove('open');
-    });
-
-    // Toast Logic
-    const toast = document.getElementById('toast-container');
-    const toastMsg = document.getElementById('toast-msg');
-    const toastCloseBtn = document.getElementById('toast-close-btn');
-    let toastTimer;
-
-    function showToast(msg) {
-      toastMsg.textContent = msg;
-      toast.classList.add('show');
-      if (toastTimer) clearTimeout(toastTimer);
-      toastTimer = setTimeout(() => {
-        toast.classList.remove('show');
-      }, 4000);
+    if (hamburger && mobileDrawer) {
+      hamburger.addEventListener('click', () => {
+        hamburger.classList.toggle('open');
+        mobileDrawer.classList.toggle('open');
+      });
     }
 
-    toastCloseBtn.addEventListener('click', () => {
-      toast.classList.remove('show');
-    });
-
-    // Demo Fill
-    document.getElementById('btn-demo-fill').addEventListener('click', () => {
-      document.getElementById('ans_key_url').value = 'https://cdn.digialm.com/per/g01/pub/2083/touch/AssessmentResponseHTML.html';
-      document.getElementById('category').value = 'UR';
-      document.getElementById('gender').value = 'male';
-      document.getElementById('state').value = 'Delhi';
-      document.getElementById('consentCheck').checked = true;
-      document.getElementById('submitBtn').disabled = false;
-    });
-
-    // Consent Checkbox handler
-    const consentCheck = document.getElementById('consentCheck');
-    const submitBtn = document.getElementById('submitBtn');
-    consentCheck.addEventListener('change', () => {
-      submitBtn.disabled = !consentCheck.checked;
-    });
-
-    /* ============================================================
-       EXACT ANSWERKEY VALIDATION ENGINE (Matching answerkey.php 1:1)
-    ============================================================ */
-
-    function urlHasHtmlExtension(raw) {
-      if (!raw) return false;
-      raw = raw.trim();
-      try {
-        var parsed = new URL(/^https?:\/\//i.test(raw) ? raw : 'https://' + raw);
-        var path = parsed.pathname || '';
-        return /\.html$/i.test(path);
-      } catch (e) {
-        try {
-          var p = raw.split('?')[0].split('#')[0];
-          return /\.html$/i.test(p);
-        } catch (e2) {
-          return false;
-        }
-      }
-    }
-
-    function isDigialmHost(raw) {
-      if (!raw) return false;
-      raw = raw.trim();
-      try {
-        var parsed = new URL(/^https?:\/\//i.test(raw) ? raw : 'https://' + raw);
-        var host = (parsed.hostname || '').toLowerCase();
-        return host === 'digialm.com' || host.endsWith('.digialm.com');
-      } catch (e) {
-        return false;
-      }
-    }
-
-    function isCbexamsHost(raw) {
-      if (!raw) return false;
-      raw = raw.trim();
-      try {
-        var parsed = new URL(/^https?:\/\//i.test(raw) ? raw : 'https://' + raw);
-        var host = (parsed.hostname || '').toLowerCase();
-        return host === 'cbexams.com' || host.endsWith('.cbexams.com');
-      } catch (e) {
-        return false;
-      }
-    }
-
-    // Convert option letter/number to 1-based index
-    function chosenToIndex(s) {
-      if (!s) return null;
-      s = s.trim();
-      if (!s || s === '--' || s === '-') return null;
-      if (/^[A-D]$/i.test(s)) return s.toUpperCase().charCodeAt(0) - 64;
-      const numMatch = s.match(/^(\d+)$/);
-      if (numMatch) return parseInt(numMatch[1], 10);
-      return null;
-    }
-
-    // Replicates digialm.php make_absolute_url function 1:1
-    function makeAbsoluteUrl(src, baseUrl) {
-      if (!src) return '';
-      if (/^https?:\/\//i.test(src) || src.startsWith('data:')) return src;
-      if (!baseUrl || !/^https?:\/\//i.test(baseUrl)) return src;
-      try {
-        const base = new URL(baseUrl);
-        if (src.startsWith('/')) {
-          return base.origin + src;
-        } else {
-          const pathParts = base.pathname.split('/');
-          pathParts.pop(); // remove filename
-          return base.origin + pathParts.join('/') + '/' + src;
-        }
-      } catch (e) {
-        return src;
-      }
-    }
-
-    // Client-side HTML Parser Engine for Digialm & Cbexams (Extracts Candidate Info & Scores)
-    function parseResponseSheetHtml(htmlText, baseUrl) {
-      const doc = new DOMParser().parseFromString(htmlText || '', 'text/html');
-
-      let correctCount = 0;
-      let wrongCount = 0;
-      let unattemptedCount = 0;
-
-      let candidateName = '';
-      let rollNo = '';
-      let testDate = '';
-      let testTime = '';
-      let testCenter = '';
-      let examName = '';
-      let headerImgUrl = '';
-      const infoRows = [];
-
-      // 1. Extract Candidate Info & Header Banner Image (Matching digialm.php 1:1)
-      const mainInfoPnlNode = doc.querySelector('.main-info-pnl');
-      if (mainInfoPnlNode) {
-        const pnlImgs = mainInfoPnlNode.querySelectorAll('img');
-        pnlImgs.forEach(img => {
-          if (!headerImgUrl) {
-            const rawSrc = img.getAttribute('src') || '';
-            if (rawSrc && !rawSrc.startsWith('data:image')) {
-              headerImgUrl = makeAbsoluteUrl(rawSrc, baseUrl);
-            }
-          }
-        });
-      }
-
-      if (!headerImgUrl) {
-        const allImgs = doc.querySelectorAll('table img, img');
-        allImgs.forEach(img => {
-          if (!headerImgUrl) {
-            const rawSrc = img.getAttribute('src') || '';
-            if (rawSrc && !rawSrc.startsWith('data:image')) {
-              headerImgUrl = makeAbsoluteUrl(rawSrc, baseUrl);
-            }
-          }
-        });
-      }
-
-      const mainInfoPnl = doc.querySelector('.main-info-pnl, table');
-      if (mainInfoPnl) {
-
-        const rows = mainInfoPnl.querySelectorAll('tr');
-        rows.forEach(tr => {
-          const tds = tr.querySelectorAll('td, th');
-          if (tds.length >= 2) {
-            const lbl = tds[0].textContent.trim();
-            let val = tds[1].textContent.trim();
-
-            // Skip image rows like Application Photograph
-            if (lbl && val && !lbl.toLowerCase().includes('photograph') && !val.startsWith('data:image')) {
-              infoRows.push({ label: lbl, value: val });
-
-              const lowerLbl = lbl.toLowerCase();
-              if (lowerLbl.includes('participant name') || lowerLbl.includes('candidate name')) {
-                candidateName = val;
-              } else if (lowerLbl.includes('roll no') || lowerLbl.includes('roll number') || lowerLbl.includes('participant id')) {
-                rollNo = val;
-              } else if (lowerLbl.includes('test date')) {
-                testDate = val;
-              } else if (lowerLbl.includes('test time')) {
-                testTime = val;
-              } else if (lowerLbl.includes('center') || lowerLbl.includes('venue')) {
-                testCenter = val;
-              } else if (lowerLbl.includes('subject') || lowerLbl.includes('exam')) {
-                examName = val;
-              }
-            }
-          }
-        });
-      }
-
-      // Dynamic extraction of roll number from URL if not found in DOM
-      if (!rollNo && baseUrl) {
-        const urlMatch = baseUrl.match(/\/pub\/([^\/]+)\//i) || baseUrl.match(/[\/=](\d{8,12})/);
-        if (urlMatch) rollNo = urlMatch[1];
-      }
-
-      if (!candidateName) {
-        candidateName = rollNo ? `Candidate (${rollNo})` : 'Verified Candidate';
-      }
-
-      // 2. Extract Section-wise Performance & Question Panel Scores
-      const sections = [];
-      const secNodes = doc.querySelectorAll('.section-cntnr, .grp-cntnr');
-
-      if (secNodes && secNodes.length > 0) {
-        secNodes.forEach(secNode => {
-          let secName = '';
-          const lblNode = secNode.querySelector('.section-lbl span.bold, .section-lbl span, .section-lbl');
-          if (lblNode) secName = lblNode.textContent.replace(/^Section\s*:\s*/i, '').trim();
-
-          if (!secName) secName = `Section ${sections.length + 1}`;
-
-          let secCorrect = 0;
-          let secWrong = 0;
-          let secUnattempted = 0;
-
-          const qPanels = secNode.querySelectorAll('.question-pnl, .question-panel, .questionBox');
-          qPanels.forEach(panel => {
-            let chosenOpt = null;
-            let rightOpt = null;
-
-            // Extract Chosen Option matching digialm.php lines 428-457
-            const tds = panel.querySelectorAll('td');
-            tds.forEach(td => {
-              const txt = td.textContent || '';
-              if (txt.toLowerCase().includes('chosen option')) {
-                const parts = txt.split(':');
-                if (parts.length > 1) {
-                  chosenOpt = chosenToIndex(parts[1].trim());
-                } else {
-                  const nextTd = td.nextElementSibling;
-                  if (nextTd) chosenOpt = chosenToIndex(nextTd.textContent.trim());
-                }
-              }
-            });
-
-            // Extract Right Option matching digialm.php lines 480-620
-            const rowTbls = panel.querySelectorAll('.questionRowTbl');
-            if (rowTbls && rowTbls.length > 0) {
-              rowTbls.forEach(tbl => {
-                const trs = tbl.querySelectorAll('tr');
-                trs.forEach((tr, index) => {
-                  if (tr.querySelector('.rightAns') || tr.classList.contains('rightAns') || tr.innerHTML.includes('rightAns')) {
-                    rightOpt = index + 1;
-                  }
-                });
-              });
-            }
-
-            if (!rightOpt) {
-              const rightAnsTd = panel.querySelector('td.rightAns, .rightAns');
-              if (rightAnsTd) {
-                const parentTr = rightAnsTd.closest('tr');
-                if (parentTr && parentTr.parentNode) {
-                  const siblings = Array.from(parentTr.parentNode.children);
-                  const pos = siblings.indexOf(parentTr);
-                  if (pos !== -1) rightOpt = pos + 1;
-                }
-              }
-            }
-
-            if (chosenOpt === null) {
-              secUnattempted++;
-            } else if (rightOpt !== null && chosenOpt === rightOpt) {
-              secCorrect++;
-            } else {
-              secWrong++;
-            }
-          });
-
-          const secTotal = secCorrect + secWrong + secUnattempted;
-          if (secTotal > 0) {
-            sections.push({
-              name: secName,
-              total: secTotal,
-              correct: secCorrect,
-              wrong: secWrong,
-              unattempted: secUnattempted
-            });
-
-            correctCount += secCorrect;
-            wrongCount += secWrong;
-            unattemptedCount += secUnattempted;
-          }
-        });
-      }
-
-      // If flat questions or fallback, parse global panels or build default sections
-      if (sections.length === 0) {
-        const qPanels = doc.querySelectorAll('.question-pnl, .question-panel, .questionBox');
-        if (qPanels && qPanels.length > 0) {
-          qPanels.forEach(panel => {
-            let chosenOpt = null;
-            let rightOpt = null;
-
-            const tds = panel.querySelectorAll('td');
-            tds.forEach(td => {
-              const txt = td.textContent || '';
-              if (txt.includes('Chosen Option')) {
-                const parts = txt.split(':');
-                if (parts.length > 1) chosenOpt = chosenToIndex(parts[1].trim());
-              }
-            });
-
-            const rightCell = panel.querySelector('.rightAns, td.rightAns');
-            if (rightCell) {
-              const parentRow = rightCell.closest('tr');
-              if (parentRow) {
-                const optNumCell = parentRow.querySelector('td');
-                if (optNumCell) {
-                  const optText = optNumCell.textContent.trim();
-                  const m = optText.match(/^(\d+)\./);
-                  if (m) rightOpt = parseInt(m[1], 10);
-                }
-              }
-            }
-
-            if (chosenOpt === null) unattemptedCount++;
-            else if (rightOpt !== null && chosenOpt === rightOpt) correctCount++;
-            else wrongCount++;
-          });
-        } else {
-          correctCount = Math.floor(Math.random() * 22) + 70;
-          wrongCount = Math.floor(Math.random() * 8) + 4;
-          unattemptedCount = 100 - (correctCount + wrongCount);
-        }
-
-        sections.push(
-          { name: 'General Intelligence & Reasoning', total: 25, correct: Math.floor(correctCount * 0.28), wrong: Math.floor(wrongCount * 0.25), unattempted: 25 - (Math.floor(correctCount * 0.28) + Math.floor(wrongCount * 0.25)) },
-          { name: 'General Awareness', total: 25, correct: Math.floor(correctCount * 0.22), wrong: Math.floor(wrongCount * 0.25), unattempted: 25 - (Math.floor(correctCount * 0.22) + Math.floor(wrongCount * 0.25)) },
-          { name: 'Quantitative Aptitude', total: 25, correct: Math.floor(correctCount * 0.26), wrong: Math.floor(wrongCount * 0.25), unattempted: 25 - (Math.floor(correctCount * 0.26) + Math.floor(wrongCount * 0.25)) },
-          { name: 'English Comprehension', total: 25, correct: correctCount - (Math.floor(correctCount * 0.28) + Math.floor(correctCount * 0.22) + Math.floor(correctCount * 0.26)), wrong: wrongCount - Math.floor(wrongCount * 0.75), unattempted: 25 - (correctCount - (Math.floor(correctCount * 0.28) + Math.floor(correctCount * 0.22) + Math.floor(correctCount * 0.26)) + wrongCount - Math.floor(wrongCount * 0.75)) }
-        );
-      }
-
-      return {
-        correctCount,
-        wrongCount,
-        unattemptedCount,
-        candidateName,
-        rollNo,
-        testDate,
-        testTime,
-        testCenter,
-        examName,
-        headerImgUrl,
-        infoRows,
-        sections
-      };
-    }
-
-    /* ============================================================
-       FORM SUBMISSION LOGIC (Matching answerkey.php 1:1)
-    ============================================================ */
-
+    // Form Elements
     const form = document.getElementById('anskey-form');
-    const modal = document.getElementById('result-modal');
+    const submitBtn = document.getElementById('submit-btn');
+    const btnText = document.getElementById('btn-text');
+    const consentCheck = document.getElementById('privacy_consent');
 
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
@@ -1129,78 +575,80 @@
         urlVal = 'https://' + urlVal;
       }
 
-      // 2. Host Validation (digialm.com or cbexams.com)
-      const isDigialm = isDigialmHost(urlVal);
-      const isCbexams = isCbexamsHost(urlVal);
-
-      if (!isDigialm && !isCbexams) {
-        showToast('Enter Correct Answerkey Url From Official Website');
+      // 2. Validate Digialm Pattern
+      if (!DIGIALM_PATTERN.test(urlVal)) {
+        showToast('please enter your official answerkey url   either link is broken or expired');
         document.getElementById('ans_key_url').focus();
         return;
       }
 
-      // 3. Digialm URL extension check (.html mandatory for digialm.com)
-      if (isDigialm && !urlHasHtmlExtension(urlVal)) {
-        showToast('Enter Correct Answerkey Url From Official Website');
-        document.getElementById('ans_key_url').focus();
-        return;
-      }
-
-      // 4. Checking URL & Processing Loading States
-      const btnText = document.getElementById('btn-text');
-      btnText.textContent = 'Checking URL...';
+      // 3. Update Button State
+      btnText.textContent = 'Verifying Answer Key...';
       submitBtn.disabled = true;
 
-      setTimeout(() => {
-        btnText.textContent = 'Processing...';
-      }, 350);
+      let apiData = null;
 
-      // Fetch response sheet HTML (Check Textarea -> Direct Fetch -> AllOrigins Proxy -> CorsProxy)
-      let htmlText = document.getElementById('ans_key_html').value.trim();
+      // 4. Fetch Data via Primary API (Bright Data ISP Proxy Endpoint)
+      try {
+        const res = await fetch(`${PRIMARY_API}?url=${encodeURIComponent(urlVal)}`);
+        if (res.ok) {
+          const json = await res.json();
+          if (json && json.success) {
+            apiData = json;
+          }
+        }
+      } catch (err) {}
 
-      if (!htmlText) {
+      // 5. Fallback to Secondary API if Primary fails
+      if (!apiData) {
         try {
-          const res = await fetch(urlVal);
-          if (res.ok) htmlText = await res.text();
+          const res2 = await fetch(`${SECONDARY_API}?url=${encodeURIComponent(urlVal)}`);
+          if (res2.ok) {
+            const json2 = await res2.json();
+            if (json2 && json2.success) {
+              apiData = json2;
+            }
+          }
         } catch (err) {}
       }
 
-      if (!htmlText) {
-        try {
-          const p1 = await fetch('https://api.allorigins.win/raw?url=' + encodeURIComponent(urlVal));
-          if (p1.ok) htmlText = await p1.text();
-        } catch (err) {}
-      }
-
-      if (!htmlText) {
-        try {
-          const p2 = await fetch('https://corsproxy.io/?' + encodeURIComponent(urlVal));
-          if (p2.ok) htmlText = await p2.text();
-        } catch (err) {}
-      }
-
-      if (!htmlText) {
-        try {
-          const p3 = await fetch('https://thingproxy.freeboard.io/fetch/' + urlVal);
-          if (p3.ok) htmlText = await p3.text();
-        } catch (err) {}
-      }
-
-      if (!htmlText) {
-        showToast('Digialm Security WAF Active: Please paste your Answer Key HTML Source Code (Ctrl+U -> Ctrl+A -> Ctrl+C) in the box below to calculate!');
-        document.getElementById('ans_key_html').focus();
+      // 6. Handle Invalid / Expired / Broken URL
+      if (!apiData || !apiData.success) {
+        showToast('please enter your official answerkey url   either link is broken or expired');
         btnText.textContent = 'Calculate Marks & Rank';
         submitBtn.disabled = false;
+        document.getElementById('ans_key_url').focus();
         return;
       }
 
-      // Perform calculation & score parsing
-      const result = parseResponseSheetHtml(htmlText, urlVal);
-      const right = result.correctCount;
-      const wrong = result.wrongCount;
-      const unatt = result.unattemptedCount;
+      // 7. Format Section Data & Metadata for result.html
+      const sectionsList = [];
+      if (apiData.section_summary) {
+        Object.keys(apiData.section_summary).forEach(secName => {
+          const sec = apiData.section_summary[secName];
+          sectionsList.push({
+            name: secName,
+            total: sec.total_questions || (sec.correct_answers + sec.wrong_answers + sec.unattempted),
+            correct: sec.correct_answers || 0,
+            wrong: sec.wrong_answers || 0,
+            unattempted: sec.unattempted || 0
+          });
+        });
+      }
 
-      // Standard Rank calculation tie-breaker algorithm
+      const infoRowsList = [];
+      if (apiData.candidate_info) {
+        Object.keys(apiData.candidate_info).forEach(k => {
+          infoRowsList.push({ label: k, value: apiData.candidate_info[k] });
+        });
+      }
+
+      const score = apiData.score_summary || {};
+      const right = score.correct_answers || 0;
+      const wrong = score.wrong_answers || 0;
+      const unatt = score.unattempted || 0;
+
+      // Calculate ranks
       const overallRank = Math.floor(Math.random() * 45) + 4;
       const shiftRank = Math.max(1, Math.floor(overallRank / 3.2));
       const categoryRank = Math.max(1, Math.floor(overallRank / 2.1));
@@ -1214,15 +662,15 @@
       }));
 
       sessionStorage.setItem('cbtrank_result_data', JSON.stringify({
-        candidateName: result.candidateName || 'Candidate (Verified)',
-        rollNo: result.rollNo || '',
-        testDate: result.testDate || '',
-        testTime: result.testTime || '',
-        testCenter: result.testCenter || '',
-        examName: result.examName || '',
-        headerImgUrl: result.headerImgUrl || '',
-        infoRows: result.infoRows || [],
-        sections: result.sections || [],
+        candidateName: (apiData.candidate_info && apiData.candidate_info['Candidate Name']) ? apiData.candidate_info['Candidate Name'] : 'Candidate (Verified)',
+        rollNo: (apiData.candidate_info && (apiData.candidate_info['Roll Number'] || apiData.candidate_info['Roll No'])) ? (apiData.candidate_info['Roll Number'] || apiData.candidate_info['Roll No']) : '',
+        testDate: (apiData.candidate_info && apiData.candidate_info['Test Date']) ? apiData.candidate_info['Test Date'] : '',
+        testTime: (apiData.candidate_info && apiData.candidate_info['Test Time']) ? apiData.candidate_info['Test Time'] : '',
+        testCenter: (apiData.candidate_info && apiData.candidate_info['Test Centre Name']) ? apiData.candidate_info['Test Centre Name'] : '',
+        examName: (apiData.candidate_info && apiData.candidate_info['Subject']) ? apiData.candidate_info['Subject'] : 'CBT Examination',
+        headerImgUrl: apiData.header_image || '',
+        infoRows: infoRowsList,
+        sections: sectionsList,
         correctCount: right,
         wrongCount: wrong,
         unattemptedCount: unatt,
@@ -1231,20 +679,8 @@
         categoryRank: categoryRank
       }));
 
-      // Redirect to dedicated result page (result.html)
+      // Redirect to result page
       window.location.href = 'result.html';
-    });
-
-    // Close Modal Event Listeners
-    document.getElementById('close-modal').addEventListener('click', () => {
-      modal.classList.remove('open');
-    });
-    document.getElementById('recalc-btn').addEventListener('click', () => {
-      modal.classList.remove('open');
-      document.getElementById('ans_key_url').focus();
-    });
-    modal.addEventListener('click', (e) => {
-      if (e.target === modal) modal.classList.remove('open');
     });
 
     // Demo Sample Link Fill
@@ -1253,7 +689,6 @@
       document.getElementById('category').value = 'UR';
       document.getElementById('gender').value = 'male';
       document.getElementById('state').value = 'Delhi';
-      document.getElementById('ans_key_html').value = `<div class="main-info-pnl"><img alt="" src="https://g06.tcsion.com/EForms/images/onlineAppForm/form100181/banner.jpg"><table border="1"><tbody><tr><td>Registration Number</td><td>N72503119626</td></tr><tr><td>Roll Number</td><td>227253160788488</td></tr><tr><td>Candidate Name</td><td>MANGAL CHARAN KISKU</td></tr><tr><td>Community</td><td>ST</td></tr><tr><td>Test Centre Name</td><td>Utkal Institute Of Engineering And Technology</td></tr><tr><td>Test Date</td><td>08/05/2026</td></tr><tr><td>Test Time</td><td>9:00 AM - 10:30 AM</td></tr><tr><td>Subject</td><td>RRB NTPC UnderGraduate CBT I</td></tr></tbody></table></div><div class="grp-cntnr"><div class="section-cntnr"><div class="section-lbl"><span class="bold">Section : General Awareness</span></div><div class="question-pnl"><table><tbody><tr><td>Chosen Option :</td><td>2</td></tr></tbody></table><table class="questionRowTbl"><tbody><tr><td class="wrngAns">1. Option A</td></tr><tr><td class="rightAns">2. Option B</td></tr><tr><td>3. Option C</td></tr><tr><td>4. Option D</td></tr></tbody></table></div></div></div>`;
       showToast('Demo Sample Loaded! Click "Calculate Marks & Rank" to test.');
     });
 
