@@ -508,31 +508,43 @@
         return;
       }
 
-      // 4. Fetch Live API Data for urlVal
+      // 4. Check for Instant 0ms Pre-Fetched Cache in sessionStorage
       let apiData = null;
-
-      const fetchEndpoints = [
-        `digialm.php?url=${encodeURIComponent(urlVal)}`,
-        `api.php?url=${encodeURIComponent(urlVal)}`,
-        `/api/digialm?url=${encodeURIComponent(urlVal)}`,
-        `http://147.93.154.159/digialm.php?url=${encodeURIComponent(urlVal)}`,
-        `http://200.97.175.162:8585/api.php?url=${encodeURIComponent(urlVal)}`
-      ];
-
-      for (const ep of fetchEndpoints) {
-        if (apiData && apiData.success) break;
-        try {
-          const res = await fetch(ep);
-          if (res.ok) {
-            const rawText = await res.text();
-            let json = null;
-            try { json = JSON.parse(rawText); } catch (pj) {}
-            if (json && json.success) {
-              apiData = json;
-              break;
-            }
+      try {
+        const rawCache = sessionStorage.getItem('cbtrank_instant_cache');
+        if (rawCache) {
+          const cacheObj = JSON.parse(rawCache);
+          if (cacheObj && cacheObj.url === urlVal && cacheObj.apiData && cacheObj.apiData.success) {
+            apiData = cacheObj.apiData;
           }
-        } catch (err) {}
+        }
+      } catch (e) {}
+
+      // If no pre-fetched cache, fetch from API endpoints
+      if (!apiData) {
+        const fetchEndpoints = [
+          `digialm.php?url=${encodeURIComponent(urlVal)}`,
+          `api.php?url=${encodeURIComponent(urlVal)}`,
+          `/api/digialm?url=${encodeURIComponent(urlVal)}`,
+          `http://147.93.154.159/digialm.php?url=${encodeURIComponent(urlVal)}`,
+          `http://200.97.175.162:8585/api.php?url=${encodeURIComponent(urlVal)}`
+        ];
+
+        for (const ep of fetchEndpoints) {
+          if (apiData && apiData.success) break;
+          try {
+            const res = await fetch(ep);
+            if (res.ok) {
+              const rawText = await res.text();
+              let json = null;
+              try { json = JSON.parse(rawText); } catch (pj) {}
+              if (json && json.success) {
+                apiData = json;
+                break;
+              }
+            }
+          } catch (err) {}
+        }
       }
 
       if (!apiData || !apiData.success) {
