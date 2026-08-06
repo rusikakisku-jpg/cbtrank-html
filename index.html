@@ -704,30 +704,11 @@
       }
     }
 
-    /* ============================================================
-       HAMBURGER MENU
-    ============================================================ */
-    const hamburger = document.getElementById('hamburger');
-    const mobileDrawer = document.getElementById('mobile-drawer');
-
-    hamburger.addEventListener('click', () => {
-      const isOpen = hamburger.classList.toggle('open');
-      hamburger.setAttribute('aria-expanded', String(isOpen));
-      if (isOpen) mobileDrawer.classList.add('open');
-      else mobileDrawer.classList.remove('open');
-    });
-
-    mobileDrawer.querySelectorAll('a').forEach(link => {
-      link.addEventListener('click', () => {
-        hamburger.classList.remove('open');
-        mobileDrawer.classList.remove('open');
-        hamburger.setAttribute('aria-expanded', 'false');
-      });
-    });
-
     /* FOOTER YEAR */
-    document.getElementById('footer-copy').textContent =
-      `\u00A9 ${new Date().getFullYear()} CBTRANK.COM | All Rights Reserved`;
+    const footerCopy = document.getElementById('footer-copy');
+    if (footerCopy) {
+      footerCopy.textContent = `\u00A9 ${new Date().getFullYear()} CBTRANK.COM | All Rights Reserved`;
+    }
 
     /* ============================================================
        DYNAMIC D1 & LOCAL EXAMS FETCH (Bulletproof 0ms Load)
