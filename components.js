@@ -24,6 +24,7 @@
           <ul class="nav-links">
             <li><a href="/index" class="${pathname === 'index' || pathname === '' ? 'active' : ''}">Home</a></li>
             <li><a href="/answerkey" class="${pathname === 'answerkey' ? 'active' : ''}">Answer Key</a></li>
+            <li id="nav-blog-li" style="display: none;"><a href="/blog" class="${pathname === 'blog' ? 'active' : ''}">Blog</a></li>
           </ul>
         </nav>
         <button class="hamburger" id="hamburger" aria-label="Toggle Navigation Menu" aria-expanded="false">
@@ -35,6 +36,7 @@
       <div class="mobile-drawer" id="mobile-drawer" role="navigation" aria-label="Mobile Navigation">
         <a href="/index" class="${pathname === 'index' || pathname === '' ? 'active' : ''}">Home</a>
         <a href="/answerkey" class="${pathname === 'answerkey' ? 'active' : ''}">Answer Key</a>
+        <a href="/blog" id="mobile-blog-link" style="display: none;" class="${pathname === 'blog' ? 'active' : ''}">Blog</a>
       </div>
     </header>
   `;
