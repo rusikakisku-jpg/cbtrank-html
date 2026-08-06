@@ -405,7 +405,7 @@
 
           <!-- State / UT -->
           <div class="form-group">
-            <label for="state">State / UT <span class="star">*</span></label>
+            <label for="state" id="state-label">State / UT <span class="star">*</span></label>
             <select id="state" class="form-select" required>
               <option value="">Select State / UT</option>
               <option value="Andhra Pradesh">Andhra Pradesh</option>
@@ -537,39 +537,92 @@
       if (!passedSlug) return;
 
       try {
-        let res = await fetch('/d1_exams.json');
-        if (!res.ok) res = await fetch('d1_exams.json');
-        if (res.ok) {
-          const exams = await res.json();
-          const cleanSearch = passedSlug.toLowerCase().trim();
-          const matchedExam = exams.find(e => 
-            (e.slug && e.slug.toLowerCase() === cleanSearch) ||
-            (e.title && e.title.toLowerCase() === cleanSearch) ||
-            (e.title && e.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').includes(cleanSearch))
-          );
+        let res = await fetch('/get_exams.php');
+        if (!res.ok) res = await fetch('get_exams.php');
+        let fullData = null;
+        let examsArr = [];
+        let locationTypesArr = [];
+        let locationsArr = [];
 
-          let examTitleText = '';
-          if (matchedExam) {
-            examTitleText = matchedExam.title.trim();
-          } else {
-            examTitleText = decodeURIComponent(passedSlug).replace(/[-_]+/g, ' ').trim();
+        if (res.ok) {
+          fullData = await res.json();
+          if (Array.isArray(fullData)) {
+            examsArr = fullData;
+          } else if (fullData && typeof fullData === 'object') {
+            examsArr = fullData.exams || [];
+            locationTypesArr = fullData.location_types || [];
+            locationsArr = fullData.locations || [];
+          }
+        }
+
+        if (!examsArr.length) {
+          let fallbackRes = await fetch('/d1_exams.json');
+          if (!fallbackRes.ok) fallbackRes = await fetch('d1_exams.json');
+          if (fallbackRes.ok) examsArr = await fallbackRes.json();
+        }
+
+        const cleanSearch = passedSlug.toLowerCase().trim();
+        const matchedExam = examsArr.find(e => 
+          (e.slug && e.slug.toLowerCase() === cleanSearch) ||
+          (e.title && e.title.toLowerCase() === cleanSearch) ||
+          (e.title && e.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').includes(cleanSearch))
+        );
+
+        let examTitleText = '';
+        if (matchedExam) {
+          examTitleText = matchedExam.title.trim();
+        } else {
+          examTitleText = decodeURIComponent(passedSlug).replace(/[-_]+/g, ' ').trim();
+        }
+
+        if (examTitleText) {
+          // Document Title
+          document.title = `${examTitleText} Answer Key Calculator | CBT RANK`;
+          
+          // Banner Title (Always clean Answer Key Calculator)
+          const bannerTitle = document.getElementById('banner-exam-title');
+          if (bannerTitle) bannerTitle.textContent = `Answer Key Calculator`;
+
+          // Banner Subtitle
+          const bannerSub = document.getElementById('banner-exam-sub');
+          if (bannerSub) bannerSub.textContent = `Paste your ${examTitleText} official answer key URL and add your exam details.`;
+
+          // Help Hint Text
+          const helpText = document.getElementById('anskey-help-text');
+          if (helpText) helpText.textContent = `Use the ${examTitleText} official answer key link (the page where questions are visible).`;
+        }
+
+        // Handle Dynamic Location Label & Location Dropdown from location_type_id
+        if (matchedExam && matchedExam.location_type_id) {
+          const locTypeId = Number(matchedExam.location_type_id);
+          
+          // Find matching location type name from D1 location_types
+          let locTypeName = 'State / UT';
+          if (locationTypesArr && locationTypesArr.length > 0) {
+            const matchedType = locationTypesArr.find(lt => Number(lt.id) === locTypeId);
+            if (matchedType && matchedType.name) {
+              locTypeName = matchedType.name;
+            }
+          } else if (locTypeId === 1) {
+            locTypeName = 'RRB Zone';
+          } else if (locTypeId === 2) {
+            locTypeName = 'State / UT';
           }
 
-          if (examTitleText) {
-            // Document Title
-            document.title = `${examTitleText} Answer Key Calculator | CBT RANK`;
-            
-            // Banner Title (Always clean Answer Key Calculator)
-            const bannerTitle = document.getElementById('banner-exam-title');
-            if (bannerTitle) bannerTitle.textContent = `Answer Key Calculator`;
+          // 1. Update Label above dropdown
+          const stateLabel = document.getElementById('state-label');
+          if (stateLabel) {
+            stateLabel.innerHTML = `${escapeHtml(locTypeName)} <span class="star">*</span>`;
+          }
 
-            // Banner Subtitle
-            const bannerSub = document.getElementById('banner-exam-sub');
-            if (bannerSub) bannerSub.textContent = `Paste your ${examTitleText} official answer key URL and add your exam details.`;
-
-            // Help Hint Text
-            const helpText = document.getElementById('anskey-help-text');
-            if (helpText) helpText.textContent = `Use the ${examTitleText} official answer key link (the page where questions are visible).`;
+          // 2. Update Dropdown Options matched by type_id == locTypeId
+          const stateSelect = document.getElementById('state');
+          if (stateSelect && locationsArr && locationsArr.length > 0) {
+            const filteredLocations = locationsArr.filter(loc => Number(loc.type_id) === locTypeId);
+            if (filteredLocations.length > 0) {
+              stateSelect.innerHTML = `<option value="">Select ${escapeHtml(locTypeName)}</option>` +
+                filteredLocations.map(l => `<option value="${escapeHtml(l.name)}">${escapeHtml(l.name)}</option>`).join('');
+            }
           }
         }
       } catch (err) {}
