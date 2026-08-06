@@ -725,9 +725,12 @@
     }
 
     /* ============================================================
-       SETUP LAYOUT
+       SETUP LAYOUT (Dynamic D1 show_blogs_section toggle)
     ============================================================ */
-    function setupLayout() {
+    let SHOW_BLOGS = false;
+
+    function setupLayout(showBlogs = false) {
+      SHOW_BLOGS = Boolean(showBlogs);
       const grid = document.getElementById('content-grid');
       const sidebar = document.getElementById('sidebar-section');
       const navBlogLi = document.getElementById('nav-blog-li');
@@ -735,16 +738,18 @@
       const desktopInlineCta = document.getElementById('desktop-inline-cta');
 
       if (SHOW_BLOGS) {
-        grid.classList.add('two-col');
-        sidebar.style.display = 'block';
-        navBlogLi.style.display = 'list-item';
-        mobileBlogLink.style.display = 'block';
-        desktopInlineCta.style.display = 'none';
+        if (grid) grid.classList.add('two-col');
+        if (sidebar) sidebar.style.display = 'block';
+        if (navBlogLi) navBlogLi.style.display = 'list-item';
+        if (mobileBlogLink) mobileBlogLink.style.display = 'block';
+        if (desktopInlineCta) desktopInlineCta.style.display = 'none';
         renderBlogs();
       } else {
-        grid.classList.remove('two-col');
-        sidebar.style.display = 'none';
-        desktopInlineCta.style.display = '';
+        if (grid) grid.classList.remove('two-col');
+        if (sidebar) sidebar.style.display = 'none';
+        if (navBlogLi) navBlogLi.style.display = 'none';
+        if (mobileBlogLink) mobileBlogLink.style.display = 'none';
+        if (desktopInlineCta) desktopInlineCta.style.display = '';
       }
     }
 
@@ -824,31 +829,18 @@
           const settingsObj = {};
           settingsArr.forEach(s => { settingsObj[s.setting_key] = s.setting_value; });
 
-          // 1. Check show_blogs_section toggle (1 = Show, 0 = Hide)
+          // Check show_blogs_section toggle (1 = Show, 0 = Hide)
           const showBlogVal = String(settingsObj['show_blogs_section'] ?? '0').trim();
-          const blogSection = document.getElementById('blog-section');
-          const navBlogLi = document.getElementById('nav-blog-li');
-          const mobileBlogLink = document.getElementById('mobile-blog-link');
-
-          if (showBlogVal === '1') {
-            if (blogSection) blogSection.style.display = 'block';
-            if (navBlogLi) navBlogLi.style.display = 'list-item';
-            if (mobileBlogLink) mobileBlogLink.style.display = 'block';
-            renderBlogs();
-          } else {
-            if (blogSection) blogSection.style.display = 'none';
-            if (navBlogLi) navBlogLi.style.display = 'none';
-            if (mobileBlogLink) mobileBlogLink.style.display = 'none';
-          }
+          setupLayout(showBlogVal === '1');
         }
       } catch (err) {
-        console.log('D1 Settings fetch fallback active:', err);
+        setupLayout(false);
       }
     }
 
     /* INIT */
     renderExams();
-    setupLayout();
+    setupLayout(false); // Default OFF
     fetchLiveD1Exams();
     fetchLiveD1Settings();
   </script>
