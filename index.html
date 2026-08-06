@@ -734,9 +734,23 @@
       `\u00A9 ${new Date().getFullYear()} CBTRANK.COM | All Rights Reserved`;
 
     /* ============================================================
-       DYNAMIC D1 LIVE FETCH (Cloudflare D1 REST API Sync)
+       DYNAMIC D1 & LOCAL EXAMS FETCH (Bulletproof 0ms Load)
     ============================================================ */
-    async function fetchLiveD1Exams() {
+    async function loadExamsData() {
+      // 1. Try local d1_exams.json (fastest, guaranteed local VPS file)
+      try {
+        let res = await fetch('/d1_exams.json');
+        if (!res.ok) res = await fetch('d1_exams.json');
+        if (res.ok) {
+          const localExams = await res.json();
+          if (Array.isArray(localExams) && localExams.length > 0) {
+            EXAMS = localExams;
+            renderExams();
+          }
+        }
+      } catch (e) {}
+
+      // 2. Try Cloudflare D1 Live REST API Sync
       try {
         const url = 'https://api.cloudflare.com/client/v4/accounts/38c7d789225e89652dd6bb111403db5d/d1/database/fd29c541-3fd2-4fa8-8dc1-19809ab907c3/query';
         const res = await fetch(url, {
@@ -758,7 +772,7 @@
           }
         }
       } catch (err) {
-        console.log('D1 Live API fetch fallback active:', err);
+        renderExams();
       }
     }
 
@@ -794,10 +808,18 @@
     }
 
     /* INIT */
-    renderExams();
-    setupLayout(false); // Default OFF
-    fetchLiveD1Exams();
-    fetchLiveD1Settings();
+    function initApp() {
+      renderExams();
+      setupLayout(false); // Default OFF
+      loadExamsData();
+      fetchLiveD1Settings();
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initApp);
+    } else {
+      initApp();
+    }
   </script>
 </body>
 </html>
