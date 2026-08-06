@@ -1,22 +1,25 @@
-# Enable URL Rewriting for Clean URLs (/answerkey, /result, etc.)
+# Enable URL Rewriting for Clean URLs (/answerkey, /result, /{slug}/answerkey, etc.)
 <IfModule mod_rewrite.c>
   RewriteEngine On
   RewriteBase /
 
-  # 1. External 301 Redirect from .html to Clean URL (e.g., /answerkey.html -> /answerkey)
+  # 1. Route /{slug}/answerkey -> answerkey.html?slug=$1
+  RewriteRule ^([^/]+)/answerkey/?$ answerkey.html?slug=$1 [QSA,L]
+
+  # 2. External 301 Redirect from .html to Clean URL (e.g., /answerkey.html -> /answerkey)
   RewriteCond %{THE_REQUEST} ^[A-Z]{3,9}\ /([^/]+)\.html\ HTTP/ [NC]
   RewriteRule ^([^/]+)\.html$ /$1 [R=301,L]
 
-  # 2. Allow real existing files (JS, CSS, JSON, images) to load directly
+  # 3. Allow real existing files (JS, CSS, JSON, images) to load directly
   RewriteCond %{REQUEST_FILENAME} -f [OR]
   RewriteCond %{REQUEST_FILENAME} -d
   RewriteRule ^ - [L]
 
-  # 3. Internal Rewrite Clean URL to .html file (e.g., /answerkey -> answerkey.html)
+  # 4. Internal Rewrite Clean URL to .html file (e.g., /answerkey -> answerkey.html)
   RewriteCond %{DOCUMENT_ROOT}/$1.html -f
   RewriteRule ^([^/]+)/?$ $1.html [QSA,L]
 
-  # 4. Route /{slug}/filename.html or .php
+  # 5. Route /{slug}/filename.html or .php
   RewriteRule ^([^/]+)/([a-zA-Z0-9_-]+\.(php|html))$ $2 [QSA,L]
 </IfModule>
 
