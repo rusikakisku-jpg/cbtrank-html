@@ -732,8 +732,41 @@
     /* ============================================================
        DYNAMIC D1 & LOCAL EXAMS FETCH (Bulletproof 0ms Load)
     ============================================================ */
+    /* ============================================================
+       DYNAMIC D1 & LOCAL EXAMS FETCH (Bulletproof Server Sync)
+    ============================================================ */
     async function loadExamsData() {
-      // 1. Try local d1_exams.json (fastest, guaranteed local VPS file)
+      // 1. Fetch live D1 exams & D1 settings via server-side get_exams.php
+      try {
+        let res = await fetch('/get_exams.php');
+        if (!res.ok) res = await fetch('get_exams.php');
+        if (res.ok) {
+          const data = await res.json();
+          let liveExams = [];
+          let settingsObj = {};
+
+          if (Array.isArray(data)) {
+            liveExams = data;
+          } else if (data && typeof data === 'object') {
+            liveExams = data.exams || [];
+            settingsObj = data.settings || {};
+          }
+
+          if (Array.isArray(liveExams) && liveExams.length > 0) {
+            EXAMS = liveExams;
+            renderExams();
+          }
+
+          // Handle show_blogs_section toggle directly from D1 settings!
+          if (settingsObj && settingsObj.hasOwnProperty('show_blogs_section')) {
+            const showBlogVal = String(settingsObj['show_blogs_section'] ?? '0').trim();
+            setupLayout(showBlogVal === '1');
+          }
+          return;
+        }
+      } catch (e) {}
+
+      // 2. Fallback to local d1_exams.json
       try {
         let res = await fetch('/d1_exams.json');
         if (!res.ok) res = await fetch('d1_exams.json');
@@ -744,71 +777,16 @@
             renderExams();
           }
         }
-      } catch (e) {}
-
-      // 2. Try Cloudflare D1 Live REST API Sync
-      try {
-        const url = 'https://api.cloudflare.com/client/v4/accounts/38c7d789225e89652dd6bb111403db5d/d1/database/fd29c541-3fd2-4fa8-8dc1-19809ab907c3/query';
-        const res = await fetch(url, {
-          method: 'POST',
-          headers: {
-            'Authorization': 'Bearer ' + ['cfut_', 'umhNZGH5mokB88O6', 'AHQVSURuP6AW48AI', 'ry4wVFaW74f7f9b6'].join(''),
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            sql: 'SELECT id, title, subtitle, slug, is_latest, is_visible FROM exams WHERE is_visible = 1 ORDER BY set_on_top DESC, id DESC'
-          })
-        });
-        const data = await res.json();
-        if (data && data.result && data.result[0] && data.result[0].results) {
-          const liveExams = data.result[0].results;
-          if (Array.isArray(liveExams) && liveExams.length > 0) {
-            EXAMS = liveExams;
-            renderExams();
-          }
-        }
-      } catch (err) {
+      } catch (e) {
         renderExams();
-      }
-    }
-
-    /* ============================================================
-       DYNAMIC D1 SETTINGS FETCH (show_blogs_section & SEO Control)
-    ============================================================ */
-    async function fetchLiveD1Settings() {
-      try {
-        const url = 'https://api.cloudflare.com/client/v4/accounts/38c7d789225e89652dd6bb111403db5d/d1/database/fd29c541-3fd2-4fa8-8dc1-19809ab907c3/query';
-        const res = await fetch(url, {
-          method: 'POST',
-          headers: {
-            'Authorization': 'Bearer ' + ['cfut_', 'umhNZGH5mokB88O6', 'AHQVSURuP6AW48AI', 'ry4wVFaW74f7f9b6'].join(''),
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            sql: 'SELECT setting_key, setting_value FROM settings'
-          })
-        });
-        const data = await res.json();
-        if (data && data.result && data.result[0] && data.result[0].results) {
-          const settingsArr = data.result[0].results;
-          const settingsObj = {};
-          settingsArr.forEach(s => { settingsObj[s.setting_key] = s.setting_value; });
-
-          // Check show_blogs_section toggle (1 = Show, 0 = Hide)
-          const showBlogVal = String(settingsObj['show_blogs_section'] ?? '0').trim();
-          setupLayout(showBlogVal === '1');
-        }
-      } catch (err) {
-        setupLayout(false);
       }
     }
 
     /* INIT */
     function initApp() {
       renderExams();
-      setupLayout(false); // Default OFF
+      setupLayout(false); // Default OFF until D1 settings loaded
       loadExamsData();
-      fetchLiveD1Settings();
     }
 
     if (document.readyState === 'loading') {
