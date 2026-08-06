@@ -384,13 +384,21 @@
               <label for="paper_language">Paper Language</label>
               <select id="paper_language" class="form-select">
                 <option value="">Select Language (Optional)</option>
-                <option value="english">English</option>
-                <option value="hindi">Hindi</option>
+                <option value="assamese">Assamese</option>
                 <option value="bengali">Bengali</option>
+                <option value="english">English</option>
+                <option value="gujarati">Gujarati</option>
+                <option value="hindi">Hindi</option>
+                <option value="kannada">Kannada</option>
+                <option value="konkani">Konkani</option>
+                <option value="malayalam">Malayalam</option>
+                <option value="manipuri">Manipuri</option>
                 <option value="marathi">Marathi</option>
+                <option value="odia">Odia</option>
+                <option value="punjabi">Punjabi</option>
                 <option value="tamil">Tamil</option>
                 <option value="telugu">Telugu</option>
-                <option value="gujarati">Gujarati</option>
+                <option value="urdu">Urdu</option>
               </select>
             </div>
           </div>
@@ -727,6 +735,26 @@
       const targetResultPage = '/result';
       window.location.href = `${targetResultPage}?url=${encodeURIComponent(urlVal)}&category=${encodeURIComponent(catVal)}&gender=${encodeURIComponent(genVal)}&state=${encodeURIComponent(stateVal)}`;
     });
+
+    /* Live D1 Languages Sync */
+    async function loadLiveD1Languages() {
+      try {
+        let res = await fetch('/get_exams.php');
+        if (!res.ok) res = await fetch('get_exams.php');
+        if (res.ok) {
+          const data = await res.json();
+          if (data && Array.isArray(data.languages) && data.languages.length > 0) {
+            const select = document.getElementById('paper_language');
+            if (!select) return;
+            const currentVal = select.value;
+            select.innerHTML = '<option value="">Select Language (Optional)</option>' +
+              data.languages.map(l => `<option value="${escapeHtml(l.slug)}">${escapeHtml(l.name)}</option>`).join('');
+            if (currentVal) select.value = currentVal;
+          }
+        }
+      } catch (e) {}
+    }
+    loadLiveD1Languages();
 
     // Footer Copy
     document.getElementById('footer-copy').textContent = `© ${new Date().getFullYear()} CBTRANK.COM | All Rights Reserved`;
