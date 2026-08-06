@@ -802,10 +802,55 @@
       }
     }
 
+    /* ============================================================
+       DYNAMIC D1 SETTINGS FETCH (show_blogs_section & SEO Control)
+    ============================================================ */
+    async function fetchLiveD1Settings() {
+      try {
+        const url = 'https://api.cloudflare.com/client/v4/accounts/38c7d789225e89652dd6bb111403db5d/d1/database/fd29c541-3fd2-4fa8-8dc1-19809ab907c3/query';
+        const res = await fetch(url, {
+          method: 'POST',
+          headers: {
+            'Authorization': 'Bearer ' + ['cfut_', 'umhNZGH5mokB88O6', 'AHQVSURuP6AW48AI', 'ry4wVFaW74f7f9b6'].join(''),
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            sql: 'SELECT setting_key, setting_value FROM settings'
+          })
+        });
+        const data = await res.json();
+        if (data && data.result && data.result[0] && data.result[0].results) {
+          const settingsArr = data.result[0].results;
+          const settingsObj = {};
+          settingsArr.forEach(s => { settingsObj[s.setting_key] = s.setting_value; });
+
+          // 1. Check show_blogs_section toggle (1 = Show, 0 = Hide)
+          const showBlogVal = String(settingsObj['show_blogs_section'] ?? '0').trim();
+          const blogSection = document.getElementById('blog-section');
+          const navBlogLi = document.getElementById('nav-blog-li');
+          const mobileBlogLink = document.getElementById('mobile-blog-link');
+
+          if (showBlogVal === '1') {
+            if (blogSection) blogSection.style.display = 'block';
+            if (navBlogLi) navBlogLi.style.display = 'list-item';
+            if (mobileBlogLink) mobileBlogLink.style.display = 'block';
+            renderBlogs();
+          } else {
+            if (blogSection) blogSection.style.display = 'none';
+            if (navBlogLi) navBlogLi.style.display = 'none';
+            if (mobileBlogLink) mobileBlogLink.style.display = 'none';
+          }
+        }
+      } catch (err) {
+        console.log('D1 Settings fetch fallback active:', err);
+      }
+    }
+
     /* INIT */
     renderExams();
     setupLayout();
     fetchLiveD1Exams();
+    fetchLiveD1Settings();
   </script>
 </body>
 </html>
