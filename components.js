@@ -1,5 +1,5 @@
 /**
- * CBT RANK — Reusable Header & Footer Components with Clean URLs
+ * CBT RANK — Reusable Header & Footer Components with Clean Root Absolute URLs
  * Injecting this single script into any HTML page automatically renders
  * the unified Navbar and Footer with active link highlighting & mobile menu support.
  */
@@ -11,19 +11,19 @@
   if (!pathname) pathname = 'index';
 
   /* ============================================================
-     1. HEADER / NAVBAR COMPONENT
+     1. HEADER / NAVBAR COMPONENT (Absolute Root Paths)
   ============================================================ */
   const headerHtml = `
     <header class="navbar" id="navbar">
       <div class="navbar-inner">
-        <a href="index" class="nav-logo" aria-label="CBT RANK Home">
+        <a href="/index" class="nav-logo" aria-label="CBT RANK Home">
           <div class="logo-circle">CBT</div>
           <span class="logo-text">CBT RANK</span>
         </a>
         <nav aria-label="Main Navigation">
           <ul class="nav-links">
-            <li><a href="index" class="${pathname === 'index' || pathname === '' ? 'active' : ''}">Home</a></li>
-            <li><a href="answerkey" class="${pathname === 'answerkey' ? 'active' : ''}">Answer Key</a></li>
+            <li><a href="/index" class="${pathname === 'index' || pathname === '' ? 'active' : ''}">Home</a></li>
+            <li><a href="/answerkey" class="${pathname === 'answerkey' ? 'active' : ''}">Answer Key</a></li>
           </ul>
         </nav>
         <button class="hamburger" id="hamburger" aria-label="Toggle Navigation Menu" aria-expanded="false">
@@ -33,14 +33,14 @@
         </button>
       </div>
       <div class="mobile-drawer" id="mobile-drawer" role="navigation" aria-label="Mobile Navigation">
-        <a href="index" class="${pathname === 'index' || pathname === '' ? 'active' : ''}">Home</a>
-        <a href="answerkey" class="${pathname === 'answerkey' ? 'active' : ''}">Answer Key</a>
+        <a href="/index" class="${pathname === 'index' || pathname === '' ? 'active' : ''}">Home</a>
+        <a href="/answerkey" class="${pathname === 'answerkey' ? 'active' : ''}">Answer Key</a>
       </div>
     </header>
   `;
 
   /* ============================================================
-     2. FOOTER COMPONENT
+     2. FOOTER COMPONENT (Absolute Root Paths)
   ============================================================ */
   const currentYear = new Date().getFullYear();
   const footerHtml = `
@@ -48,12 +48,12 @@
       <div class="footer-inner">
         <nav aria-label="Footer Navigation">
           <ul class="footer-links">
-            <li><a href="index" class="${pathname === 'index' || pathname === '' ? 'active' : ''}">Home</a></li>
-            <li><a href="about-us" class="${pathname === 'about-us' ? 'active' : ''}">About Us</a></li>
-            <li><a href="contact-us" class="${pathname === 'contact-us' ? 'active' : ''}">Contact Us</a></li>
-            <li><a href="privacy-policy" class="${pathname === 'privacy-policy' ? 'active' : ''}">Privacy Policy</a></li>
-            <li><a href="terms-and-conditions" class="${pathname === 'terms-and-conditions' ? 'active' : ''}">Terms and Conditions</a></li>
-            <li><a href="disclaimer" class="${pathname === 'disclaimer' ? 'active' : ''}">Disclaimer</a></li>
+            <li><a href="/index" class="${pathname === 'index' || pathname === '' ? 'active' : ''}">Home</a></li>
+            <li><a href="/about-us" class="${pathname === 'about-us' ? 'active' : ''}">About Us</a></li>
+            <li><a href="/contact-us" class="${pathname === 'contact-us' ? 'active' : ''}">Contact Us</a></li>
+            <li><a href="/privacy-policy" class="${pathname === 'privacy-policy' ? 'active' : ''}">Privacy Policy</a></li>
+            <li><a href="/terms-and-conditions" class="${pathname === 'terms-and-conditions' ? 'active' : ''}">Terms and Conditions</a></li>
+            <li><a href="/disclaimer" class="${pathname === 'disclaimer' ? 'active' : ''}">Disclaimer</a></li>
           </ul>
         </nav>
         <div class="footer-copy">© ${currentYear} CBTRANK.COM | All Rights Reserved</div>
