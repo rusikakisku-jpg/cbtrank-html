@@ -271,14 +271,14 @@
   <!-- NAVBAR -->
   <header class="navbar">
     <div class="navbar-inner">
-      <a href="index.html" class="nav-logo">
+      <a href="index" class="nav-logo">
         <div class="logo-circle">CBT</div>
         <span class="logo-text">CBT RANK</span>
       </a>
       <nav>
         <ul class="nav-links">
-          <li><a href="index.html">Home</a></li>
-          <li><a href="answerkey.html" class="active">Answer Key</a></li>
+          <li><a href="index">Home</a></li>
+          <li><a href="answerkey" class="active">Answer Key</a></li>
         </ul>
       </nav>
       <button class="hamburger" id="hamburger" aria-label="Toggle Menu">
@@ -286,8 +286,8 @@
       </button>
     </div>
     <div class="mobile-drawer" id="mobile-drawer">
-      <a href="index.html">Home</a>
-      <a href="answerkey.html">Answer Key</a>
+      <a href="index">Home</a>
+      <a href="answerkey">Answer Key</a>
     </div>
   </header>
 
@@ -659,8 +659,8 @@
         }));
       } catch (e) {}
 
-      // Redirect to result page with URL query parameters
-      const targetResultPage = window.location.pathname.endsWith('.php') ? 'result.php' : 'result.html';
+      // Redirect to result page with clean URL query parameters
+      const targetResultPage = 'result';
       window.location.href = `${targetResultPage}?url=${encodeURIComponent(urlVal)}&category=${encodeURIComponent(catVal)}&gender=${encodeURIComponent(genVal)}&state=${encodeURIComponent(stateVal)}`;
     });
 
