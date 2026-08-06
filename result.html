@@ -172,7 +172,7 @@
     .metric-card.amber .val { color: #d97706; }
     .metric-card .sub { font-size: 0.68rem; color: #94a3b8; font-weight: 600; margin-top: 2px; }
 
-    /* 5. CANDIDATE RESPONSE SHEET VIEWER STYLES */
+    /* 5. PROFESSIONAL CANDIDATE RESPONSE SHEET TAB SYSTEM STYLES */
     .json-toggle-btn {
       width: 100%; background: #0044cc; border: 1px solid #0044cc; border-radius: 12px;
       padding: 12px 18px; font-weight: 900; font-size: 0.85rem; color: #ffffff;
@@ -181,9 +181,30 @@
     }
     .json-toggle-btn:hover { background: #003399; }
 
+    .tab-segmented-bar {
+      display: flex; gap: 4px; background: #e2e8f0; border-radius: 14px; padding: 4px;
+      margin-bottom: 12px; overflow-x: auto;
+    }
+    .tab-segmented-btn {
+      flex: 1; min-width: 110px; padding: 9px 12px; border-radius: 10px; border: none;
+      background: transparent; color: #475569; font-size: 0.8rem; font-weight: 800;
+      cursor: pointer; transition: all 0.2s ease; white-space: nowrap; text-align: center;
+      display: flex; align-items: center; justify-content: center; gap: 6px;
+    }
+    .tab-segmented-btn:hover { color: #0044cc; background: rgba(255,255,255,0.6); }
+    .tab-segmented-btn.active {
+      background: #ffffff; color: #0044cc; font-weight: 900;
+      box-shadow: 0 2px 8px rgba(15, 23, 42, 0.08);
+    }
+
+    .tab-sec-bar {
+      display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; align-items: center;
+      background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 8px 12px;
+    }
+    .tab-sec-label { font-size: 0.72rem; font-weight: 900; color: #64748b; text-transform: uppercase; letter-spacing: 0.04em; }
     .response-pill {
-      background: #f1f5f9; color: #334155; border: 1px solid #cbd5e1;
-      padding: 6px 14px; border-radius: 20px; font-size: 0.78rem; font-weight: 800;
+      background: #ffffff; color: #334155; border: 1px solid #cbd5e1;
+      padding: 5px 12px; border-radius: 20px; font-size: 0.76rem; font-weight: 800;
       cursor: pointer; transition: all 0.2s ease;
     }
     .response-pill.active, .response-pill:hover {
@@ -747,8 +768,8 @@
       document.getElementById('right-val-input').addEventListener('input', renderTablesAndMetrics);
       document.getElementById('wrong-val-input').addEventListener('input', renderTablesAndMetrics);
 
-      // 10. CANDIDATE RESPONSE SHEET VIEWER RENDERER
-      function renderResponseSheet(questions, activeFilter = 'ALL') {
+      // 10. PROFESSIONAL CANDIDATE RESPONSE SHEET RENDERER
+      function renderResponseSheet(questions, activeStatusFilter = 'ALL', activeSecFilter = 'ALL') {
         const container = document.getElementById('response-questions-container');
         const pillsContainer = document.getElementById('response-filter-pills');
 
@@ -758,42 +779,78 @@
           return;
         }
 
-        // Extract unique sections
-        const sections = ['ALL'];
+        // 1. Calculate Status Counts
+        const totalCount = questions.length;
+        const correctCount = questions.filter(q => q.status === 'Correct').length;
+        const wrongCount = questions.filter(q => q.status === 'Wrong').length;
+        const unattCount = questions.filter(q => q.status === 'Unattempted').length;
+
+        // 2. Extract Unique Subject Sections
+        const subjectSections = [];
         questions.forEach(q => {
-          if (q.section && !sections.includes(q.section)) sections.push(q.section);
+          if (q.section && !subjectSections.includes(q.section)) subjectSections.push(q.section);
         });
-        if (!sections.includes('Correct')) sections.push('Correct', 'Wrong', 'Unattempted');
 
-        // Render Filter Pills
-        pillsContainer.innerHTML = sections.map(sec => {
-          let count = 0;
-          if (sec === 'ALL') count = questions.length;
-          else if (sec === 'Correct') count = questions.filter(q => q.status === 'Correct').length;
-          else if (sec === 'Wrong') count = questions.filter(q => q.status === 'Wrong').length;
-          else if (sec === 'Unattempted') count = questions.filter(q => q.status === 'Unattempted').length;
-          else count = questions.filter(q => q.section === sec).length;
+        // Build Row 1: Segmented Status Tabs
+        let tabsHtml = `
+          <div class="tab-segmented-bar">
+            <button type="button" class="tab-segmented-btn ${activeStatusFilter === 'ALL' ? 'active' : ''}" data-status="ALL">
+              🌐 All Questions (${totalCount})
+            </button>
+            <button type="button" class="tab-segmented-btn ${activeStatusFilter === 'Correct' ? 'active' : ''}" data-status="Correct">
+              ✅ Correct (${correctCount})
+            </button>
+            <button type="button" class="tab-segmented-btn ${activeStatusFilter === 'Wrong' ? 'active' : ''}" data-status="Wrong">
+              ❌ Wrong (${wrongCount})
+            </button>
+            <button type="button" class="tab-segmented-btn ${activeStatusFilter === 'Unattempted' ? 'active' : ''}" data-status="Unattempted">
+              ⏸️ Unattempted (${unattCount})
+            </button>
+          </div>
+        `;
 
-          const isActive = (activeFilter === sec);
-          return `<button type="button" class="response-pill ${isActive ? 'active' : ''}" data-filter="${sec}">${sec} (${count})</button>`;
-        }).join('');
+        // Build Row 2: Subject Section Pills (If multiple sections exist)
+        if (subjectSections.length > 1) {
+          tabsHtml += `
+            <div class="tab-sec-bar">
+              <span class="tab-sec-label">Subjects:</span>
+              <button type="button" class="response-pill ${activeSecFilter === 'ALL' ? 'active' : ''}" data-sec="ALL">All Subjects</button>
+              ${subjectSections.map(sec => {
+                const secCount = questions.filter(q => q.section === sec).length;
+                return `<button type="button" class="response-pill ${activeSecFilter === sec ? 'active' : ''}" data-sec="${sec}">${sec} (${secCount})</button>`;
+              }).join('')}
+            </div>
+          `;
+        }
 
-        // Add click listeners to pills
+        pillsContainer.innerHTML = tabsHtml;
+
+        // Attach listeners for status tabs
+        pillsContainer.querySelectorAll('.tab-segmented-btn').forEach(btn => {
+          btn.addEventListener('click', () => {
+            renderResponseSheet(questions, btn.getAttribute('data-status'), activeSecFilter);
+          });
+        });
+
+        // Attach listeners for section pills
         pillsContainer.querySelectorAll('.response-pill').forEach(btn => {
           btn.addEventListener('click', () => {
-            renderResponseSheet(questions, btn.getAttribute('data-filter'));
+            renderResponseSheet(questions, activeStatusFilter, btn.getAttribute('data-sec'));
           });
         });
 
         // Filter questions
         let filteredQ = questions;
-        if (activeFilter === 'Correct') filteredQ = questions.filter(q => q.status === 'Correct');
-        else if (activeFilter === 'Wrong') filteredQ = questions.filter(q => q.status === 'Wrong');
-        else if (activeFilter === 'Unattempted') filteredQ = questions.filter(q => q.status === 'Unattempted');
-        else if (activeFilter !== 'ALL') filteredQ = questions.filter(q => q.section === activeFilter);
+        if (activeStatusFilter === 'Correct') filteredQ = filteredQ.filter(q => q.status === 'Correct');
+        else if (activeStatusFilter === 'Wrong') filteredQ = filteredQ.filter(q => q.status === 'Wrong');
+        else if (activeStatusFilter === 'Unattempted') filteredQ = filteredQ.filter(q => q.status === 'Unattempted');
+
+        if (activeSecFilter !== 'ALL') {
+          filteredQ = filteredQ.filter(q => q.section === activeSecFilter);
+        }
 
         if (filteredQ.length === 0) {
-          container.innerHTML = `<div style="text-align:center; padding:30px; color:#64748b; font-weight:700;">No questions match filter "${activeFilter}".</div>`;
+          container.innerHTML = `<div style="text-align:center; padding:30px; color:#64748b; font-weight:700;">No questions found matching the selected filters.</div>`;
           return;
         }
 
