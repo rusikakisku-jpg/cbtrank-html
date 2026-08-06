@@ -740,7 +740,8 @@
 
           // Handle show_blogs_section toggle directly from D1 settings!
           if (settingsObj && settingsObj.hasOwnProperty('show_blogs_section')) {
-            const showBlogVal = String(settingsObj['show_blogs_section'] ?? '0').trim();
+            const showBlogVal = String(settingsObj['show_blogs_section'] ?? '1').trim();
+            try { localStorage.setItem('cbtrank_show_blogs', showBlogVal); } catch (err) {}
             setupLayout(showBlogVal === '1');
           }
           return;
@@ -763,10 +764,17 @@
       }
     }
 
-    /* INIT */
+    /* INIT (Instant 0ms Seamless Unified Load) */
     function initApp() {
+      // Check cached setting or default true for instant 0ms unified render
+      let initialShowBlogs = true;
+      try {
+        const cached = localStorage.getItem('cbtrank_show_blogs');
+        if (cached !== null) initialShowBlogs = (cached === '1');
+      } catch (err) {}
+
       renderExams();
-      setupLayout(false); // Default OFF until D1 settings loaded
+      setupLayout(initialShowBlogs);
       loadExamsData();
     }
 
