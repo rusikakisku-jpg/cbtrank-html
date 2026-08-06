@@ -648,7 +648,18 @@
       const shiftRank = Math.max(1, Math.floor(overallRank / 3.2));
       const categoryRank = Math.max(1, Math.floor(overallRank / 2.1));
 
-      // Redirect to result page with URL query parameters (ZERO sessionStorage used!)
+      // Store pre-fetched API data in instant cache for 0ms result page rendering!
+      try {
+        sessionStorage.setItem('cbtrank_instant_cache', JSON.stringify({
+          url: urlVal,
+          category: catVal,
+          gender: genVal,
+          state: stateVal,
+          apiData: apiData
+        }));
+      } catch (e) {}
+
+      // Redirect to result page with URL query parameters
       const targetResultPage = window.location.pathname.endsWith('.php') ? 'result.php' : 'result.html';
       window.location.href = `${targetResultPage}?url=${encodeURIComponent(urlVal)}&category=${encodeURIComponent(catVal)}&gender=${encodeURIComponent(genVal)}&state=${encodeURIComponent(stateVal)}`;
     });
