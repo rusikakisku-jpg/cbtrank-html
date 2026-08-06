@@ -524,7 +524,8 @@
       if (!passedSlug) return;
 
       try {
-        const res = await fetch('d1_exams.json');
+        let res = await fetch('/d1_exams.json');
+        if (!res.ok) res = await fetch('d1_exams.json');
         if (res.ok) {
           const exams = await res.json();
           const cleanSearch = passedSlug.toLowerCase().trim();
