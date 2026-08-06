@@ -181,34 +181,36 @@
     }
     .json-toggle-btn:hover { background: #003399; }
 
+    /* BEAUTIFUL & ELEGANT RESPONSE SHEET TABS SYSTEM UI */
     .tab-segmented-bar {
-      display: flex; gap: 4px; background: #e2e8f0; border-radius: 14px; padding: 4px;
-      margin-bottom: 12px; overflow-x: auto;
+      display: flex; gap: 6px; background: #f1f5f9; border: 1px solid #e2e8f0;
+      border-radius: 16px; padding: 6px; margin-bottom: 14px; overflow-x: auto;
+      scroll-behavior: smooth; -webkit-overflow-scrolling: touch;
     }
     .tab-segmented-btn {
-      flex: 1; min-width: 110px; padding: 9px 12px; border-radius: 10px; border: none;
-      background: transparent; color: #475569; font-size: 0.8rem; font-weight: 800;
-      cursor: pointer; transition: all 0.2s ease; white-space: nowrap; text-align: center;
-      display: flex; align-items: center; justify-content: center; gap: 6px;
+      flex: 1 1 0%; min-width: max-content; padding: 10px 16px; border-radius: 12px; border: 1px solid transparent;
+      background: transparent; color: #475569; font-size: 0.82rem; font-weight: 800;
+      cursor: pointer; transition: all 0.22s ease; white-space: nowrap; text-align: center;
+      display: inline-flex; align-items: center; justify-content: center; gap: 8px;
     }
-    .tab-segmented-btn:hover { color: #0044cc; background: rgba(255,255,255,0.6); }
+    .tab-segmented-btn:hover { color: #0044cc; background: rgba(255,255,255,0.7); }
     .tab-segmented-btn.active {
       background: #ffffff; color: #0044cc; font-weight: 900;
-      box-shadow: 0 2px 8px rgba(15, 23, 42, 0.08);
+      box-shadow: 0 4px 12px rgba(15, 23, 42, 0.08); border-color: rgba(0, 68, 204, 0.18);
     }
 
     .tab-sec-bar {
-      display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; align-items: center;
-      background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 8px 12px;
+      display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 18px; align-items: center;
+      background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 14px; padding: 10px 16px;
     }
-    .tab-sec-label { font-size: 0.72rem; font-weight: 900; color: #64748b; text-transform: uppercase; letter-spacing: 0.04em; }
+    .tab-sec-label { font-size: 0.75rem; font-weight: 900; color: #0044cc; text-transform: uppercase; letter-spacing: 0.05em; display: flex; align-items: center; gap: 4px; }
     .response-pill {
       background: #ffffff; color: #334155; border: 1px solid #cbd5e1;
-      padding: 5px 12px; border-radius: 20px; font-size: 0.76rem; font-weight: 800;
+      padding: 6px 14px; border-radius: 20px; font-size: 0.78rem; font-weight: 800;
       cursor: pointer; transition: all 0.2s ease;
     }
     .response-pill.active, .response-pill:hover {
-      background: #0044cc; color: #fff; border-color: #0044cc;
+      background: #0044cc; color: #fff; border-color: #0044cc; box-shadow: 0 2px 8px rgba(0, 68, 204, 0.25);
     }
 
     .q-card {
@@ -657,7 +659,7 @@
 
       if (resultData.infoRows && resultData.infoRows.length > 0) {
         metaRows = resultData.infoRows
-          .filter(r => !r.label.toLowerCase().includes('title') && !r.label.toLowerCase().includes('header') && r.value !== dynamicTitle)
+          .filter(r => !r.label.toLowerCase().includes('title') && !r.label.toLowerCase().includes('header') && !r.label.toLowerCase().includes('note') && !r.label.includes('*') && r.value !== dynamicTitle)
           .map(r => ({ label: r.label, value: r.value, isMono: r.label.toLowerCase().includes('id') || r.label.toLowerCase().includes('roll') }));
         if (!resultData.infoRows.some(r => r.label.toLowerCase().includes('category'))) {
           metaRows.push({ label: 'Category', value: cat });
