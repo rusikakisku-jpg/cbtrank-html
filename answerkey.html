@@ -332,7 +332,7 @@
           <div class="form-group">
             <label for="ans_key_url">Answer Key URL <span class="star">*</span></label>
             <input type="url" id="ans_key_url" class="form-input font-mono" required>
-            <p class="help-text">Use the official answer key link (the page where questions are visible).</p>
+            <p class="help-text" id="anskey-help-text">Use the official answer key link (the page where questions are visible).</p>
           </div>
 
           <!-- Category & Horizontal Category -->
@@ -498,6 +498,71 @@
 
   <!-- JAVASCRIPT LOGIC -->
   <script>
+    // -------------------------------------------------------------
+    // SLUG & PASSED VALUE DETECTION (Matches reference answerkey.php)
+    // -------------------------------------------------------------
+    async function loadExamSlugData() {
+      const searchParams = new URLSearchParams(window.location.search);
+      let passedSlug = searchParams.get('slug') || searchParams.get('exam') || searchParams.get('title') || '';
+      
+      // Path-based slug check (e.g., /rrb-ntpc-2026/answerkey or /answerkey/rrb-ntpc-2026)
+      if (!passedSlug) {
+        const parts = window.location.pathname.split('/').filter(Boolean);
+        if (parts.length >= 1) {
+          const firstPart = parts[0];
+          if (firstPart !== 'answerkey' && firstPart !== 'answerkey.html' && firstPart !== 'answerkey.php' && firstPart !== 'result' && firstPart !== 'result.html') {
+            passedSlug = firstPart;
+          } else if (parts.length >= 2) {
+            const lastPart = parts[parts.length - 1];
+            if (lastPart !== 'answerkey' && lastPart !== 'answerkey.html' && lastPart !== 'answerkey.php') {
+              passedSlug = lastPart;
+            }
+          }
+        }
+      }
+
+      if (!passedSlug) return;
+
+      try {
+        const res = await fetch('d1_exams.json');
+        if (res.ok) {
+          const exams = await res.json();
+          const cleanSearch = passedSlug.toLowerCase().trim();
+          const matchedExam = exams.find(e => 
+            (e.slug && e.slug.toLowerCase() === cleanSearch) ||
+            (e.title && e.title.toLowerCase() === cleanSearch) ||
+            (e.title && e.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').includes(cleanSearch))
+          );
+
+          let examTitleText = '';
+          if (matchedExam) {
+            examTitleText = matchedExam.title.trim();
+          } else {
+            examTitleText = decodeURIComponent(passedSlug).replace(/[-_]+/g, ' ').trim();
+          }
+
+          if (examTitleText) {
+            // Document Title
+            document.title = `${examTitleText} Answer Key Calculator | CBT RANK`;
+            
+            // Banner Title
+            const bannerTitle = document.getElementById('banner-exam-title');
+            if (bannerTitle) bannerTitle.textContent = `${examTitleText} Answer Key Calculator`;
+
+            // Banner Subtitle
+            const bannerSub = document.getElementById('banner-exam-sub');
+            if (bannerSub) bannerSub.textContent = `Paste your ${examTitleText} official answer key URL and add your exam details.`;
+
+            // Help Hint Text
+            const helpText = document.getElementById('anskey-help-text');
+            if (helpText) helpText.textContent = `Use the ${examTitleText} official answer key link (the page where questions are visible).`;
+          }
+        }
+      } catch (err) {}
+    }
+
+    loadExamSlugData();
+
     // Live Endpoints (Local Relative VPS Proxy Endpoint First!)
     const DIGIALM_LOCAL_API = "digialm.php?url=";
     const API_LOCAL_API = "api.php?url=";
