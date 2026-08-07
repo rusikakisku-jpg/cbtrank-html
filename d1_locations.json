@@ -1,0 +1,287 @@
+[
+  {
+    "type_id": 1,
+    "name": "Ahmedabad",
+    "slug": "ahmedabad"
+  },
+  {
+    "type_id": 1,
+    "name": "Ajmer",
+    "slug": "ajmer"
+  },
+  {
+    "type_id": 1,
+    "name": "Bengaluru",
+    "slug": "bengaluru"
+  },
+  {
+    "type_id": 1,
+    "name": "Bhopal",
+    "slug": "bhopal"
+  },
+  {
+    "type_id": 1,
+    "name": "Bhubaneswar",
+    "slug": "bhubaneswar"
+  },
+  {
+    "type_id": 1,
+    "name": "Bilaspur",
+    "slug": "bilaspur"
+  },
+  {
+    "type_id": 1,
+    "name": "Chandigarh",
+    "slug": "chandigarh"
+  },
+  {
+    "type_id": 1,
+    "name": "Chennai",
+    "slug": "chennai"
+  },
+  {
+    "type_id": 1,
+    "name": "Gorakhpur",
+    "slug": "gorakhpur"
+  },
+  {
+    "type_id": 1,
+    "name": "Guwahati",
+    "slug": "guwahati"
+  },
+  {
+    "type_id": 1,
+    "name": "Jammu-Srinagar",
+    "slug": "jammu-srinagar"
+  },
+  {
+    "type_id": 1,
+    "name": "Kolkata",
+    "slug": "kolkata"
+  },
+  {
+    "type_id": 1,
+    "name": "Malda",
+    "slug": "malda"
+  },
+  {
+    "type_id": 1,
+    "name": "Mumbai",
+    "slug": "mumbai"
+  },
+  {
+    "type_id": 1,
+    "name": "Muzaffarpur",
+    "slug": "muzaffarpur"
+  },
+  {
+    "type_id": 1,
+    "name": "Patna",
+    "slug": "patna"
+  },
+  {
+    "type_id": 1,
+    "name": "Prayagraj",
+    "slug": "prayagraj"
+  },
+  {
+    "type_id": 1,
+    "name": "Ranchi",
+    "slug": "ranchi"
+  },
+  {
+    "type_id": 1,
+    "name": "Secunderabad",
+    "slug": "secunderabad"
+  },
+  {
+    "type_id": 1,
+    "name": "Siliguri",
+    "slug": "siliguri"
+  },
+  {
+    "type_id": 1,
+    "name": "Thiruvananthapuram",
+    "slug": "thiruvananthapuram"
+  },
+  {
+    "type_id": 2,
+    "name": "Andaman and Nicobar Islands",
+    "slug": "andaman-and-nicobar-islands"
+  },
+  {
+    "type_id": 2,
+    "name": "Andhra Pradesh",
+    "slug": "andhra-pradesh"
+  },
+  {
+    "type_id": 2,
+    "name": "Arunachal Pradesh",
+    "slug": "arunachal-pradesh"
+  },
+  {
+    "type_id": 2,
+    "name": "Assam",
+    "slug": "assam"
+  },
+  {
+    "type_id": 2,
+    "name": "Bihar",
+    "slug": "bihar"
+  },
+  {
+    "type_id": 2,
+    "name": "Chandigarh",
+    "slug": "chandigarh-2"
+  },
+  {
+    "type_id": 2,
+    "name": "Chhattisgarh",
+    "slug": "chhattisgarh"
+  },
+  {
+    "type_id": 2,
+    "name": "Dadra & Nagar Haveli and Daman & Diu",
+    "slug": "dadra-nagar-haveli-and-daman-diu"
+  },
+  {
+    "type_id": 2,
+    "name": "Delhi",
+    "slug": "delhi"
+  },
+  {
+    "type_id": 2,
+    "name": "Goa",
+    "slug": "goa"
+  },
+  {
+    "type_id": 2,
+    "name": "Gujarat",
+    "slug": "gujarat"
+  },
+  {
+    "type_id": 2,
+    "name": "Haryana",
+    "slug": "haryana"
+  },
+  {
+    "type_id": 2,
+    "name": "Himachal Pradesh",
+    "slug": "himachal-pradesh"
+  },
+  {
+    "type_id": 2,
+    "name": "Jammu & Kashmir",
+    "slug": "jammu-kashmir"
+  },
+  {
+    "type_id": 2,
+    "name": "Jharkhand",
+    "slug": "jharkhand"
+  },
+  {
+    "type_id": 2,
+    "name": "Karnataka",
+    "slug": "karnataka"
+  },
+  {
+    "type_id": 2,
+    "name": "Kerala",
+    "slug": "kerala"
+  },
+  {
+    "type_id": 2,
+    "name": "Ladakh",
+    "slug": "ladakh"
+  },
+  {
+    "type_id": 2,
+    "name": "Lakshadweep",
+    "slug": "lakshadweep"
+  },
+  {
+    "type_id": 2,
+    "name": "Madhya Pradesh",
+    "slug": "madhya-pradesh"
+  },
+  {
+    "type_id": 2,
+    "name": "Maharashtra",
+    "slug": "maharashtra"
+  },
+  {
+    "type_id": 2,
+    "name": "Manipur",
+    "slug": "manipur"
+  },
+  {
+    "type_id": 2,
+    "name": "Meghalaya",
+    "slug": "meghalaya"
+  },
+  {
+    "type_id": 2,
+    "name": "Mizoram",
+    "slug": "mizoram"
+  },
+  {
+    "type_id": 2,
+    "name": "Nagaland",
+    "slug": "nagaland"
+  },
+  {
+    "type_id": 2,
+    "name": "Odisha",
+    "slug": "odisha"
+  },
+  {
+    "type_id": 2,
+    "name": "Puducherry",
+    "slug": "puducherry"
+  },
+  {
+    "type_id": 2,
+    "name": "Punjab",
+    "slug": "punjab"
+  },
+  {
+    "type_id": 2,
+    "name": "Rajasthan",
+    "slug": "rajasthan"
+  },
+  {
+    "type_id": 2,
+    "name": "Sikkim",
+    "slug": "sikkim"
+  },
+  {
+    "type_id": 2,
+    "name": "Tamil Nadu",
+    "slug": "tamil-nadu"
+  },
+  {
+    "type_id": 2,
+    "name": "Telangana",
+    "slug": "telangana"
+  },
+  {
+    "type_id": 2,
+    "name": "Tripura",
+    "slug": "tripura"
+  },
+  {
+    "type_id": 2,
+    "name": "Uttar Pradesh",
+    "slug": "uttar-pradesh"
+  },
+  {
+    "type_id": 2,
+    "name": "Uttarakhand",
+    "slug": "uttarakhand"
+  },
+  {
+    "type_id": 2,
+    "name": "West Bengal",
+    "slug": "west-bengal"
+  }
+]
