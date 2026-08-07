@@ -537,29 +537,10 @@
       if (!passedSlug) return;
 
       try {
-        let res = await fetch('/get_exams.php');
-        if (!res.ok) res = await fetch('get_exams.php');
-        let fullData = null;
+        let res = await fetch('/d1_exams.json');
+        if (!res.ok) res = await fetch('d1_exams.json');
         let examsArr = [];
-        let locationTypesArr = [];
-        let locationsArr = [];
-
-        if (res.ok) {
-          fullData = await res.json();
-          if (Array.isArray(fullData)) {
-            examsArr = fullData;
-          } else if (fullData && typeof fullData === 'object') {
-            examsArr = fullData.exams || [];
-            locationTypesArr = fullData.location_types || [];
-            locationsArr = fullData.locations || [];
-          }
-        }
-
-        if (!examsArr.length) {
-          let fallbackRes = await fetch('/d1_exams.json');
-          if (!fallbackRes.ok) fallbackRes = await fetch('d1_exams.json');
-          if (fallbackRes.ok) examsArr = await fallbackRes.json();
-        }
+        if (res.ok) examsArr = await res.json();
 
         const cleanSearch = passedSlug.toLowerCase().trim();
         const matchedExam = examsArr.find(e => 
@@ -576,109 +557,72 @@
         }
 
         if (examTitleText) {
-          // Document Title
           document.title = `${examTitleText} Answer Key Calculator | CBT RANK`;
-          
-          // Banner Title (Always clean Answer Key Calculator)
           const bannerTitle = document.getElementById('banner-exam-title');
           if (bannerTitle) bannerTitle.textContent = `Answer Key Calculator`;
-
-          // Banner Subtitle
           const bannerSub = document.getElementById('banner-exam-sub');
           if (bannerSub) bannerSub.textContent = `Paste your ${examTitleText} official answer key URL and add your exam details.`;
-
-          // Help Hint Text
           const helpText = document.getElementById('anskey-help-text');
           if (helpText) helpText.textContent = `Use the ${examTitleText} official answer key link (the page where questions are visible).`;
         }
 
-        // Handle Dynamic Location Label & Location Dropdown from location_type_id
-        let locTypeId = 2; // Default State / UT
+        let locTypeId = 2;
         if (matchedExam && matchedExam.location_type_id) {
           locTypeId = Number(matchedExam.location_type_id);
         } else if (cleanSearch.includes('rrb') || (examTitleText && examTitleText.toLowerCase().includes('rrb'))) {
-          locTypeId = 1; // Auto-detect RRB Zone for RRB exams
+          locTypeId = 1;
         }
 
-        // Find matching location type name from D1 location_types
-        let locTypeName = 'State / UT';
-        if (locationTypesArr && locationTypesArr.length > 0) {
-          const matchedType = locationTypesArr.find(lt => Number(lt.id) === locTypeId);
-          if (matchedType && matchedType.name) {
-            locTypeName = matchedType.name;
-          }
-        }
-        if (locTypeId === 1 && locTypeName === 'State / UT') {
-          locTypeName = 'RRB Zone';
-        }
+        const locTypeName = (locTypeId === 1) ? 'RRB Zone' : 'State / UT';
 
-        // 1. Update Label above dropdown
         const stateLabel = document.getElementById('state-label');
         if (stateLabel) {
           stateLabel.innerHTML = `${escapeHtml(locTypeName)} <span class="star">*</span>`;
         }
 
-        // 2. Update Dropdown Options matched by type_id == locTypeId
-        const stateSelect = document.getElementById('state');
-        if (stateSelect) {
-          if (locationsArr && locationsArr.length > 0) {
-            const filteredLocations = locationsArr.filter(loc => Number(loc.type_id) === locTypeId);
-            if (filteredLocations.length > 0) {
-              stateSelect.innerHTML = `<option value="">Select ${escapeHtml(locTypeName)}</option>` +
-                filteredLocations.map(l => `<option value="${escapeHtml(l.name)}">${escapeHtml(l.name)}</option>`).join('');
+        try {
+          let locRes = await fetch('/d1_locations.json');
+          if (!locRes.ok) locRes = await fetch('d1_locations.json');
+          const stateSelect = document.getElementById('state');
+          if (stateSelect) {
+            if (locRes.ok) {
+              const locationsArr = await locRes.json();
+              const filteredLocations = locationsArr.filter(loc => Number(loc.type_id) === locTypeId);
+              if (filteredLocations.length > 0) {
+                stateSelect.innerHTML = `<option value="">Select ${escapeHtml(locTypeName)}</option>` +
+                  filteredLocations.map(l => `<option value="${escapeHtml(l.name)}">${escapeHtml(l.name)}</option>`).join('');
+                return;
+              }
             }
-          } else if (locTypeId === 1) {
-            // Default RRB Zones fallback list
-            const defaultRRBZones = ["Ahmedabad","Ajmer","Bengaluru","Bhopal","Bhubaneswar","Bilaspur","Chandigarh","Chennai","Gorakhpur","Guwahati","Jammu-Srinagar","Kolkata","Malda","Mumbai","Muzaffarpur","Patna","Prayagraj","Ranchi","Secunderabad","Siliguri","Thiruvananthapuram"];
-            stateSelect.innerHTML = `<option value="">Select RRB Zone</option>` +
-              defaultRRBZones.map(z => `<option value="${z}">${z}</option>`).join('');
+            if (locTypeId === 1) {
+              const defaultRRBZones = ["Ahmedabad","Ajmer","Bengaluru","Bhopal","Bhubaneswar","Bilaspur","Chandigarh","Chennai","Gorakhpur","Guwahati","Jammu-Srinagar","Kolkata","Malda","Mumbai","Muzaffarpur","Patna","Prayagraj","Ranchi","Secunderabad","Siliguri","Thiruvananthapuram"];
+              stateSelect.innerHTML = `<option value="">Select RRB Zone</option>` +
+                defaultRRBZones.map(z => `<option value="${z}">${z}</option>`).join('');
+            }
           }
-        }
+        } catch (e) {}
+
       } catch (err) {}
     }
 
     loadExamSlugData();
 
-    // Live Endpoints (Local Relative VPS Proxy Endpoint First!)
     const DIGIALM_LOCAL_API = "digialm.php?url=";
-    const API_LOCAL_API = "api.php?url=";
-    const PAGES_FUNCTION_API = "/api/digialm?url=";
     const VPS_1 = "http://147.93.154.159/digialm.php?url=";
-    const VPS_2 = "http://200.97.175.162:8585/api.php?url=";
-
-    // URL Validation regex patterns
     const DIGIALM_PATTERN = /(?:digialm\.com|tcsion\.com|AssessmentQP|touchstone|per\/g)/i;
 
-    // Toast helper
     const toastContainer = document.getElementById('toast-container');
     const toastMsg = document.getElementById('toast-msg');
     const toastCloseBtn = document.getElementById('toast-close-btn');
-    let toastTimeout;
 
     function showToast(msg) {
       toastMsg.textContent = msg;
       toastContainer.classList.add('show');
-      clearTimeout(toastTimeout);
-      toastTimeout = setTimeout(() => {
-        toastContainer.classList.remove('show');
-      }, 5000);
+      setTimeout(() => toastContainer.classList.remove('show'), 5000);
     }
 
-    toastCloseBtn.addEventListener('click', () => {
-      toastContainer.classList.remove('show');
-    });
+    toastCloseBtn.addEventListener('click', () => toastContainer.classList.remove('show'));
 
-    // Mobile Hamburger
-    const hamburger = document.getElementById('hamburger');
-    const mobileDrawer = document.getElementById('mobile-drawer');
-    if (hamburger && mobileDrawer) {
-      hamburger.addEventListener('click', () => {
-        hamburger.classList.toggle('open');
-        mobileDrawer.classList.toggle('open');
-      });
-    }
-
-    // Form Elements
     const form = document.getElementById('anskey-form');
     const submitBtn = document.getElementById('submit-btn');
     const btnText = document.getElementById('btn-text');
@@ -692,125 +636,66 @@
       const genVal = document.getElementById('gender').value;
       const stateVal = document.getElementById('state').value;
 
-      // 1. Mandatory Required Fields Check
       if (!urlVal || !catVal || !genVal || !stateVal || !consentCheck.checked) {
         showToast('Please fill all required fields (URL, Category, Gender, State / UT).');
         return;
       }
 
-      // Auto-prepend https:// if missing
-      if (!/^https?:\/\//i.test(urlVal)) {
-        urlVal = 'https://' + urlVal;
-      }
+      if (!/^https?:\/\//i.test(urlVal)) urlVal = 'https://' + urlVal;
 
-      // 2. Validate Digialm Pattern
       if (!DIGIALM_PATTERN.test(urlVal)) {
         showToast('please enter your official answerkey url   either link is broken or expired');
         document.getElementById('ans_key_url').focus();
         return;
       }
 
-      // 3. Update Button State
-      btnText.textContent = 'Verifying Answer Key...';
       submitBtn.disabled = true;
+      btnText.textContent = 'Calculating...';
 
       let apiData = null;
 
-      // Multi-tier API Fetching (Local relative endpoint first for VPS execution!)
-      const fetchEndpoints = [
-        `${DIGIALM_LOCAL_API}${encodeURIComponent(urlVal)}`,
-        `${API_LOCAL_API}${encodeURIComponent(urlVal)}`,
-        `${PAGES_FUNCTION_API}${encodeURIComponent(urlVal)}`,
-        `${VPS_1}${encodeURIComponent(urlVal)}`,
-        `${VPS_2}${encodeURIComponent(urlVal)}`
-      ];
+      try {
+        const primaryUrl = `${DIGIALM_LOCAL_API}${encodeURIComponent(urlVal)}`;
+        const res = await fetch(primaryUrl);
+        if (res.ok) apiData = await res.json();
+      } catch (err) {}
 
-      for (const ep of fetchEndpoints) {
-        if (apiData && apiData.success) break;
+      if (!apiData || !apiData.success) {
         try {
-          const res = await fetch(ep);
-          if (res.ok) {
-            const rawText = await res.text();
-            let json = null;
-            try { json = JSON.parse(rawText); } catch (pj) {}
-            if (json && json.success) {
-              apiData = json;
-              break;
-            }
-          }
+          const fallbackUrl = `${VPS_1}${encodeURIComponent(urlVal)}`;
+          const res = await fetch(fallbackUrl);
+          if (res.ok) apiData = await res.json();
         } catch (err) {}
       }
 
-      // 4. Handle Invalid / Expired / Broken URL
       if (!apiData || !apiData.success) {
-        showToast('please enter your official answerkey url   either link is broken or expired');
-        btnText.textContent = 'Calculate Marks & Rank';
         submitBtn.disabled = false;
-        document.getElementById('ans_key_url').focus();
+        btnText.textContent = 'View Score Card';
+        showToast('please enter your official answerkey url   either link is broken or expired');
         return;
       }
 
-      // 5. Format Section Data & Metadata for result page
-      const sectionsList = [];
-      if (apiData.section_summary) {
-        Object.keys(apiData.section_summary).forEach(secName => {
-          const sec = apiData.section_summary[secName];
-          sectionsList.push({
-            name: secName,
-            total: sec.total_questions || (sec.correct_answers + sec.wrong_answers + sec.unattempted),
-            correct: sec.correct_answers || 0,
-            wrong: sec.wrong_answers || 0,
-            unattempted: sec.unattempted || 0
-          });
-        });
-      }
-
-      const infoRowsList = [];
-      if (apiData.candidate_info) {
-        Object.keys(apiData.candidate_info).forEach(k => {
-          infoRowsList.push({ label: k, value: apiData.candidate_info[k] });
-        });
-      }
-
-      const score = apiData.score_summary || {};
-      const right = score.correct_answers || 0;
-      const wrong = score.wrong_answers || 0;
-      const unatt = score.unattempted || 0;
-
-      // Calculate ranks
-      const overallRank = Math.floor(Math.random() * 45) + 4;
-      const shiftRank = Math.max(1, Math.floor(overallRank / 3.2));
-      const categoryRank = Math.max(1, Math.floor(overallRank / 2.1));
-
-      // Store pre-fetched API data in instant cache for 0ms result page rendering!
       try {
         sessionStorage.setItem('cbtrank_instant_cache', JSON.stringify({
-          url: urlVal,
-          category: catVal,
-          gender: genVal,
-          state: stateVal,
-          apiData: apiData
+          url: urlVal, category: catVal, gender: genVal, state: stateVal, apiData: apiData
         }));
       } catch (e) {}
 
-      // Redirect to result page with clean absolute root URL query parameters
-      const targetResultPage = '/result';
-      window.location.href = `${targetResultPage}?url=${encodeURIComponent(urlVal)}&category=${encodeURIComponent(catVal)}&gender=${encodeURIComponent(genVal)}&state=${encodeURIComponent(stateVal)}`;
+      window.location.href = `/result?url=${encodeURIComponent(urlVal)}&category=${encodeURIComponent(catVal)}&gender=${encodeURIComponent(genVal)}&state=${encodeURIComponent(stateVal)}`;
     });
 
-    /* Live D1 Languages Sync */
     async function loadLiveD1Languages() {
       try {
-        let res = await fetch('/get_exams.php');
-        if (!res.ok) res = await fetch('get_exams.php');
+        let res = await fetch('/d1_languages.json');
+        if (!res.ok) res = await fetch('d1_languages.json');
         if (res.ok) {
-          const data = await res.json();
-          if (data && Array.isArray(data.languages) && data.languages.length > 0) {
+          const languages = await res.json();
+          if (Array.isArray(languages) && languages.length > 0) {
             const select = document.getElementById('paper_language');
             if (!select) return;
             const currentVal = select.value;
             select.innerHTML = '<option value="">Select Language (Optional)</option>' +
-              data.languages.map(l => `<option value="${escapeHtml(l.slug)}">${escapeHtml(l.name)}</option>`).join('');
+              languages.map(l => `<option value="${escapeHtml(l.slug)}">${escapeHtml(l.name)}</option>`).join('');
             if (currentVal) select.value = currentVal;
           }
         }
@@ -818,7 +703,6 @@
     }
     loadLiveD1Languages();
 
-    // Footer Copy
     document.getElementById('footer-copy').textContent = `© ${new Date().getFullYear()} CBTRANK.COM | All Rights Reserved`;
   </script>
 </body>
