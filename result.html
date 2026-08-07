@@ -620,16 +620,25 @@
         questions: apiData.questions_summary || []
       };
 
-      // 6. Image Banner Rendering (Shows ONLY if image banner exists)
+      // 6. Image Banner Rendering (Shows ONLY if image banner exists and loads cleanly)
       const bannerUrl = (resultData.headerImgUrl) ? resultData.headerImgUrl.trim() : '';
+      const logoContainer = document.getElementById('logo-container');
+      const logoImg = document.getElementById('exam-logo-img');
+      
       if (bannerUrl && bannerUrl !== '') {
-        document.getElementById('exam-logo-img').src = bannerUrl;
-        document.getElementById('logo-container').style.display = 'block';
+        logoImg.onload = function() {
+          logoContainer.style.display = 'block';
+        };
+        logoImg.onerror = function() {
+          logoContainer.style.display = 'none';
+        };
+        logoImg.src = bannerUrl;
+        logoContainer.style.display = 'block';
       } else {
-        document.getElementById('logo-container').style.display = 'none';
+        logoContainer.style.display = 'none';
       }
 
-      // 7. Exam Title / Headline Text Rendering (Shows ONLY if title/subject text exists)
+      // 7. Exam Title / Headline Text Rendering
       let dynamicTitle = "";
       if (resultData.infoRows && resultData.infoRows.length > 0) {
         const titleRow = resultData.infoRows.find(r => 
@@ -692,8 +701,8 @@
 
       metaGrid.innerHTML = metaRows.map(m => `
         <div class="meta-box">
-          <label>${m.label}</label>
-          <span class="${m.isMono ? 'mono' : ''}">${m.value}</span>
+          <label>${escapeHtml(m.label)}</label>
+          <span class="${m.isMono ? 'mono' : ''}">${escapeHtml(m.value)}</span>
         </div>
       `).join('');
 
@@ -716,8 +725,8 @@
           tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; color:#64748b; padding:20px;">No section data parsed. Please enter a valid Answer Key URL on the calculator page.</td></tr>`;
         } else {
           tbody.innerHTML = sectionsData.map(sec => {
-            const unatt = sec.total - (sec.correct + sec.wrong);
-            const attempted = sec.correct + sec.wrong;
+            const unatt = (sec.unattempted !== undefined) ? sec.unattempted : (sec.total - (sec.correct + sec.wrong));
+            const attempted = (sec.total !== undefined) ? (sec.total - unatt) : (sec.correct + sec.wrong);
             const score = (sec.correct * rVal - sec.wrong * wVal).toFixed(2);
 
             grandTotal += sec.total;
@@ -729,7 +738,7 @@
 
             return `
               <tr>
-                <td>${sec.name}</td>
+                <td>${escapeHtml(sec.name)}</td>
                 <td>${sec.total}</td>
                 <td>${attempted}</td>
                 <td>${unatt}</td>
