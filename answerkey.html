@@ -593,36 +593,45 @@
         }
 
         // Handle Dynamic Location Label & Location Dropdown from location_type_id
+        let locTypeId = 2; // Default State / UT
         if (matchedExam && matchedExam.location_type_id) {
-          const locTypeId = Number(matchedExam.location_type_id);
-          
-          // Find matching location type name from D1 location_types
-          let locTypeName = 'State / UT';
-          if (locationTypesArr && locationTypesArr.length > 0) {
-            const matchedType = locationTypesArr.find(lt => Number(lt.id) === locTypeId);
-            if (matchedType && matchedType.name) {
-              locTypeName = matchedType.name;
-            }
-          } else if (locTypeId === 1) {
-            locTypeName = 'RRB Zone';
-          } else if (locTypeId === 2) {
-            locTypeName = 'State / UT';
-          }
+          locTypeId = Number(matchedExam.location_type_id);
+        } else if (cleanSearch.includes('rrb') || (examTitleText && examTitleText.toLowerCase().includes('rrb'))) {
+          locTypeId = 1; // Auto-detect RRB Zone for RRB exams
+        }
 
-          // 1. Update Label above dropdown
-          const stateLabel = document.getElementById('state-label');
-          if (stateLabel) {
-            stateLabel.innerHTML = `${escapeHtml(locTypeName)} <span class="star">*</span>`;
+        // Find matching location type name from D1 location_types
+        let locTypeName = 'State / UT';
+        if (locationTypesArr && locationTypesArr.length > 0) {
+          const matchedType = locationTypesArr.find(lt => Number(lt.id) === locTypeId);
+          if (matchedType && matchedType.name) {
+            locTypeName = matchedType.name;
           }
+        }
+        if (locTypeId === 1 && locTypeName === 'State / UT') {
+          locTypeName = 'RRB Zone';
+        }
 
-          // 2. Update Dropdown Options matched by type_id == locTypeId
-          const stateSelect = document.getElementById('state');
-          if (stateSelect && locationsArr && locationsArr.length > 0) {
+        // 1. Update Label above dropdown
+        const stateLabel = document.getElementById('state-label');
+        if (stateLabel) {
+          stateLabel.innerHTML = `${escapeHtml(locTypeName)} <span class="star">*</span>`;
+        }
+
+        // 2. Update Dropdown Options matched by type_id == locTypeId
+        const stateSelect = document.getElementById('state');
+        if (stateSelect) {
+          if (locationsArr && locationsArr.length > 0) {
             const filteredLocations = locationsArr.filter(loc => Number(loc.type_id) === locTypeId);
             if (filteredLocations.length > 0) {
               stateSelect.innerHTML = `<option value="">Select ${escapeHtml(locTypeName)}</option>` +
                 filteredLocations.map(l => `<option value="${escapeHtml(l.name)}">${escapeHtml(l.name)}</option>`).join('');
             }
+          } else if (locTypeId === 1) {
+            // Default RRB Zones fallback list
+            const defaultRRBZones = ["Ahmedabad","Ajmer","Bengaluru","Bhopal","Bhubaneswar","Bilaspur","Chandigarh","Chennai","Gorakhpur","Guwahati","Jammu-Srinagar","Kolkata","Malda","Mumbai","Muzaffarpur","Patna","Prayagraj","Ranchi","Secunderabad","Siliguri","Thiruvananthapuram"];
+            stateSelect.innerHTML = `<option value="">Select RRB Zone</option>` +
+              defaultRRBZones.map(z => `<option value="${z}">${z}</option>`).join('');
           }
         }
       } catch (err) {}
