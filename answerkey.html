@@ -639,6 +639,20 @@
           stateLabel.innerHTML = `${escapeHtml(locTypeName)} <span class="star">*</span>`;
         }
 
+        // Synchronously populate options for guaranteed immediate render
+        if (stateSelect) {
+          if (locTypeId === 1) {
+            const defaultRRBZones = ["Ahmedabad","Ajmer","Bengaluru","Bhopal","Bhubaneswar","Bilaspur","Chandigarh","Chennai","Gorakhpur","Guwahati","Jammu-Srinagar","Kolkata","Malda","Mumbai","Muzaffarpur","Patna","Prayagraj","Ranchi","Secunderabad","Siliguri","Thiruvananthapuram"];
+            stateSelect.innerHTML = `<option value="">Select RRB Zone</option>` +
+              defaultRRBZones.map(z => `<option value="${z}">${z}</option>`).join('');
+          } else {
+            const defaultStates = ["Andhra Pradesh","Assam","Bihar","Chhattisgarh","Delhi","Gujarat","Haryana","Himachal Pradesh","Jharkhand","Karnataka","Kerala","Madhya Pradesh","Maharashtra","Odisha","Punjab","Rajasthan","Tamil Nadu","Telangana","Uttar Pradesh","Uttarakhand","West Bengal"];
+            stateSelect.innerHTML = `<option value="">Select State / UT</option>` +
+              defaultStates.map(s => `<option value="${s}">${s}</option>`).join('');
+          }
+        }
+
+        // Live D1 locations fetch enhancement
         try {
           let locRes = await fetch('/d1_locations.json' + cacheBust);
           if (!locRes.ok) locRes = await fetch('d1_locations.json' + cacheBust);
