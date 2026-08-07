@@ -653,19 +653,30 @@
         examTitleElement.style.display = 'none';
       }
 
-      // 8. Render Metadata Cards (Filter out Title from Metadata Boxes)
+      // 8. Render Metadata Cards (Filter out Photo, Image, Signature, Title from Metadata Boxes)
       const metaGrid = document.getElementById('metadata-grid');
       let metaRows = [];
 
       if (resultData.infoRows && resultData.infoRows.length > 0) {
         metaRows = resultData.infoRows
-          .filter(r => !r.label.toLowerCase().includes('title') && !r.label.toLowerCase().includes('header') && !r.label.toLowerCase().includes('note') && !r.label.includes('*') && r.value !== dynamicTitle)
-          .map(r => ({ label: r.label, value: r.value, isMono: r.label.toLowerCase().includes('id') || r.label.toLowerCase().includes('roll') }));
+          .filter(r => {
+            const lbl = (r.label || '').toLowerCase();
+            const val = String(r.value || '').toLowerCase();
+            if (lbl.includes('photo') || lbl.includes('image') || lbl.includes('signature') || lbl.includes('picture')) return false;
+            if (val.includes('.jpg') || val.includes('.png') || val.includes('base64') || val.includes('[image]') || val.trim() === '') return false;
+            if (lbl.includes('title') || lbl.includes('header') || lbl.includes('note') || lbl.includes('*') || r.value === dynamicTitle) return false;
+            return true;
+          })
+          .map(r => ({ label: r.label, value: r.value, isMono: r.label.toLowerCase().includes('id') || r.label.toLowerCase().includes('roll') || r.label.toLowerCase().includes('no') }));
+
         if (!resultData.infoRows.some(r => r.label.toLowerCase().includes('category'))) {
           metaRows.push({ label: 'Category', value: cat });
         }
         if (!resultData.infoRows.some(r => r.label.toLowerCase().includes('state'))) {
           metaRows.push({ label: 'State / UT', value: state });
+        }
+        if (!resultData.infoRows.some(r => r.label.toLowerCase().includes('gender'))) {
+          metaRows.push({ label: 'Gender', value: gender });
         }
       } else {
         metaRows = [
