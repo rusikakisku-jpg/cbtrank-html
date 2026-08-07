@@ -557,7 +557,9 @@
         const matchedExam = examsArr.find(e => 
           (e.slug && e.slug.toLowerCase() === cleanSearch) ||
           (e.title && e.title.toLowerCase() === cleanSearch) ||
-          (e.title && e.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').includes(cleanSearch))
+          (e.title && e.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').includes(cleanSearch)) ||
+          (e.slug && cleanSearch.includes(e.slug.toLowerCase())) ||
+          (e.slug && e.slug.toLowerCase().includes(cleanSearch))
         );
 
         let examTitleText = '';
