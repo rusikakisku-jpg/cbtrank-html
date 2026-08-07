@@ -546,14 +546,44 @@
       }
 
       if (!passedSlug) return;
+      const cleanSearch = passedSlug.toLowerCase().trim();
 
+      // -----------------------------------------------------------
+      // 0ms INSTANT SYNCHRONOUS PRE-RENDER (Before Network Fetch)
+      // -----------------------------------------------------------
+      const stateLabel = document.getElementById('state-label');
+      const stateSelect = document.getElementById('state');
+      const isRRBExam = cleanSearch.includes('rrb') || window.location.href.toLowerCase().includes('rrb');
+
+      if (isRRBExam) {
+        if (stateLabel) stateLabel.innerHTML = `RRB Zone <span class="star">*</span>`;
+        if (stateSelect) {
+          const defaultRRBZones = ["Ahmedabad","Ajmer","Bengaluru","Bhopal","Bhubaneswar","Bilaspur","Chandigarh","Chennai","Gorakhpur","Guwahati","Jammu-Srinagar","Kolkata","Malda","Mumbai","Muzaffarpur","Patna","Prayagraj","Ranchi","Secunderabad","Siliguri","Thiruvananthapuram"];
+          stateSelect.innerHTML = `<option value="">Select RRB Zone</option>` +
+            defaultRRBZones.map(z => `<option value="${z}">${z}</option>`).join('');
+        }
+      }
+
+      // Title & Banner Synchronous Pre-render
+      const rawTitleText = decodeURIComponent(passedSlug).replace(/[-_]+/g, ' ').toUpperCase().trim();
+      if (rawTitleText) {
+        document.title = `${rawTitleText} Answer Key Calculator | CBT RANK`;
+        const bannerSub = document.getElementById('banner-exam-sub');
+        if (bannerSub) bannerSub.textContent = `Paste your ${rawTitleText} official answer key URL and add your exam details.`;
+        const helpText = document.getElementById('anskey-help-text');
+        if (helpText) helpText.textContent = `Use the ${rawTitleText} official answer key link (the page where questions are visible).`;
+      }
+
+      // -----------------------------------------------------------
+      // ASYNC LIVE D1 JSON SYNC (Cache-Busted)
+      // -----------------------------------------------------------
       try {
-        let res = await fetch('/d1_exams.json');
-        if (!res.ok) res = await fetch('d1_exams.json');
+        const cacheBust = '?v=' + Date.now();
+        let res = await fetch('/d1_exams.json' + cacheBust);
+        if (!res.ok) res = await fetch('d1_exams.json' + cacheBust);
         let examsArr = [];
         if (res.ok) examsArr = await res.json();
 
-        const cleanSearch = passedSlug.toLowerCase().trim();
         const matchedExam = examsArr.find(e => 
           (e.slug && e.slug.toLowerCase() === cleanSearch) ||
           (e.title && e.title.toLowerCase() === cleanSearch) ||
@@ -566,7 +596,7 @@
         if (matchedExam) {
           examTitleText = matchedExam.title.trim();
         } else {
-          examTitleText = decodeURIComponent(passedSlug).replace(/[-_]+/g, ' ').trim();
+          examTitleText = rawTitleText;
         }
 
         if (examTitleText) {
@@ -582,35 +612,25 @@
         let locTypeId = 2;
         if (matchedExam && matchedExam.location_type_id) {
           locTypeId = Number(matchedExam.location_type_id);
-        } else if (cleanSearch.includes('rrb') || (examTitleText && examTitleText.toLowerCase().includes('rrb'))) {
+        } else if (isRRBExam) {
           locTypeId = 1;
         }
 
         const locTypeName = (locTypeId === 1) ? 'RRB Zone' : 'State / UT';
 
-        const stateLabel = document.getElementById('state-label');
         if (stateLabel) {
           stateLabel.innerHTML = `${escapeHtml(locTypeName)} <span class="star">*</span>`;
         }
 
         try {
-          let locRes = await fetch('/d1_locations.json');
-          if (!locRes.ok) locRes = await fetch('d1_locations.json');
-          const stateSelect = document.getElementById('state');
-          if (stateSelect) {
-            if (locRes.ok) {
-              const locationsArr = await locRes.json();
-              const filteredLocations = locationsArr.filter(loc => Number(loc.type_id) === locTypeId);
-              if (filteredLocations.length > 0) {
-                stateSelect.innerHTML = `<option value="">Select ${escapeHtml(locTypeName)}</option>` +
-                  filteredLocations.map(l => `<option value="${escapeHtml(l.name)}">${escapeHtml(l.name)}</option>`).join('');
-                return;
-              }
-            }
-            if (locTypeId === 1) {
-              const defaultRRBZones = ["Ahmedabad","Ajmer","Bengaluru","Bhopal","Bhubaneswar","Bilaspur","Chandigarh","Chennai","Gorakhpur","Guwahati","Jammu-Srinagar","Kolkata","Malda","Mumbai","Muzaffarpur","Patna","Prayagraj","Ranchi","Secunderabad","Siliguri","Thiruvananthapuram"];
-              stateSelect.innerHTML = `<option value="">Select RRB Zone</option>` +
-                defaultRRBZones.map(z => `<option value="${z}">${z}</option>`).join('');
+          let locRes = await fetch('/d1_locations.json' + cacheBust);
+          if (!locRes.ok) locRes = await fetch('d1_locations.json' + cacheBust);
+          if (stateSelect && locRes.ok) {
+            const locationsArr = await locRes.json();
+            const filteredLocations = locationsArr.filter(loc => Number(loc.type_id) === locTypeId);
+            if (filteredLocations.length > 0) {
+              stateSelect.innerHTML = `<option value="">Select ${escapeHtml(locTypeName)}</option>` +
+                filteredLocations.map(l => `<option value="${escapeHtml(l.name)}">${escapeHtml(l.name)}</option>`).join('');
             }
           }
         } catch (e) {}
@@ -619,6 +639,8 @@
     }
 
     loadExamSlugData();
+    document.addEventListener('DOMContentLoaded', loadExamSlugData);
+    window.addEventListener('load', loadExamSlugData);
 
     const DIGIALM_LOCAL_API = "digialm.php?url=";
     const VPS_1 = "http://147.93.154.159/digialm.php?url=";
