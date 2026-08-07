@@ -548,8 +548,10 @@
         const rawCache = sessionStorage.getItem('cbtrank_instant_cache') || sessionStorage.getItem('cbtrank_last_api_data');
         if (rawCache) {
           const cacheObj = JSON.parse(rawCache);
-          if (cacheObj && (cacheObj.apiData || cacheObj.score_summary)) {
-            apiData = cacheObj.apiData || cacheObj;
+          // Only use cache if it has the full API structure (success + section_summary)
+          const candidate = cacheObj && cacheObj.apiData ? cacheObj.apiData : cacheObj;
+          if (candidate && candidate.success && candidate.section_summary) {
+            apiData = candidate;
           }
         }
       } catch (e) {}
@@ -591,16 +593,30 @@
 
       // 5. Format Candidate Info Rows & Sections
       const sectionsList = [];
-      if (apiData.section_summary) {
+      if (apiData.section_summary && Object.keys(apiData.section_summary).length > 0) {
         Object.keys(apiData.section_summary).forEach(secName => {
           const sec = apiData.section_summary[secName];
           sectionsList.push({
             name: secName,
-            total: sec.total_questions || (sec.correct_answers + sec.wrong_answers + sec.unattempted),
+            total: sec.total_questions || 0,
+            attempted: sec.attempted || 0,          // use directly from API
+            unattempted: sec.unattempted || 0,      // use directly from API
             correct: sec.correct_answers || 0,
             wrong: sec.wrong_answers || 0,
-            unattempted: sec.unattempted || 0
+            marks_obtained: sec.marks_obtained || 0 // use directly from API
           });
+        });
+      } else if (apiData.score_summary) {
+        // Fallback: use overall score_summary as single row
+        const ss = apiData.score_summary;
+        sectionsList.push({
+          name: 'Overall',
+          total: ss.total_questions || 0,
+          attempted: ss.attempted || 0,
+          unattempted: ss.unattempted || 0,
+          correct: ss.correct_answers || 0,
+          wrong: ss.wrong_answers || 0,
+          marks_obtained: ss.marks_obtained || 0
         });
       }
 
@@ -736,16 +752,16 @@
           tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; color:#64748b; padding:20px;">No section data parsed. Please enter a valid Answer Key URL on the calculator page.</td></tr>`;
         } else {
           tbody.innerHTML = sectionsData.map(sec => {
-            const unatt = (sec.unattempted !== undefined) ? sec.unattempted : (sec.total - (sec.correct + sec.wrong));
-            const attempted = (sec.total !== undefined) ? (sec.total - unatt) : (sec.correct + sec.wrong);
-            const score = (sec.correct * rVal - sec.wrong * wVal).toFixed(2);
+            const attempted  = sec.attempted !== undefined ? sec.attempted : (sec.total - sec.unattempted);
+            const unatt      = sec.unattempted !== undefined ? sec.unattempted : (sec.total - attempted);
+            const score      = (sec.correct * rVal - sec.wrong * wVal).toFixed(2);
 
-            grandTotal += sec.total;
-            grandAttempted += attempted;
-            grandUnatt += unatt;
-            grandCorrect += sec.correct;
-            grandWrong += sec.wrong;
-            grandScore += parseFloat(score);
+            grandTotal      += sec.total;
+            grandAttempted  += attempted;
+            grandUnatt      += unatt;
+            grandCorrect    += sec.correct;
+            grandWrong      += sec.wrong;
+            grandScore      += parseFloat(score);
 
             return `
               <tr>
