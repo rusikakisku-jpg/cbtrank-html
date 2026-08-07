@@ -617,7 +617,7 @@
 
       const resultData = {
         candidateName: (apiData.candidate_info && (apiData.candidate_info['Participant Name'] || apiData.candidate_info['Candidate Name'])) ? (apiData.candidate_info['Participant Name'] || apiData.candidate_info['Candidate Name']) : 'Candidate',
-        rollNo: (apiData.candidate_info && (apiData.candidate_info['Roll No.'] || apiData.candidate_info['Roll Number'] || apiData.candidate_info['Roll No'] || apiData.candidate_info['Application No.'])) ? (apiData.candidate_info['Roll No.'] || apiData.candidate_info['Roll Number'] || apiData.candidate_info['Roll No'] || apiData.candidate_info['Application No.']) : '',
+        rollNo: (apiData.candidate_info && (apiData.candidate_info['Participants Id'] || apiData.candidate_info['Roll No.'] || apiData.candidate_info['Roll Number'] || apiData.candidate_info['Roll No'] || apiData.candidate_info['Application No.'])) ? (apiData.candidate_info['Participants Id'] || apiData.candidate_info['Roll No.'] || apiData.candidate_info['Roll Number'] || apiData.candidate_info['Roll No'] || apiData.candidate_info['Application No.']) : '',
         testDate: (apiData.candidate_info && (apiData.candidate_info['Test Date'] || apiData.candidate_info['Exam Date'])) ? (apiData.candidate_info['Test Date'] || apiData.candidate_info['Exam Date']) : '',
         testTime: (apiData.candidate_info && (apiData.candidate_info['Test Time'] || apiData.candidate_info['Shift'])) ? (apiData.candidate_info['Test Time'] || apiData.candidate_info['Shift']) : '',
         testCenter: (apiData.candidate_info && (apiData.candidate_info['Test Center Name'] || apiData.candidate_info['Test Centre Name'])) ? (apiData.candidate_info['Test Center Name'] || apiData.candidate_info['Test Centre Name']) : '',
@@ -781,7 +781,10 @@
         const normScore = (grandScore * 1.042).toFixed(2);
         const accuracy = grandAttempted > 0 ? ((grandCorrect / grandAttempted) * 100).toFixed(1) : "0.0";
 
-        document.getElementById('metric-raw-score').textContent = grandScore.toFixed(2);
+        // Use API's marks_obtained directly if available (more accurate than recalculated)
+        const apiMarks = (apiData.score_summary && apiData.score_summary.marks_obtained !== undefined) ? apiData.score_summary.marks_obtained : null;
+        const displayScore = (apiMarks !== null) ? apiMarks : grandScore.toFixed(2);
+        document.getElementById('metric-raw-score').textContent = displayScore;
         document.getElementById('metric-marks-sub').textContent = `+${rVal} / -${wVal}`;
 
         document.getElementById('metric-norm-score').textContent = normScore;
@@ -908,8 +911,12 @@
           if (q.options && q.options.length > 0) {
             optionsHtml = `<div class="q-options-grid">` + q.options.map((opt, oidx) => {
               const num = opt.option_no || (oidx + 1);
-              const isRight = opt.is_correct || (q.right_option_no === num);
-              const isChosen = (q.chosen_option == num || q.chosen_option === `Option ${num}` || q.chosen_option === `${num}`);
+              const isRight = opt.is_correct === true || (q.right_option_no === num);
+              // chosen_option from API is a letter: 'A','B','C','D' or '--'
+              // Map letter to option number: A=1, B=2, C=3, D=4
+              const letterMap = {'A':1,'B':2,'C':3,'D':4,'1':1,'2':2,'3':3,'4':4};
+              const chosenNum = q.chosen_option ? (letterMap[q.chosen_option.trim().toUpperCase()] || null) : null;
+              const isChosen = chosenNum !== null && chosenNum === num;
 
               let rowClass = 'opt-row';
               let badgeTag = '';
@@ -950,9 +957,9 @@
               ${qContentHtml}
               ${optionsHtml}
               <div class="q-meta-footer">
-                <span>Chosen Option: <strong style="color:${q.status === 'Correct' ? '#15803d' : (q.status === 'Wrong' ? '#b91c1c' : '#64748b')}">${q.chosen_option || 'Not Answered'}</strong></span>
-                <span>Right Option: <strong style="color:#15803d">Option ${q.right_option_no || 'N/A'}</strong></span>
-                <span>Question ID: ${q.question_id || 'N/A'}</span>
+                <span>Chosen: <strong style="color:${q.status === 'Correct' ? '#15803d' : (q.status === 'Wrong' ? '#b91c1c' : '#64748b')}">${(q.chosen_option && q.chosen_option !== '--') ? q.chosen_option : 'Not Answered'}</strong></span>
+                <span>Correct: <strong style="color:#15803d">${escapeHtml(q.right_option || 'N/A')}</strong></span>
+                <span>Q.ID: ${escapeHtml(q.question_id || 'N/A')}</span>
               </div>
             </div>
           `;
