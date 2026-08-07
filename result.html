@@ -605,12 +605,12 @@
       const categoryRank = Math.max(1, Math.floor(overallRank / 2.1));
 
       const resultData = {
-        candidateName: (apiData.candidate_info && apiData.candidate_info['Candidate Name']) ? apiData.candidate_info['Candidate Name'] : 'Candidate',
-        rollNo: (apiData.candidate_info && (apiData.candidate_info['Roll Number'] || apiData.candidate_info['Roll No'])) ? (apiData.candidate_info['Roll Number'] || apiData.candidate_info['Roll No']) : '',
-        testDate: (apiData.candidate_info && apiData.candidate_info['Test Date']) ? apiData.candidate_info['Test Date'] : '',
-        testTime: (apiData.candidate_info && apiData.candidate_info['Test Time']) ? apiData.candidate_info['Test Time'] : '',
-        testCenter: (apiData.candidate_info && apiData.candidate_info['Test Centre Name']) ? apiData.candidate_info['Test Centre Name'] : '',
-        examName: (apiData.candidate_info && apiData.candidate_info['Subject']) ? apiData.candidate_info['Subject'] : '',
+        candidateName: (apiData.candidate_info && (apiData.candidate_info['Participant Name'] || apiData.candidate_info['Candidate Name'])) ? (apiData.candidate_info['Participant Name'] || apiData.candidate_info['Candidate Name']) : 'Candidate',
+        rollNo: (apiData.candidate_info && (apiData.candidate_info['Roll No.'] || apiData.candidate_info['Roll Number'] || apiData.candidate_info['Roll No'] || apiData.candidate_info['Application No.'])) ? (apiData.candidate_info['Roll No.'] || apiData.candidate_info['Roll Number'] || apiData.candidate_info['Roll No'] || apiData.candidate_info['Application No.']) : '',
+        testDate: (apiData.candidate_info && (apiData.candidate_info['Test Date'] || apiData.candidate_info['Exam Date'])) ? (apiData.candidate_info['Test Date'] || apiData.candidate_info['Exam Date']) : '',
+        testTime: (apiData.candidate_info && (apiData.candidate_info['Test Time'] || apiData.candidate_info['Shift'])) ? (apiData.candidate_info['Test Time'] || apiData.candidate_info['Shift']) : '',
+        testCenter: (apiData.candidate_info && (apiData.candidate_info['Test Center Name'] || apiData.candidate_info['Test Centre Name'])) ? (apiData.candidate_info['Test Center Name'] || apiData.candidate_info['Test Centre Name']) : '',
+        examName: (apiData.candidate_info && (apiData.candidate_info['Subject'] || apiData.candidate_info['Exam Name'])) ? (apiData.candidate_info['Subject'] || apiData.candidate_info['Exam Name']) : '',
         headerImgUrl: apiData.header_image || '',
         infoRows: infoRowsList,
         sections: sectionsList,
