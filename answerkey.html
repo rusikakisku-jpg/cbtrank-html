@@ -403,7 +403,7 @@
             </div>
           </div>
 
-          <!-- State / UT -->
+          <!-- State / UT / RRB Zone -->
           <div class="form-group">
             <label for="state" id="state-label">State / UT <span class="star">*</span></label>
             <select id="state" class="form-select" required>
@@ -430,6 +430,23 @@
               <option value="Uttarakhand">Uttarakhand</option>
               <option value="West Bengal">West Bengal</option>
             </select>
+            <script>
+              (function() {
+                try {
+                  var u = (window.location.href + ' ' + window.location.pathname + ' ' + window.location.search).toLowerCase();
+                  if (u.indexOf('rrb') !== -1) {
+                    var lbl = document.getElementById('state-label');
+                    var sel = document.getElementById('state');
+                    if (lbl) lbl.innerHTML = 'RRB Zone <span class="star">*</span>';
+                    if (sel) {
+                      var rrbZones = ["Ahmedabad","Ajmer","Bengaluru","Bhopal","Bhubaneswar","Bilaspur","Chandigarh","Chennai","Gorakhpur","Guwahati","Jammu-Srinagar","Kolkata","Malda","Mumbai","Muzaffarpur","Patna","Prayagraj","Ranchi","Secunderabad","Siliguri","Thiruvananthapuram"];
+                      sel.innerHTML = '<option value="">Select RRB Zone</option>' +
+                        rrbZones.map(function(z){ return '<option value="'+z+'">'+z+'</option>'; }).join('');
+                    }
+                  }
+                } catch(e) {}
+              })();
+            </script>
           </div>
 
           <!-- Mandatory Privacy Consent -->
