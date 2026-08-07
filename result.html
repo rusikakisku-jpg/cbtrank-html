@@ -512,39 +512,64 @@
         });
       }
 
-      // 1. Read URL Parameters (PURE URL QUERY PARAMETERS - ZERO SESSIONSTORAGE!)
+      // 1. Read URL Parameters & SessionStorage Fallback
       const searchParams = new URLSearchParams(window.location.search);
-      const urlVal = searchParams.get('url') ? searchParams.get('url').trim() : '';
-      const cat = searchParams.get('category') || 'UR';
-      const state = searchParams.get('state') || 'Delhi';
-      const gender = searchParams.get('gender') ? (searchParams.get('gender').charAt(0).toUpperCase() + searchParams.get('gender').slice(1)) : 'Male';
+      let urlVal = searchParams.get('url') ? searchParams.get('url').trim() : '';
+      const cat = searchParams.get('category') || sessionStorage.getItem('cbtrank_user_category') || 'UR';
+      const state = searchParams.get('state') || sessionStorage.getItem('cbtrank_user_state') || 'Delhi';
+      const genderRaw = searchParams.get('gender') || sessionStorage.getItem('cbtrank_user_gender') || 'Male';
+      const gender = genderRaw.charAt(0).toUpperCase() + genderRaw.slice(1);
 
-      // 2. Clean Browser Address Bar immediately (Removes dirty %3A%2F%2F URL string!)
-      if (window.history && window.history.replaceState && urlVal) {
+      let apiData = null;
+
+      // 2. Check for Pre-Fetched Cache or Last API Data in sessionStorage
+      try {
+        const rawCache = sessionStorage.getItem('cbtrank_instant_cache');
+        if (rawCache) {
+          const cacheObj = JSON.parse(rawCache);
+          if (cacheObj && cacheObj.apiData && cacheObj.apiData.success) {
+            apiData = cacheObj.apiData;
+            if (!urlVal && cacheObj.url) urlVal = cacheObj.url;
+          }
+        }
+      } catch (e) {}
+
+      if (!apiData) {
+        try {
+          const lastApiDataRaw = sessionStorage.getItem('cbtrank_last_api_data');
+          if (lastApiDataRaw) {
+            const lastObj = JSON.parse(lastApiDataRaw);
+            if (lastObj && (lastObj.success || (lastObj.apiData && lastObj.apiData.success))) {
+              apiData = lastObj.apiData || lastObj;
+              if (!urlVal && lastObj.url) urlVal = lastObj.url;
+            }
+          }
+        } catch (e) {}
+      }
+
+      if (!urlVal) {
+        try {
+          urlVal = sessionStorage.getItem('cbtrank_last_url') || '';
+        } catch(e) {}
+      }
+
+      // Clean address bar after urlVal is safely saved
+      if (window.history && window.history.replaceState && searchParams.get('url')) {
+        try {
+          sessionStorage.setItem('cbtrank_last_url', urlVal);
+        } catch(e) {}
         window.history.replaceState({}, document.title, window.location.pathname);
       }
 
-      // 3. Handle missing URL (Direct Visit)
-      if (!urlVal) {
+      // If still no urlVal and no apiData, show no-data card
+      if (!urlVal && !apiData) {
         document.getElementById('cbrank-scorecard-card').style.display = 'none';
         document.getElementById('no-data-card').style.display = 'block';
         return;
       }
 
-      // 4. Check for Instant 0ms Pre-Fetched Cache in sessionStorage
-      let apiData = null;
-      try {
-        const rawCache = sessionStorage.getItem('cbtrank_instant_cache');
-        if (rawCache) {
-          const cacheObj = JSON.parse(rawCache);
-          if (cacheObj && cacheObj.url === urlVal && cacheObj.apiData && cacheObj.apiData.success) {
-            apiData = cacheObj.apiData;
-          }
-        }
-      } catch (e) {}
-
-      // If no pre-fetched cache, fetch from API endpoints
-      if (!apiData) {
+      // Fetch from API endpoints if apiData is missing
+      if (!apiData && urlVal) {
         const fetchEndpoints = [
           `digialm.php?url=${encodeURIComponent(urlVal)}`,
           `api.php?url=${encodeURIComponent(urlVal)}`,
@@ -577,6 +602,12 @@
         document.querySelector('#no-data-card p').textContent = 'Either the link is broken, expired or invalid. Please check your official Answer Key URL.';
         return;
       }
+
+      // Save valid apiData to sessionStorage for instant refresh rendering
+      try {
+        sessionStorage.setItem('cbtrank_last_api_data', JSON.stringify({ url: urlVal, apiData: apiData }));
+        sessionStorage.setItem('cbtrank_last_url', urlVal);
+      } catch(e) {}
 
       // 5. Format Candidate Info Rows & Sections
       const sectionsList = [];
