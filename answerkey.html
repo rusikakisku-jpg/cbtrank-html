@@ -433,15 +433,33 @@
             <script>
               (function() {
                 try {
+                  var lbl = document.getElementById('state-label');
+                  var sel = document.getElementById('state');
+                  var rrbZones = ["Ahmedabad","Ajmer","Bengaluru","Bhopal","Bhubaneswar","Bilaspur","Chandigarh","Chennai","Gorakhpur","Guwahati","Jammu-Srinagar","Kolkata","Malda","Mumbai","Muzaffarpur","Patna","Prayagraj","Ranchi","Secunderabad","Siliguri","Thiruvananthapuram"];
+                  var states = ["Andhra Pradesh","Assam","Bihar","Chhattisgarh","Delhi","Gujarat","Haryana","Himachal Pradesh","Jharkhand","Karnataka","Kerala","Madhya Pradesh","Maharashtra","Odisha","Punjab","Rajasthan","Tamil Nadu","Telangana","Uttar Pradesh","Uttarakhand","West Bengal"];
+
+                  var activeExamStr = sessionStorage.getItem('cbtrank_active_exam');
+                  var activeExam = activeExamStr ? JSON.parse(activeExamStr) : null;
                   var u = (window.location.href + ' ' + window.location.pathname + ' ' + window.location.search).toLowerCase();
-                  if (u.indexOf('rrb') !== -1) {
-                    var lbl = document.getElementById('state-label');
-                    var sel = document.getElementById('state');
+                  
+                  var isRRB = false;
+                  if (activeExam && Number(activeExam.location_type_id) === 1) {
+                    isRRB = true;
+                  } else if (u.indexOf('rrb') !== -1) {
+                    isRRB = true;
+                  }
+
+                  if (isRRB) {
                     if (lbl) lbl.innerHTML = 'RRB Zone <span class="star">*</span>';
                     if (sel) {
-                      var rrbZones = ["Ahmedabad","Ajmer","Bengaluru","Bhopal","Bhubaneswar","Bilaspur","Chandigarh","Chennai","Gorakhpur","Guwahati","Jammu-Srinagar","Kolkata","Malda","Mumbai","Muzaffarpur","Patna","Prayagraj","Ranchi","Secunderabad","Siliguri","Thiruvananthapuram"];
                       sel.innerHTML = '<option value="">Select RRB Zone</option>' +
                         rrbZones.map(function(z){ return '<option value="'+z+'">'+z+'</option>'; }).join('');
+                    }
+                  } else if (activeExam && Number(activeExam.location_type_id) === 2) {
+                    if (lbl) lbl.innerHTML = 'States/UT <span class="star">*</span>';
+                    if (sel) {
+                      sel.innerHTML = '<option value="">Select States/UT</option>' +
+                        states.map(function(s){ return '<option value="'+s+'">'+s+'</option>'; }).join('');
                     }
                   }
                 } catch(e) {}
