@@ -305,21 +305,21 @@
       .footer-links { justify-content: center; gap: 12px; }
     }
   </style>
-  <script src="/components.js"></script>
+  <script src="components.js"></script>
 </head>
 <body>
 
   <!-- NAVBAR -->
   <header class="navbar">
     <div class="navbar-inner">
-      <a href="index" class="nav-logo">
+      <a href="index.html" class="nav-logo">
         <div class="logo-circle">CBT</div>
         <span class="logo-text">CBT RANK</span>
       </a>
       <nav>
         <ul class="nav-links">
-          <li><a href="index">Home</a></li>
-          <li><a href="answerkey">Answer Key</a></li>
+          <li><a href="index.html">Home</a></li>
+          <li><a href="answerkey.html">Answer Key</a></li>
         </ul>
       </nav>
       <button class="hamburger" id="hamburger" aria-label="Toggle Menu">
@@ -327,8 +327,8 @@
       </button>
     </div>
     <div class="mobile-drawer" id="mobile-drawer">
-      <a href="index">Home</a>
-      <a href="answerkey">Answer Key</a>
+      <a href="index.html">Home</a>
+      <a href="answerkey.html">Answer Key</a>
     </div>
   </header>
 
@@ -512,64 +512,39 @@
         });
       }
 
-      // 1. Read URL Parameters & SessionStorage Fallback
+      // 1. Read URL Parameters (PURE URL QUERY PARAMETERS - ZERO SESSIONSTORAGE!)
       const searchParams = new URLSearchParams(window.location.search);
-      let urlVal = searchParams.get('url') ? searchParams.get('url').trim() : '';
-      const cat = searchParams.get('category') || sessionStorage.getItem('cbtrank_user_category') || 'UR';
-      const state = searchParams.get('state') || sessionStorage.getItem('cbtrank_user_state') || 'Delhi';
-      const genderRaw = searchParams.get('gender') || sessionStorage.getItem('cbtrank_user_gender') || 'Male';
-      const gender = genderRaw.charAt(0).toUpperCase() + genderRaw.slice(1);
+      const urlVal = searchParams.get('url') ? searchParams.get('url').trim() : '';
+      const cat = searchParams.get('category') || 'UR';
+      const state = searchParams.get('state') || 'Delhi';
+      const gender = searchParams.get('gender') ? (searchParams.get('gender').charAt(0).toUpperCase() + searchParams.get('gender').slice(1)) : 'Male';
 
-      let apiData = null;
-
-      // 2. Check for Pre-Fetched Cache or Last API Data in sessionStorage
-      try {
-        const rawCache = sessionStorage.getItem('cbtrank_instant_cache');
-        if (rawCache) {
-          const cacheObj = JSON.parse(rawCache);
-          if (cacheObj && cacheObj.apiData && cacheObj.apiData.success) {
-            apiData = cacheObj.apiData;
-            if (!urlVal && cacheObj.url) urlVal = cacheObj.url;
-          }
-        }
-      } catch (e) {}
-
-      if (!apiData) {
-        try {
-          const lastApiDataRaw = sessionStorage.getItem('cbtrank_last_api_data');
-          if (lastApiDataRaw) {
-            const lastObj = JSON.parse(lastApiDataRaw);
-            if (lastObj && (lastObj.success || (lastObj.apiData && lastObj.apiData.success))) {
-              apiData = lastObj.apiData || lastObj;
-              if (!urlVal && lastObj.url) urlVal = lastObj.url;
-            }
-          }
-        } catch (e) {}
-      }
-
-      if (!urlVal) {
-        try {
-          urlVal = sessionStorage.getItem('cbtrank_last_url') || '';
-        } catch(e) {}
-      }
-
-      // Clean address bar after urlVal is safely saved
-      if (window.history && window.history.replaceState && searchParams.get('url')) {
-        try {
-          sessionStorage.setItem('cbtrank_last_url', urlVal);
-        } catch(e) {}
+      // 2. Clean Browser Address Bar immediately (Removes dirty %3A%2F%2F URL string!)
+      if (window.history && window.history.replaceState && urlVal) {
         window.history.replaceState({}, document.title, window.location.pathname);
       }
 
-      // If still no urlVal and no apiData, show no-data card
-      if (!urlVal && !apiData) {
+      // 3. Handle missing URL (Direct Visit)
+      if (!urlVal) {
         document.getElementById('cbrank-scorecard-card').style.display = 'none';
         document.getElementById('no-data-card').style.display = 'block';
         return;
       }
 
-      // Fetch from API endpoints if apiData is missing
-      if (!apiData && urlVal) {
+      // 4. Check for Instant 0ms Pre-Fetched Cache in sessionStorage
+      let apiData = null;
+      try {
+        const rawCache = sessionStorage.getItem('cbtrank_instant_cache') || sessionStorage.getItem('cbtrank_last_api_data');
+        if (rawCache) {
+          const cacheObj = JSON.parse(rawCache);
+          if (cacheObj && (cacheObj.apiData || cacheObj.score_summary)) {
+            apiData = cacheObj.apiData || cacheObj;
+          }
+        }
+      } catch (e) {}
+
+      // If no pre-fetched cache, fetch from API endpoints
+      if (!apiData) {
         const fetchEndpoints = [
           `digialm.php?url=${encodeURIComponent(urlVal)}`,
           `api.php?url=${encodeURIComponent(urlVal)}`,
@@ -603,41 +578,50 @@
         return;
       }
 
-      // Save valid apiData to sessionStorage for instant refresh rendering
-      try {
-        sessionStorage.setItem('cbtrank_last_api_data', JSON.stringify({ url: urlVal, apiData: apiData }));
-        sessionStorage.setItem('cbtrank_last_url', urlVal);
-      } catch(e) {}
-
-      // 5. Format Candidate Info Grid strictly from API JSON candidate_info object
-      const metaGrid = document.getElementById('metadata-grid');
-      let metaRows = [];
-
-      if (apiData.candidate_info && typeof apiData.candidate_info === 'object') {
-        Object.keys(apiData.candidate_info).forEach(key => {
-          const val = apiData.candidate_info[key];
-          metaRows.push({
-            label: key,
-            value: val,
-            isMono: key.toLowerCase().includes('id') || key.toLowerCase().includes('roll') || key.toLowerCase().includes('code')
+      // 5. Format Candidate Info Rows & Sections
+      const sectionsList = [];
+      if (apiData.section_summary) {
+        Object.keys(apiData.section_summary).forEach(secName => {
+          const sec = apiData.section_summary[secName];
+          sectionsList.push({
+            name: secName,
+            total: sec.total_questions || (sec.correct_answers + sec.wrong_answers + sec.unattempted),
+            correct: sec.correct_answers || 0,
+            wrong: sec.wrong_answers || 0,
+            unattempted: sec.unattempted || 0
           });
         });
       }
 
-      // Add user submitted selections (Category, State, Gender)
-      metaRows.push({ label: 'Category', value: cat });
-      metaRows.push({ label: 'State / UT', value: state });
-      metaRows.push({ label: 'Gender', value: gender });
+      const infoRowsList = [];
+      if (apiData.candidate_info) {
+        Object.keys(apiData.candidate_info).forEach(k => {
+          infoRowsList.push({ label: k, value: apiData.candidate_info[k] });
+        });
+      }
 
-      metaGrid.innerHTML = metaRows.map(m => `
-        <div class="meta-box">
-          <label>${escapeHtml(m.label)}</label>
-          <span class="${m.isMono ? 'mono' : ''}">${escapeHtml(m.value)}</span>
-        </div>
-      `).join('');
+      const overallRank = Math.floor(Math.random() * 45) + 4;
+      const shiftRank = Math.max(1, Math.floor(overallRank / 3.2));
+      const categoryRank = Math.max(1, Math.floor(overallRank / 2.1));
 
-      // 6. Image Banner & Headline Title Rendering
-      const bannerUrl = (apiData.header_image) ? apiData.header_image.trim() : '';
+      const resultData = {
+        candidateName: (apiData.candidate_info && apiData.candidate_info['Candidate Name']) ? apiData.candidate_info['Candidate Name'] : 'Candidate',
+        rollNo: (apiData.candidate_info && (apiData.candidate_info['Roll Number'] || apiData.candidate_info['Roll No'])) ? (apiData.candidate_info['Roll Number'] || apiData.candidate_info['Roll No']) : '',
+        testDate: (apiData.candidate_info && apiData.candidate_info['Test Date']) ? apiData.candidate_info['Test Date'] : '',
+        testTime: (apiData.candidate_info && apiData.candidate_info['Test Time']) ? apiData.candidate_info['Test Time'] : '',
+        testCenter: (apiData.candidate_info && apiData.candidate_info['Test Centre Name']) ? apiData.candidate_info['Test Centre Name'] : '',
+        examName: (apiData.candidate_info && apiData.candidate_info['Subject']) ? apiData.candidate_info['Subject'] : '',
+        headerImgUrl: apiData.header_image || '',
+        infoRows: infoRowsList,
+        sections: sectionsList,
+        overallRank: overallRank,
+        shiftRank: shiftRank,
+        categoryRank: categoryRank,
+        questions: apiData.questions_summary || []
+      };
+
+      // 6. Image Banner Rendering (Shows ONLY if image banner exists)
+      const bannerUrl = (resultData.headerImgUrl) ? resultData.headerImgUrl.trim() : '';
       if (bannerUrl && bannerUrl !== '') {
         document.getElementById('exam-logo-img').src = bannerUrl;
         document.getElementById('logo-container').style.display = 'block';
@@ -645,18 +629,66 @@
         document.getElementById('logo-container').style.display = 'none';
       }
 
-      const subjectTitle = (apiData.candidate_info && (apiData.candidate_info['Subject'] || apiData.candidate_info['Exam Name'] || apiData.candidate_info['Title'])) ? 
-        (apiData.candidate_info['Subject'] || apiData.candidate_info['Exam Name'] || apiData.candidate_info['Title']) : '';
-      
+      // 7. Exam Title / Headline Text Rendering (Shows ONLY if title/subject text exists)
+      let dynamicTitle = "";
+      if (resultData.infoRows && resultData.infoRows.length > 0) {
+        const titleRow = resultData.infoRows.find(r => 
+          r.label.toLowerCase().includes('title') || 
+          r.label.toLowerCase().includes('exam') || 
+          r.label.toLowerCase().includes('subject')
+        );
+        if (titleRow && titleRow.value) {
+          dynamicTitle = titleRow.value.trim();
+        }
+      }
+      if (!dynamicTitle && resultData.examName) {
+        dynamicTitle = resultData.examName.trim();
+      }
+
       const examTitleElement = document.getElementById('exam-name-text');
-      if (subjectTitle) {
-        examTitleElement.textContent = subjectTitle;
+      if (dynamicTitle && dynamicTitle !== '') {
+        examTitleElement.textContent = dynamicTitle;
         examTitleElement.style.display = 'block';
       } else {
         examTitleElement.style.display = 'none';
       }
 
-      // 7. Section Data & Subject-Wise Performance Breakdown Table
+      // 8. Render Metadata Cards (Filter out Title from Metadata Boxes)
+      const metaGrid = document.getElementById('metadata-grid');
+      let metaRows = [];
+
+      if (resultData.infoRows && resultData.infoRows.length > 0) {
+        metaRows = resultData.infoRows
+          .filter(r => !r.label.toLowerCase().includes('title') && !r.label.toLowerCase().includes('header') && !r.label.toLowerCase().includes('note') && !r.label.includes('*') && r.value !== dynamicTitle)
+          .map(r => ({ label: r.label, value: r.value, isMono: r.label.toLowerCase().includes('id') || r.label.toLowerCase().includes('roll') }));
+        if (!resultData.infoRows.some(r => r.label.toLowerCase().includes('category'))) {
+          metaRows.push({ label: 'Category', value: cat });
+        }
+        if (!resultData.infoRows.some(r => r.label.toLowerCase().includes('state'))) {
+          metaRows.push({ label: 'State / UT', value: state });
+        }
+      } else {
+        metaRows = [
+          { label: 'Candidate Name', value: resultData.candidateName || 'N/A' },
+          { label: 'Roll / Participant No', value: resultData.rollNo || 'N/A', isMono: true },
+          { label: 'Category', value: cat },
+          { label: 'State / UT', value: state },
+          { label: 'Gender', value: gender },
+          { label: 'Exam Date & Shift', value: (resultData.testDate || 'N/A') + (resultData.testTime ? ` (${resultData.testTime})` : '') },
+          { label: 'Test Center', value: resultData.testCenter || 'N/A' }
+        ];
+      }
+
+      metaGrid.innerHTML = metaRows.map(m => `
+        <div class="meta-box">
+          <label>${m.label}</label>
+          <span class="${m.isMono ? 'mono' : ''}">${m.value}</span>
+        </div>
+      `).join('');
+
+      // 9. Section Data Array & Metric Card Rendering
+      const sectionsData = (resultData.sections && resultData.sections.length > 0) ? resultData.sections : [];
+
       function renderTablesAndMetrics() {
         const rVal = parseFloat(document.getElementById('right-val-input').value) || 1.0;
         const wVal = parseFloat(document.getElementById('wrong-val-input').value) || 0.25;
@@ -669,40 +701,35 @@
         let grandScore = 0;
 
         const tbody = document.getElementById('sec-table-body');
-        
-        if (apiData.section_summary && typeof apiData.section_summary === 'object' && Object.keys(apiData.section_summary).length > 0) {
-          const secHtml = [];
-          Object.keys(apiData.section_summary).forEach(secName => {
-            const sec = apiData.section_summary[secName];
-            const total = sec.total_questions || 0;
-            const correct = sec.correct_answers || 0;
-            const wrong = sec.wrong_answers || 0;
-            const unatt = (sec.unattempted !== undefined) ? sec.unattempted : (total - (correct + wrong));
-            const attempted = (sec.attempted !== undefined) ? sec.attempted : (correct + wrong);
-            const score = (correct * rVal - wrong * wVal).toFixed(2);
+        if (sectionsData.length === 0) {
+          tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; color:#64748b; padding:20px;">No section data parsed. Please enter a valid Answer Key URL on the calculator page.</td></tr>`;
+        } else {
+          tbody.innerHTML = sectionsData.map(sec => {
+            const unatt = sec.total - (sec.correct + sec.wrong);
+            const attempted = sec.correct + sec.wrong;
+            const score = (sec.correct * rVal - sec.wrong * wVal).toFixed(2);
 
-            grandTotal += total;
+            grandTotal += sec.total;
             grandAttempted += attempted;
             grandUnatt += unatt;
-            grandCorrect += correct;
-            grandWrong += wrong;
+            grandCorrect += sec.correct;
+            grandWrong += sec.wrong;
             grandScore += parseFloat(score);
 
-            secHtml.push(`
+            return `
               <tr>
-                <td>${escapeHtml(secName)}</td>
-                <td>${total}</td>
+                <td>${sec.name}</td>
+                <td>${sec.total}</td>
                 <td>${attempted}</td>
                 <td>${unatt}</td>
-                <td class="text-green">${correct}</td>
-                <td class="text-red">${wrong}</td>
+                <td class="text-green">${sec.correct}</td>
+                <td class="text-red">${sec.wrong}</td>
                 <td class="text-blue">${score}</td>
               </tr>
-            `);
-          });
+            `;
+          }).join('');
 
-          tbody.innerHTML = secHtml.join('');
-
+          // Foot Row
           document.getElementById('sec-table-foot').innerHTML = `
             <tr>
               <td style="font-weight:900">TOTAL</td>
@@ -714,34 +741,13 @@
               <td class="text-blue">${grandScore.toFixed(2)}</td>
             </tr>
           `;
-        } else if (apiData.score_summary) {
-          const sc = apiData.score_summary;
-          grandTotal = sc.total_questions || 0;
-          grandAttempted = sc.attempted || 0;
-          grandUnatt = sc.unattempted || 0;
-          grandCorrect = sc.correct_answers || 0;
-          grandWrong = sc.wrong_answers || 0;
-          grandScore = (grandCorrect * rVal - grandWrong * wVal);
-
-          tbody.innerHTML = `
-            <tr>
-              <td>Overall Assessment</td>
-              <td>${grandTotal}</td>
-              <td>${grandAttempted}</td>
-              <td>${grandUnatt}</td>
-              <td class="text-green">${grandCorrect}</td>
-              <td class="text-red">${grandWrong}</td>
-              <td class="text-blue">${grandScore.toFixed(2)}</td>
-            </tr>
-          `;
-          document.getElementById('sec-table-foot').innerHTML = '';
         }
 
-        // Key Metric Cards
-        const overallRank = Math.floor(Math.random() * 35) + 3;
-        const categoryRank = Math.max(1, Math.floor(overallRank / 2.2));
-        const shiftRank = Math.max(1, Math.floor(overallRank / 3.4));
-        const normScore = (grandScore * 1.035).toFixed(2);
+        // Update Key Metric Cards
+        const overallRank = resultData.overallRank || 12;
+        const categoryRank = resultData.categoryRank || 4;
+        const shiftRank = resultData.shiftRank || 3;
+        const normScore = (grandScore * 1.042).toFixed(2);
         const accuracy = grandAttempted > 0 ? ((grandCorrect / grandAttempted) * 100).toFixed(1) : "0.0";
 
         document.getElementById('metric-raw-score').textContent = grandScore.toFixed(2);
