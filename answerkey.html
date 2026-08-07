@@ -730,6 +730,8 @@
       if (!DIGIALM_PATTERN.test(urlVal)) {
         showToast('please enter your official answerkey url   either link is broken or expired');
         document.getElementById('ans_key_url').focus();
+        // Log invalid URL to backend so it inserts into invalid_answerkey_urls table in D1
+        fetch('digialm.php?url=' + encodeURIComponent(urlVal)).catch(() => {});
         return;
       }
 
