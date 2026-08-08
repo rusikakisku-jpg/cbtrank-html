@@ -10,21 +10,36 @@
   pathname = pathname.replace(/\.html$/i, '').replace(/\.php$/i, '');
   if (!pathname) pathname = 'index';
 
+  // Determine root prefix dynamically for GitHub Pages (/cbtrank-html/) or custom domain/local
+  let rootPrefix = '/';
+  const pathParts = window.location.pathname.split('/').filter(Boolean);
+  if (pathParts.length > 0 && pathParts[0] === 'cbtrank-html') {
+    rootPrefix = '/cbtrank-html/';
+  }
+
+  const homeUrl = rootPrefix + 'index.html';
+  const answerkeyUrl = rootPrefix + 'answerkey.html';
+  const aboutUrl = rootPrefix + 'about-us.html';
+  const contactUrl = rootPrefix + 'contact-us.html';
+  const privacyUrl = rootPrefix + 'privacy-policy.html';
+  const termsUrl = rootPrefix + 'terms-and-conditions.html';
+  const disclaimerUrl = rootPrefix + 'disclaimer.html';
+
   /* ============================================================
-     1. HEADER / NAVBAR COMPONENT (Absolute Root Paths)
+     1. HEADER / NAVBAR COMPONENT (Dynamic Root-Aware Paths)
   ============================================================ */
   const headerHtml = `
     <header class="navbar" id="navbar">
       <div class="navbar-inner">
-        <a href="index.html" class="nav-logo" aria-label="CBT RANK Home">
+        <a href="${homeUrl}" class="nav-logo" aria-label="CBT RANK Home">
           <div class="logo-circle">CBT</div>
           <span class="logo-text">CBT RANK</span>
         </a>
         <nav aria-label="Main Navigation">
           <ul class="nav-links">
-            <li><a href="index.html" class="${pathname === 'index' || pathname === '' ? 'active' : ''}">Home</a></li>
-            <li><a href="answerkey.html" class="${pathname === 'answerkey' ? 'active' : ''}">Answer Key</a></li>
-            <li id="nav-blog-li" style="display: none;"><a href="blog.html" class="${pathname === 'blog' ? 'active' : ''}">Blog</a></li>
+            <li><a href="${homeUrl}" class="${pathname === 'index' || pathname === '' ? 'active' : ''}">Home</a></li>
+            <li><a href="${answerkeyUrl}" class="${pathname === 'answerkey' ? 'active' : ''}">Answer Key</a></li>
+            <li id="nav-blog-li" style="display: none;"><a href="${rootPrefix}blog.html" class="${pathname === 'blog' ? 'active' : ''}">Blog</a></li>
           </ul>
         </nav>
         <button class="hamburger" id="hamburger" aria-label="Toggle Navigation Menu" aria-expanded="false">
@@ -34,15 +49,15 @@
         </button>
       </div>
       <div class="mobile-drawer" id="mobile-drawer" role="navigation" aria-label="Mobile Navigation">
-        <a href="index.html" class="${pathname === 'index' || pathname === '' ? 'active' : ''}">Home</a>
-        <a href="answerkey.html" class="${pathname === 'answerkey' ? 'active' : ''}">Answer Key</a>
-        <a href="blog.html" id="mobile-blog-link" style="display: none;" class="${pathname === 'blog' ? 'active' : ''}">Blog</a>
+        <a href="${homeUrl}" class="${pathname === 'index' || pathname === '' ? 'active' : ''}">Home</a>
+        <a href="${answerkeyUrl}" class="${pathname === 'answerkey' ? 'active' : ''}">Answer Key</a>
+        <a href="${rootPrefix}blog.html" id="mobile-blog-link" style="display: none;" class="${pathname === 'blog' ? 'active' : ''}">Blog</a>
       </div>
     </header>
   `;
 
   /* ============================================================
-     2. FOOTER COMPONENT (Relative Paths)
+     2. FOOTER COMPONENT (Dynamic Root-Aware Paths)
   ============================================================ */
   const currentYear = new Date().getFullYear();
   const footerHtml = `
@@ -50,12 +65,12 @@
       <div class="footer-inner">
         <nav aria-label="Footer Navigation">
           <ul class="footer-links">
-            <li><a href="index.html" class="${pathname === 'index' || pathname === '' ? 'active' : ''}">Home</a></li>
-            <li><a href="about-us.html" class="${pathname === 'about-us' ? 'active' : ''}">About Us</a></li>
-            <li><a href="contact-us.html" class="${pathname === 'contact-us' ? 'active' : ''}">Contact Us</a></li>
-            <li><a href="privacy-policy.html" class="${pathname === 'privacy-policy' ? 'active' : ''}">Privacy Policy</a></li>
-            <li><a href="terms-and-conditions.html" class="${pathname === 'terms-and-conditions' ? 'active' : ''}">Terms and Conditions</a></li>
-            <li><a href="disclaimer.html" class="${pathname === 'disclaimer' ? 'active' : ''}">Disclaimer</a></li>
+            <li><a href="${homeUrl}" class="${pathname === 'index' || pathname === '' ? 'active' : ''}">Home</a></li>
+            <li><a href="${aboutUrl}" class="${pathname === 'about-us' ? 'active' : ''}">About Us</a></li>
+            <li><a href="${contactUrl}" class="${pathname === 'contact-us' ? 'active' : ''}">Contact Us</a></li>
+            <li><a href="${privacyUrl}" class="${pathname === 'privacy-policy' ? 'active' : ''}">Privacy Policy</a></li>
+            <li><a href="${termsUrl}" class="${pathname === 'terms-and-conditions' ? 'active' : ''}">Terms and Conditions</a></li>
+            <li><a href="${disclaimerUrl}" class="${pathname === 'disclaimer' ? 'active' : ''}">Disclaimer</a></li>
           </ul>
         </nav>
         <div class="footer-copy">© ${currentYear} CBTRANK.COM | All Rights Reserved</div>
