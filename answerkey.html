@@ -453,13 +453,21 @@
               <label for="paper_language">Paper Language</label>
               <select id="paper_language" class="form-select">
                 <option value="">Select Language (Optional)</option>
-                <option value="english">English</option>
-                <option value="hindi">Hindi</option>
+                <option value="assamese">Assamese</option>
                 <option value="bengali">Bengali</option>
+                <option value="english">English</option>
+                <option value="gujarati">Gujarati</option>
+                <option value="hindi">Hindi</option>
+                <option value="kannada">Kannada</option>
+                <option value="konkani">Konkani</option>
+                <option value="malayalam">Malayalam</option>
+                <option value="manipuri">Manipuri</option>
                 <option value="marathi">Marathi</option>
+                <option value="odia">Odia</option>
+                <option value="punjabi">Punjabi</option>
                 <option value="tamil">Tamil</option>
                 <option value="telugu">Telugu</option>
-                <option value="gujarati">Gujarati</option>
+                <option value="urdu">Urdu</option>
               </select>
             </div>
           </div>
@@ -715,8 +723,7 @@
 
       const WORKER_BASE = "https://cbtrank.rusikakisku.workers.dev";
       try {
-        let locRes = await fetch(`${WORKER_BASE}/locations?id=${locTypeId}`);
-        if (!locRes.ok) locRes = await fetch(`/get_locations.php?id=${locTypeId}`);
+        const locRes = await fetch(`${WORKER_BASE}/locations?id=${locTypeId}`);
 
         if (locRes.ok) {
           const locData = await locRes.json();
@@ -760,6 +767,7 @@
       const WORKER_BASE = "https://cbtrank.rusikakisku.workers.dev";
       try {
         const res = await fetch(`${WORKER_BASE}/languages`);
+
         if (res.ok) {
           const data = await res.json();
           let langList = [];
@@ -771,11 +779,13 @@
           }
 
           if (langList.length > 0) {
+            const currentVal = langSelect.value;
             langSelect.innerHTML = `<option value="">Select Language (Optional)</option>` +
               langList.map(l => {
                 const nameStr = (typeof l === 'string') ? l : (l.name || l.title || '');
                 const valStr = nameStr.toLowerCase();
-                return `<option value="${escapeHtml(valStr)}">${escapeHtml(nameStr)}</option>`;
+                const isSelected = (currentVal && currentVal.toLowerCase() === valStr) ? ' selected' : '';
+                return `<option value="${escapeHtml(valStr)}"${isSelected}>${escapeHtml(nameStr)}</option>`;
               }).join('');
           }
         }
