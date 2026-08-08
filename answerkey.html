@@ -794,15 +794,32 @@
 
     (async function initExamLocations() {
       let locTypeId = 2;
-      try {
-        const rawCached = sessionStorage.getItem('cbtrank_active_exam');
-        if (rawCached) {
-          const cachedExam = JSON.parse(rawCached);
-          if (cachedExam && cachedExam.location_type_id) {
-            locTypeId = Number(cachedExam.location_type_id);
-          }
+
+      // Check if URL has active exam slug
+      const urlParams = new URLSearchParams(window.location.search);
+      let currentSlug = urlParams.get('exam') || '';
+      if (!currentSlug) {
+        const pathParts = window.location.pathname.split('/').filter(Boolean);
+        if (pathParts.length >= 2 && (pathParts[pathParts.length - 1] === 'answerkey' || pathParts[pathParts.length - 1] === 'answerkey.html')) {
+          currentSlug = pathParts[pathParts.length - 2];
         }
-      } catch(e) {}
+      }
+
+      if (currentSlug) {
+        try {
+          const rawCached = sessionStorage.getItem('cbtrank_active_exam');
+          if (rawCached) {
+            const cachedExam = JSON.parse(rawCached);
+            if (cachedExam && cachedExam.location_type_id) {
+              locTypeId = Number(cachedExam.location_type_id);
+            }
+          }
+        } catch(e) {}
+      } else {
+        // Direct /answerkey visit: ensure locTypeId is 2 and clear old exam session
+        try { sessionStorage.removeItem('cbtrank_active_exam'); } catch(e) {}
+        locTypeId = 2;
+      }
 
       loadDynamicLocations(locTypeId);
       loadDynamicLanguages();
