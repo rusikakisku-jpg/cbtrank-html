@@ -877,6 +877,18 @@
       document.getElementById('banner-exam-title').textContent = activeTitle;
       document.getElementById('banner-exam-sub').textContent = `Paste your ${activeTitle} official answer key URL and add your exam details.`;
       document.getElementById('info-how-to-title').textContent = `⭐ How to Check Your "${activeTitle}" Marks & Rank on CBTRank`;
+
+      // Rewrite address bar URL to clean slug format (e.g. /osssc-ri-ari-amin-icds-sfs-junior-assistant/answerkey)
+      try {
+        if (activeSlug && window.history && window.history.pushState) {
+          const isGitHubPages = window.location.pathname.startsWith('/cbtrank-html');
+          const prefix = isGitHubPages ? '/cbtrank-html' : '';
+          const cleanUrl = `${prefix}/${activeSlug}/answerkey`;
+          if (window.location.pathname !== cleanUrl) {
+            window.history.pushState({ slug: activeSlug }, '', cleanUrl);
+          }
+        }
+      } catch(e) {}
     } else {
       document.title = `Answer Key Calculator | CBT RANK`;
       document.getElementById('banner-exam-title').textContent = `Answer Key Calculator`;
