@@ -405,7 +405,7 @@
           <!-- Answer Key URL -->
           <div class="form-group">
             <label for="ans_key_url">Answer Key URL <span class="star">*</span></label>
-            <input type="url" id="ans_key_url" class="form-input font-mono" placeholder="https://g01.digialm.com/.../AssessmentResponseHTML.html" required>
+            <input type="url" id="ans_key_url" class="form-input font-mono" placeholder="" required>
             <p class="help-text">Use the official answer key link (the page where questions are visible).</p>
           </div>
 
@@ -417,7 +417,7 @@
               <label for="category">Category <span class="star">*</span></label>
               <select id="category" class="form-select" required>
                 <option value="">Select Category</option>
-                <option value="UR">UR / General</option>
+                <option value="UR">UR</option>
                 <option value="OBC">OBC</option>
                 <option value="EWS">EWS</option>
                 <option value="SC">SC</option>
@@ -750,6 +750,38 @@
       } catch (e) {}
     }
 
+    /* -------------------------------------------------------------
+       DYNAMIC CLOUDFLARE WORKER LANGUAGES RESOLUTION
+    ------------------------------------------------------------- */
+    async function loadDynamicLanguages() {
+      const langSelect = document.getElementById('paper_language');
+      if (!langSelect) return;
+
+      const WORKER_BASE = "https://cbtrank.rusikakisku.workers.dev";
+      try {
+        const res = await fetch(`${WORKER_BASE}/languages`);
+        if (res.ok) {
+          const data = await res.json();
+          let langList = [];
+          if (Array.isArray(data)) {
+            langList = data;
+          } else if (typeof data === 'object' && data !== null) {
+            const firstKey = Object.keys(data)[0];
+            if (Array.isArray(data[firstKey])) langList = data[firstKey];
+          }
+
+          if (langList.length > 0) {
+            langSelect.innerHTML = `<option value="">Select Language (Optional)</option>` +
+              langList.map(l => {
+                const nameStr = (typeof l === 'string') ? l : (l.name || l.title || '');
+                const valStr = nameStr.toLowerCase();
+                return `<option value="${escapeHtml(valStr)}">${escapeHtml(nameStr)}</option>`;
+              }).join('');
+          }
+        }
+      } catch (e) {}
+    }
+
     (async function initExamLocations() {
       let locTypeId = 2;
       try {
@@ -763,6 +795,7 @@
       } catch(e) {}
 
       loadDynamicLocations(locTypeId);
+      loadDynamicLanguages();
     })();
 
 /* ============================================================
