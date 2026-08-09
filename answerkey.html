@@ -733,7 +733,11 @@
       "Tripura", "Uttar Pradesh", "Uttarakhand", "West Bengal"
     ];
 
+    let isExamLocationLoaded = false;
+
     async function loadDynamicLocations(locTypeId) {
+      if (isExamLocationLoaded) return;
+
       const stateLabel = document.querySelector('label[for="state"]') || document.getElementById('state-label');
       const stateSelect = document.getElementById('state');
       if (!stateSelect) return;
@@ -744,17 +748,19 @@
       const fallbackList = isRRB ? STATIC_RRB_ZONES : STATIC_STATES_UT;
 
       // 1. Instant 0ms Fallback Rendering
-      if (stateLabel) {
-        stateLabel.innerHTML = `${escapeHtml(dynamicGroupName)} <span style="color:#ef4444">*</span>`;
+      if (!isExamLocationLoaded) {
+        if (stateLabel) {
+          stateLabel.innerHTML = `${escapeHtml(dynamicGroupName)} <span style="color:#ef4444">*</span>`;
+        }
+        stateSelect.innerHTML = `<option value="">Select ${escapeHtml(dynamicGroupName)}</option>` +
+          fallbackList.map(nameStr => `<option value="${escapeHtml(nameStr)}">${escapeHtml(nameStr)}</option>`).join('');
       }
-      stateSelect.innerHTML = `<option value="">Select ${escapeHtml(dynamicGroupName)}</option>` +
-        fallbackList.map(nameStr => `<option value="${escapeHtml(nameStr)}">${escapeHtml(nameStr)}</option>`).join('');
 
       // 2. Background Cloudflare Worker API Sync
       const WORKER_BASE = "https://cbtrank.rusikakisku.workers.dev";
       try {
         const locRes = await fetch(`${WORKER_BASE}/locations?id=${targetId}`);
-        if (locRes.ok) {
+        if (locRes.ok && !isExamLocationLoaded) {
           const locData = await locRes.json();
           let apiGroupName = "";
           let locationsList = [];
@@ -771,11 +777,11 @@
 
           if (!apiGroupName) apiGroupName = dynamicGroupName;
 
-          if (stateLabel) {
+          if (stateLabel && !isExamLocationLoaded) {
             stateLabel.innerHTML = `${escapeHtml(apiGroupName)} <span style="color:#ef4444">*</span>`;
           }
 
-          if (locationsList.length > 0) {
+          if (locationsList.length > 0 && !isExamLocationLoaded) {
             const currentSelected = stateSelect.value;
             stateSelect.innerHTML = `<option value="">Select ${escapeHtml(apiGroupName)}</option>` +
               locationsList.map(l => {
@@ -826,17 +832,28 @@
     /* ============================================================
        100% DYNAMIC SINGLE EXAM BY SLUG API RESOLVER
     ============================================================ */
+    /* ============================================================
+       100% DYNAMIC SINGLE EXAM BY SLUG API RESOLVER & DUAL ROUTER
+    ============================================================ */
+    function sanitizeSlug(raw) {
+      if (!raw || typeof raw !== 'string') return '';
+      const cleaned = raw.trim().toLowerCase();
+      // Allow only standard safe URL slug characters (alphanumeric, hyphen, underscore)
+      if (/^[a-z0-9_-]+$/.test(cleaned)) return cleaned;
+      return '';
+    }
+
     async function initExamData() {
       const urlParams = new URLSearchParams(window.location.search);
-      let activeSlug = urlParams.get('exam') || '';
+      let rawSlug = urlParams.get('exam') || '';
       try {
-        if (!activeSlug && sessionStorage.getItem('cbtrank_pending_slug')) {
-          activeSlug = sessionStorage.getItem('cbtrank_pending_slug');
+        if (!rawSlug && sessionStorage.getItem('cbtrank_pending_slug')) {
+          rawSlug = sessionStorage.getItem('cbtrank_pending_slug');
           sessionStorage.removeItem('cbtrank_pending_slug');
         }
       } catch(e) {}
 
-      if (!activeSlug) {
+      if (!rawSlug) {
         const pathParts = window.location.pathname.split('/').filter(Boolean);
         if (pathParts.length > 0 && pathParts[0] === 'cbtrank-html') pathParts.shift();
 
@@ -844,33 +861,74 @@
           const firstSeg = pathParts[0].toLowerCase();
           const lastSeg = pathParts[pathParts.length - 1].toLowerCase();
           if (firstSeg === 'answerkey' || firstSeg === 'answerkey.html') {
-            activeSlug = pathParts[1];
+            rawSlug = pathParts[1];
           } else if (lastSeg === 'answerkey' || lastSeg === 'answerkey.html') {
-            activeSlug = pathParts[pathParts.length - 2];
+            rawSlug = pathParts[pathParts.length - 2];
           }
         }
       }
 
-      // 0ms Synchronous Location & Address Bar Initialization (BEFORE ANY ASYNC FETCH!)
-      let initialLocId = 2;
-      if (activeSlug && /^rrb-/i.test(activeSlug)) {
-        initialLocId = 1;
+      // Securely sanitize the slug parameter
+      const activeSlug = sanitizeSlug(rawSlug);
+
+      // CASE 1: Direct Answer Key access without any slug (/answerkey or answerkey.html)
+      if (!activeSlug) {
+        isExamLocationLoaded = false;
+        loadDynamicLocations(2); // Executes /locations?id=2 and loads States/UT
+        loadDynamicLanguages();
+
+        document.title = `Answer Key Calculator | CBT RANK`;
+        document.getElementById('banner-exam-title').textContent = `Answer Key Calculator`;
+        document.getElementById('banner-exam-sub').textContent = `Paste your official answer key URL and add your exam details.`;
+        document.getElementById('info-how-to-title').textContent = `⭐ How to Check Your Marks & Rank on CBTRank`;
+        return;
       }
+
+      // CASE 2: Answer Key access with slug (/answerkey/slug or ?exam=slug or from index.html)
+      let initialLocId = /^rrb-/i.test(activeSlug) ? 1 : 2;
       try {
         const rawCached = sessionStorage.getItem('cbtrank_active_exam');
         if (rawCached) {
           const cachedExam = JSON.parse(rawCached);
           if (cachedExam && cachedExam.slug === activeSlug && cachedExam.location_type_id) {
             initialLocId = (cachedExam.location_type_id === 'RRB Zones' || cachedExam.location_type_id == 1) ? 1 : 2;
+
+            // 0ms Instant cached rendering for exam-specific location label and options
+            const groupLabel = cachedExam.location_type_id;
+            let cachedLocs = [];
+            if (Array.isArray(cachedExam.location_id)) {
+              cachedLocs = cachedExam.location_id;
+            } else if (typeof cachedExam.location_id === 'string' && cachedExam.location_id.trim()) {
+              try {
+                const parsed = JSON.parse(cachedExam.location_id);
+                if (Array.isArray(parsed)) cachedLocs = parsed;
+              } catch(e) {}
+            }
+
+            const stateLabel = document.querySelector('label[for="state"]') || document.getElementById('state-label');
+            const stateSelect = document.getElementById('state');
+            if (stateLabel) {
+              stateLabel.innerHTML = `${escapeHtml(groupLabel)} <span style="color:#ef4444">*</span>`;
+            }
+            if (stateSelect && cachedLocs.length > 0) {
+              stateSelect.innerHTML = `<option value="">Select ${escapeHtml(groupLabel)}</option>` +
+                cachedLocs.map(locName => {
+                  const nameStr = (typeof locName === 'string') ? locName : (locName.name || locName.title || '');
+                  return `<option value="${escapeHtml(nameStr)}">${escapeHtml(nameStr)}</option>`;
+                }).join('');
+              isExamLocationLoaded = true;
+            }
           }
         }
       } catch(e) {}
 
-      // Trigger 0ms Instant Rendering Immediately
-      loadDynamicLocations(initialLocId);
+      // Trigger Instant Fallback / Language Loading
+      if (!isExamLocationLoaded) {
+        loadDynamicLocations(initialLocId);
+      }
       loadDynamicLanguages();
 
-      if (activeSlug && window.history && window.history.replaceState) {
+      if (window.history && window.history.replaceState) {
         try {
           const isGitHubPages = window.location.pathname.startsWith('/cbtrank-html');
           const prefix = isGitHubPages ? '/cbtrank-html' : '';
@@ -884,34 +942,32 @@
       let activeExamObj = null;
       const WORKER_BASE = "https://cbtrank.rusikakisku.workers.dev";
 
-      if (activeSlug) {
-        // Direct Query to Single Exam Endpoint: /exams?slug=YOUR_EXAM_SLUG
+      // Query single exam endpoint using sanitized slug
+      try {
+        const res = await fetch(`${WORKER_BASE}/exams?slug=${encodeURIComponent(activeSlug)}`);
+        if (res.ok) {
+          const resData = await res.json();
+          if (resData && resData.success && resData.data) {
+            activeExamObj = resData.data;
+          }
+        }
+      } catch (e) {}
+
+      // Fallback to sessionStorage if offline
+      if (!activeExamObj) {
         try {
-          const res = await fetch(`${WORKER_BASE}/exams?slug=${encodeURIComponent(activeSlug)}`);
-          if (res.ok) {
-            const resData = await res.json();
-            if (resData && resData.success && resData.data) {
-              activeExamObj = resData.data;
+          const rawCached = sessionStorage.getItem('cbtrank_active_exam');
+          if (rawCached) {
+            const cachedExam = JSON.parse(rawCached);
+            if (cachedExam && cachedExam.slug === activeSlug) {
+              activeExamObj = cachedExam;
             }
           }
-        } catch (e) {}
-
-        // Fallback to sessionStorage if offline
-        if (!activeExamObj) {
-          try {
-            const rawCached = sessionStorage.getItem('cbtrank_active_exam');
-            if (rawCached) {
-              const cachedExam = JSON.parse(rawCached);
-              if (cachedExam && cachedExam.slug === activeSlug) {
-                activeExamObj = cachedExam;
-              }
-            }
-          } catch(e) {}
-        }
+        } catch(e) {}
       }
 
-      // 1. If an active slug was in URL but does NOT exist in Database or Session, render 404 Page Not Found view!
-      if (activeSlug && !activeExamObj) {
+      // If an active slug was supplied but does NOT exist in Database or Session, render 404 Page Not Found view!
+      if (!activeExamObj) {
         document.title = `404 Page Not Found | CBT RANK`;
         const isGitHubPages = window.location.pathname.startsWith('/cbtrank-html');
         const homeTarget = isGitHubPages ? '/cbtrank-html/' : '/';
@@ -933,68 +989,57 @@
         }
         document.getElementById('banner-exam-title').textContent = `404 Not Found`;
         document.getElementById('banner-exam-sub').textContent = `The exam page you are looking for could not be found.`;
-
-        // Clean address bar URL rewrite for 404 state
-        try {
-          if (window.history && window.history.replaceState) {
-            const prefix = isGitHubPages ? '/cbtrank-html' : '';
-            const cleanUrl = `${prefix}/answerkey/${activeSlug}`;
-            if (window.location.pathname !== cleanUrl) {
-              window.history.replaceState({ slug: activeSlug }, '', cleanUrl);
-            }
-          }
-        } catch(e) {}
         return;
       }
 
-      if (activeExamObj) {
-        const activeTitle = activeExamObj.title || '';
-        const groupLabel = activeExamObj.location_type_id || (initialLocId === 1 ? 'RRB Zones' : 'State / UT');
-        const locArray = Array.isArray(activeExamObj.location_id) ? activeExamObj.location_id : [];
-
-        // Render Location Label & Select Options directly from Exam Object Data
-        const stateLabel = document.querySelector('label[for="state"]') || document.getElementById('state-label');
-        const stateSelect = document.getElementById('state');
-
-        if (stateLabel) {
-          stateLabel.innerHTML = `${escapeHtml(groupLabel)} <span style="color:#ef4444">*</span>`;
+      // Exam Object Found: Render location_type_id & location_id data safely
+      const activeTitle = activeExamObj.title || '';
+      const groupLabel = activeExamObj.location_type_id || (initialLocId === 1 ? 'RRB Zones' : 'State / UT');
+      
+      let locArray = [];
+      if (Array.isArray(activeExamObj.location_id)) {
+        locArray = activeExamObj.location_id;
+      } else if (typeof activeExamObj.location_id === 'string' && activeExamObj.location_id.trim()) {
+        const str = activeExamObj.location_id.trim();
+        if (str.startsWith('[')) {
+          try {
+            const parsed = JSON.parse(str);
+            if (Array.isArray(parsed)) locArray = parsed;
+          } catch(e) {}
         }
-
-        if (stateSelect && locArray.length > 0) {
-          stateSelect.innerHTML = `<option value="">Select ${escapeHtml(groupLabel)}</option>` +
-            locArray.map(locName => {
-              const nameStr = (typeof locName === 'string') ? locName : (locName.name || locName.title || '');
-              return `<option value="${escapeHtml(nameStr)}">${escapeHtml(nameStr)}</option>`;
-            }).join('');
-        } else {
-          loadDynamicLocations(2);
+        if (locArray.length === 0 && str.includes(',')) {
+          locArray = str.split(',').map(s => s.trim()).filter(Boolean);
+        } else if (locArray.length === 0 && str) {
+          locArray = [str];
         }
-
-        // Render Title, Subtitle, and Clean Address Bar URL
-        document.title = `${activeTitle} | CBT RANK`;
-        document.getElementById('banner-exam-title').textContent = `Answer Key Calculator`;
-        document.getElementById('banner-exam-sub').textContent = `Paste your ${activeTitle} official answer key URL and add your exam details.`;
-        document.getElementById('info-how-to-title').textContent = `⭐ How to Check Your "${activeTitle}" Marks & Rank on CBTRank`;
-
-        try {
-          if (window.history && window.history.replaceState) {
-            const isGitHubPages = window.location.pathname.startsWith('/cbtrank-html');
-            const prefix = isGitHubPages ? '/cbtrank-html' : '';
-            const cleanUrl = `${prefix}/answerkey/${activeSlug}`;
-            if (window.location.pathname !== cleanUrl) {
-              window.history.replaceState({ slug: activeSlug }, '', cleanUrl);
-            }
-          }
-        } catch(e) {}
-      } else {
-        // Direct /answerkey visit without slug
-        loadDynamicLocations(2);
-
-        document.title = `Answer Key Calculator | CBT RANK`;
-        document.getElementById('banner-exam-title').textContent = `Answer Key Calculator`;
-        document.getElementById('banner-exam-sub').textContent = `Paste your official answer key URL and add your exam details.`;
-        document.getElementById('info-how-to-title').textContent = `⭐ How to Check Your Marks & Rank on CBTRank`;
       }
+
+      // Render Location Label & Select Options directly from Exam Object Data
+      const stateLabel = document.querySelector('label[for="state"]') || document.getElementById('state-label');
+      const stateSelect = document.getElementById('state');
+
+      if (stateLabel) {
+        stateLabel.innerHTML = `${escapeHtml(groupLabel)} <span style="color:#ef4444">*</span>`;
+      }
+
+      if (stateSelect && locArray.length > 0) {
+        const currentVal = stateSelect.value;
+        stateSelect.innerHTML = `<option value="">Select ${escapeHtml(groupLabel)}</option>` +
+          locArray.map(locName => {
+            const nameStr = (typeof locName === 'string') ? locName : (locName.name || locName.title || '');
+            const isSel = (currentVal && currentVal === nameStr) ? ' selected' : '';
+            return `<option value="${escapeHtml(nameStr)}"${isSel}>${escapeHtml(nameStr)}</option>`;
+          }).join('');
+        isExamLocationLoaded = true;
+      } else {
+        if (!isExamLocationLoaded) loadDynamicLocations(initialLocId);
+      }
+
+      // Render Title, Subtitle, and Clean Address Bar URL
+      document.title = `${activeTitle} | CBT RANK`;
+      document.getElementById('banner-exam-title').textContent = `Answer Key Calculator`;
+      document.getElementById('banner-exam-sub').textContent = `Paste your ${activeTitle} official answer key URL and add your exam details.`;
+      document.getElementById('info-how-to-title').textContent = `⭐ How to Check Your "${activeTitle}" Marks & Rank on CBTRank`;
     }
 
     initExamData();
