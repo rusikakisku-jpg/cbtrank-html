@@ -392,7 +392,7 @@
       <div class="banner-header">
         <div class="badge-pill">
           <span class="green-dot"></span>
-          CBT Answer Key Calculator
+          CBT RANK
         </div>
         <h1 class="banner-title" id="banner-exam-title">Answer Key Calculator</h1>
         <p class="banner-sub" id="banner-exam-sub">Paste your official answer key URL and add your exam details.</p>
@@ -806,6 +806,11 @@
       }
 
       if (currentSlug) {
+        if (/^rrb-/i.test(currentSlug)) {
+          locTypeId = 1;
+        } else {
+          locTypeId = 2;
+        }
         try {
           const rawCached = sessionStorage.getItem('cbtrank_active_exam');
           if (rawCached) {
@@ -885,7 +890,7 @@
 
     if (activeSlug && activeTitle) {
       document.title = `${activeTitle} | CBT RANK`;
-      document.getElementById('banner-exam-title').textContent = activeTitle;
+      document.getElementById('banner-exam-title').textContent = `Answer Key Calculator`;
       document.getElementById('banner-exam-sub').textContent = `Paste your ${activeTitle} official answer key URL and add your exam details.`;
       document.getElementById('info-how-to-title').textContent = `⭐ How to Check Your "${activeTitle}" Marks & Rank on CBTRank`;
 
