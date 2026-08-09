@@ -17,7 +17,7 @@
     rootPrefix = '/cbtrank-html/';
   }
 
-  const homeUrl = rootPrefix + 'index.html';
+  const homeUrl = rootPrefix;
   const answerkeyUrl = rootPrefix + 'answerkey.html';
   const aboutUrl = rootPrefix + 'about-us.html';
   const contactUrl = rootPrefix + 'contact-us.html';
