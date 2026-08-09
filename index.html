@@ -416,12 +416,13 @@
       list.innerHTML = EXAMS.map(e => {
         const safeTitle = escapeHtml(e.title);
         const safeSubtitle = escapeHtml(e.subtitle);
-        const safeSlug = encodeURIComponent(e.slug || '');
+        const rawSlug = e.slug || '';
+        const safeSlug = encodeURIComponent(rawSlug);
         const isLatest = Number(e.is_latest) === 1 || Number(e.set_on_top) === 1;
 
         return `
           <div class="exam-card">
-            <a href="answerkey.html?exam=${safeSlug}" aria-label="${safeTitle}" onclick="saveActiveExamCache('${safeSlug}')">
+            <a href="answerkey.html?exam=${safeSlug}" aria-label="${safeTitle}" onclick="saveActiveExamCache('${escapeHtml(rawSlug)}')">
               <div class="exam-card-left">
                 <div class="exam-title">
                   <span>${safeTitle}</span>

@@ -1033,10 +1033,10 @@
                   return `<option value="${escapeHtml(nameStr)}">${escapeHtml(nameStr)}</option>`;
                 }).join('');
               isExamLocationLoaded = true;
-
-              // Show Debug Inspector Dialogue for index.html click (0ms cache)
-              showExamDataDebugModal('index.html Click (sessionStorage Cache)', cachedExam, cachedLocs);
             }
+
+            // Show Debug Inspector Dialogue for index.html click (0ms sessionStorage cache)
+            showExamDataDebugModal('index.html Click (0ms sessionStorage Cache)', cachedExam, cachedLocs);
           }
         }
       } catch(e) {}
