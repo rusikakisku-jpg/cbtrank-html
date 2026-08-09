@@ -831,8 +831,16 @@
       let activeSlug = urlParams.get('exam') || '';
       if (!activeSlug) {
         const pathParts = window.location.pathname.split('/').filter(Boolean);
-        if (pathParts.length >= 2 && (pathParts[pathParts.length - 1] === 'answerkey' || pathParts[pathParts.length - 1] === 'answerkey.html')) {
-          activeSlug = pathParts[pathParts.length - 2];
+        if (pathParts.length > 0 && pathParts[0] === 'cbtrank-html') pathParts.shift();
+
+        if (pathParts.length >= 2) {
+          const firstSeg = pathParts[0].toLowerCase();
+          const lastSeg = pathParts[pathParts.length - 1].toLowerCase();
+          if (firstSeg === 'answerkey' || firstSeg === 'answerkey.html') {
+            activeSlug = pathParts[1];
+          } else if (lastSeg === 'answerkey' || lastSeg === 'answerkey.html') {
+            activeSlug = pathParts[pathParts.length - 2];
+          }
         }
       }
 
@@ -893,7 +901,7 @@
         try {
           if (window.history && window.history.replaceState) {
             const prefix = isGitHubPages ? '/cbtrank-html' : '';
-            const cleanUrl = `${prefix}/${activeSlug}/answerkey`;
+            const cleanUrl = `${prefix}/answerkey/${activeSlug}`;
             if (window.location.pathname !== cleanUrl) {
               window.history.replaceState({ slug: activeSlug }, '', cleanUrl);
             }
@@ -938,7 +946,7 @@
           if (window.history && window.history.replaceState) {
             const isGitHubPages = window.location.pathname.startsWith('/cbtrank-html');
             const prefix = isGitHubPages ? '/cbtrank-html' : '';
-            const cleanUrl = `${prefix}/${activeSlug}/answerkey`;
+            const cleanUrl = `${prefix}/answerkey/${activeSlug}`;
             if (window.location.pathname !== cleanUrl) {
               window.history.replaceState({ slug: activeSlug }, '', cleanUrl);
             }

@@ -46,10 +46,14 @@
 
       var lastSegment = parts.length > 0 ? parts[parts.length - 1].toLowerCase() : '';
       
-      // Check if URL is exam slug format (e.g. /slug/answerkey)
+      // Check if URL is exam slug format (e.g. /answerkey/slug or /slug/answerkey)
       var slug = '';
-      if (lastSegment === 'answerkey' || lastSegment === 'answerkey.html') {
-        if (parts.length >= 2) {
+      if (parts.length >= 2) {
+        var firstSeg = parts[0].toLowerCase();
+        var lastSeg = parts[parts.length - 1].toLowerCase();
+        if (firstSeg === 'answerkey' || firstSeg === 'answerkey.html') {
+          slug = parts[1];
+        } else if (lastSeg === 'answerkey' || lastSeg === 'answerkey.html') {
           slug = parts[parts.length - 2];
         }
       }
