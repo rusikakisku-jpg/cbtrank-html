@@ -735,6 +735,12 @@
 
     let isExamLocationLoaded = false;
 
+    function isRRBSlug(slug) {
+      if (!slug) return false;
+      const s = String(slug).toLowerCase();
+      return s.includes('rrb') || s.includes('railway') || s.includes('alp') || s.includes('technician') || s.includes('paramedical') || s.includes('ntpc');
+    }
+
     async function loadDynamicLocations(locTypeId) {
       if (isExamLocationLoaded) return;
 
@@ -744,7 +750,7 @@
 
       const targetId = Number(locTypeId || 2);
       const isRRB = targetId === 1;
-      const dynamicGroupName = isRRB ? "RRB Zone" : "States/UT";
+      const dynamicGroupName = isRRB ? "RRB Zones" : "States/UT";
       const fallbackList = isRRB ? STATIC_RRB_ZONES : STATIC_STATES_UT;
 
       // 1. Instant 0ms Fallback Rendering
@@ -775,7 +781,7 @@
             locationsList = locData;
           }
 
-          if (!apiGroupName) apiGroupName = dynamicGroupName;
+          if (!apiGroupName || apiGroupName === 'RRB Zone') apiGroupName = dynamicGroupName;
 
           if (stateLabel && !isExamLocationLoaded) {
             stateLabel.innerHTML = `${escapeHtml(apiGroupName)} <span style="color:#ef4444">*</span>`;
@@ -829,9 +835,6 @@
       } catch (e) {}
     }
 
-    /* ============================================================
-       100% DYNAMIC SINGLE EXAM BY SLUG API RESOLVER
-    ============================================================ */
     /* ============================================================
        100% DYNAMIC SINGLE EXAM BY SLUG API RESOLVER & DUAL ROUTER
     ============================================================ */
@@ -903,7 +906,7 @@
       }
 
       // CASE 2: Answer Key access with slug (/answerkey/slug or ?exam=slug or from index.html)
-      let initialLocId = /^rrb-/i.test(activeSlug) ? 1 : 2;
+      let initialLocId = isRRBSlug(activeSlug) ? 1 : 2;
       try {
         const rawCached = sessionStorage.getItem('cbtrank_active_exam');
         if (rawCached) {
@@ -912,10 +915,10 @@
             if (!activeSlug && cachedExam.slug) {
               activeSlug = sanitizeSlug(cachedExam.slug);
             }
-            initialLocId = (cachedExam.location_type_id === 'RRB Zones' || cachedExam.location_type_id == 1) ? 1 : 2;
+            initialLocId = (cachedExam.location_type_id === 'RRB Zones' || cachedExam.location_type_id == 1 || isRRBSlug(activeSlug)) ? 1 : 2;
 
             // 0ms Instant cached rendering for exam-specific location label and options
-            const groupLabel = cachedExam.location_type_id;
+            const groupLabel = cachedExam.location_type_id || (initialLocId === 1 ? 'RRB Zones' : 'States/UT');
             let cachedLocs = [];
             if (Array.isArray(cachedExam.location_id)) {
               cachedLocs = cachedExam.location_id;
@@ -1015,7 +1018,7 @@
 
       // Exam Object Found: Render location_type_id & location_id data safely
       const activeTitle = activeExamObj.title || '';
-      const groupLabel = activeExamObj.location_type_id || (initialLocId === 1 ? 'RRB Zones' : 'State / UT');
+      const groupLabel = activeExamObj.location_type_id || (isRRBSlug(activeSlug) || initialLocId === 1 ? 'RRB Zones' : 'States/UT');
       
       let locArray = [];
       if (Array.isArray(activeExamObj.location_id)) {
@@ -1053,7 +1056,7 @@
           }).join('');
         isExamLocationLoaded = true;
       } else {
-        if (!isExamLocationLoaded) loadDynamicLocations(initialLocId);
+        loadDynamicLocations(isRRBSlug(activeSlug) ? 1 : 2);
       }
 
       // Render Title, Subtitle, and Clean Address Bar URL
