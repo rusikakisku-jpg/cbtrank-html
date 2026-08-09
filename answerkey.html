@@ -792,125 +792,93 @@
       } catch (e) {}
     }
 
-    (async function initExamLocations() {
-      let locTypeId = 2;
-
-      // Check if URL has active exam slug
+    /* ============================================================
+       100% DYNAMIC SINGLE EXAM BY SLUG API RESOLVER
+    ============================================================ */
+    async function initExamData() {
       const urlParams = new URLSearchParams(window.location.search);
-      let currentSlug = urlParams.get('exam') || '';
-      if (!currentSlug) {
+      let activeSlug = urlParams.get('exam') || '';
+      if (!activeSlug) {
         const pathParts = window.location.pathname.split('/').filter(Boolean);
         if (pathParts.length >= 2 && (pathParts[pathParts.length - 1] === 'answerkey' || pathParts[pathParts.length - 1] === 'answerkey.html')) {
-          currentSlug = pathParts[pathParts.length - 2];
+          activeSlug = pathParts[pathParts.length - 2];
         }
       }
 
-      if (currentSlug) {
-        if (/^rrb-/i.test(currentSlug)) {
-          locTypeId = 1;
-        } else {
-          locTypeId = 2;
-        }
+      let activeExamObj = null;
+      const WORKER_BASE = "https://cbtrank.rusikakisku.workers.dev";
+
+      if (activeSlug) {
+        // Direct Query to Single Exam Endpoint: /exams?slug=YOUR_EXAM_SLUG
         try {
-          const rawCached = sessionStorage.getItem('cbtrank_active_exam');
-          if (rawCached) {
-            const cachedExam = JSON.parse(rawCached);
-            if (cachedExam && cachedExam.location_type_id) {
-              locTypeId = Number(cachedExam.location_type_id);
+          const res = await fetch(`${WORKER_BASE}/exams?slug=${encodeURIComponent(activeSlug)}`);
+          if (res.ok) {
+            const resData = await res.json();
+            if (resData && resData.success && resData.data) {
+              activeExamObj = resData.data;
+            }
+          }
+        } catch (e) {}
+
+        // Fallback to sessionStorage if offline
+        if (!activeExamObj) {
+          try {
+            const rawCached = sessionStorage.getItem('cbtrank_active_exam');
+            if (rawCached) {
+              const cachedExam = JSON.parse(rawCached);
+              if (cachedExam && cachedExam.slug === activeSlug) {
+                activeExamObj = cachedExam;
+              }
+            }
+          } catch(e) {}
+        }
+      }
+
+      let locTypeId = 2;
+      let activeTitle = '';
+
+      if (activeExamObj) {
+        activeTitle = activeExamObj.title || '';
+        locTypeId = Number(activeExamObj.location_type_id || 2);
+      } else if (activeSlug) {
+        // Fallback for unlisted custom slug
+        activeTitle = activeSlug
+          .split('-')
+          .map(w => w.toUpperCase().length <= 3 ? w.toUpperCase() : w.charAt(0).toUpperCase() + w.slice(1))
+          .join(' ');
+        locTypeId = /^rrb-/i.test(activeSlug) ? 1 : 2;
+      }
+
+      // Load Dynamic Locations & Languages from Cloudflare Worker
+      loadDynamicLocations(locTypeId);
+      loadDynamicLanguages();
+
+      // Render Title, Subtitle, and Clean Address Bar URL
+      if (activeSlug && activeTitle) {
+        document.title = `${activeTitle} | CBT RANK`;
+        document.getElementById('banner-exam-title').textContent = `Answer Key Calculator`;
+        document.getElementById('banner-exam-sub').textContent = `Paste your ${activeTitle} official answer key URL and add your exam details.`;
+        document.getElementById('info-how-to-title').textContent = `⭐ How to Check Your "${activeTitle}" Marks & Rank on CBTRank`;
+
+        try {
+          if (window.history && window.history.replaceState) {
+            const isGitHubPages = window.location.pathname.startsWith('/cbtrank-html');
+            const prefix = isGitHubPages ? '/cbtrank-html' : '';
+            const cleanUrl = `${prefix}/${activeSlug}/answerkey`;
+            if (window.location.pathname !== cleanUrl) {
+              window.history.replaceState({ slug: activeSlug }, '', cleanUrl);
             }
           }
         } catch(e) {}
       } else {
-        // Direct /answerkey visit: ensure locTypeId is 2 and clear old exam session
-        try { sessionStorage.removeItem('cbtrank_active_exam'); } catch(e) {}
-        locTypeId = 2;
-      }
-
-      loadDynamicLocations(locTypeId);
-      loadDynamicLanguages();
-    })();
-
-/* ============================================================
-       EXAM SLUG & TITLE DETECTOR
-    ============================================================ */
-    const urlParams = new URLSearchParams(window.location.search);
-    let activeSlug = urlParams.get('exam') || '';
-
-    // Also check path-based slug (e.g. /rrb-ntpc-ug-2026-cbt-1/answerkey)
-    if (!activeSlug) {
-      const pathParts = window.location.pathname.split('/').filter(Boolean);
-      if (pathParts.length >= 2 && (pathParts[pathParts.length - 1] === 'answerkey' || pathParts[pathParts.length - 1] === 'answerkey.html')) {
-        activeSlug = pathParts[pathParts.length - 2];
+        document.title = `Answer Key Calculator | CBT RANK`;
+        document.getElementById('banner-exam-title').textContent = `Answer Key Calculator`;
+        document.getElementById('banner-exam-sub').textContent = `Paste your official answer key URL and add your exam details.`;
+        document.getElementById('info-how-to-title').textContent = `⭐ How to Check Your Marks & Rank on CBTRank`;
       }
     }
 
-    let activeTitle = '';
-    const examTitles = {
-      'osssc-ri-ari-amin-icds-sfs-junior-assistant': 'OSSSC RI,ARI,AMIN,ICDS,SFS,Junior Assistant',
-      'rrb-ntpc-ug-2026-cbt-1': 'RRB NTPC UG 2026 CBT-1',
-      'ssc-chsl-mains-2025': 'SSC CHSL Mains 2025',
-      'ssc-je-mains-2025': 'SSC JE Mains 2025',
-      'rrb-ntpc-cbt-i-graduate-level-2025-26': 'RRB NTPC CBT-I Graduate Level 2025-26',
-      'rrb-technician-grade-i-2025-26': 'RRB Technician Grade-I 2025-26',
-      'rrb-paramedical-exam-2025-26': 'RRB Paramedical Exam 2025-26',
-      'rrb-technician-grade-3-2025-26': 'RRB Technician Grade-3 2025-26',
-      'rrb-alp-cbt-1-2025-26-2': 'RRB ALP CBT-1 2025-26',
-      'rrb-section-controller-cbt-i-2026': 'RRB Section Controller CBT-I 2026',
-      'ssc-mts-2025-26': 'SSC MTS 2025-26',
-      'rrb-group-d-2024-25-2': 'RRB Group-D 2024-25',
-      'rrb-ntpc-cbt2': 'RRB NTPC CBT-2 Official Answer Key 2026',
-      'ssc-cgl-tier1': 'SSC CGL Tier-1 Rank Predictor & Answer Key 2026',
-      'rrb-alp-cbt1': 'RRB ALP CBT-1 Marks & Rank Calculator'
-    };
-
-    function slugToTitle(slug) {
-      if (!slug) return '';
-      return slug
-        .split('-')
-        .map(w => w.toUpperCase().length <= 3 ? w.toUpperCase() : w.charAt(0).toUpperCase() + w.slice(1))
-        .join(' ');
-    }
-
-    if (activeSlug && examTitles[activeSlug]) {
-      activeTitle = examTitles[activeSlug];
-    } else if (activeSlug) {
-      try {
-        const rawCached = sessionStorage.getItem('cbtrank_active_exam');
-        if (rawCached) {
-          const cachedExam = JSON.parse(rawCached);
-          if (cachedExam && cachedExam.title) {
-            activeTitle = cachedExam.title;
-          }
-        }
-      } catch(e) {}
-      if (!activeTitle) {
-        activeTitle = slugToTitle(activeSlug);
-      }
-    }
-
-    if (activeSlug && activeTitle) {
-      document.title = `${activeTitle} | CBT RANK`;
-      document.getElementById('banner-exam-title').textContent = `Answer Key Calculator`;
-      document.getElementById('banner-exam-sub').textContent = `Paste your ${activeTitle} official answer key URL and add your exam details.`;
-      document.getElementById('info-how-to-title').textContent = `⭐ How to Check Your "${activeTitle}" Marks & Rank on CBTRank`;
-
-      // Rewrite address bar URL to clean slug format (e.g. /rrb-technician-grade-3-2024/answerkey)
-      try {
-        if (window.history && window.history.replaceState) {
-          const isGitHubPages = window.location.pathname.startsWith('/cbtrank-html');
-          const prefix = isGitHubPages ? '/cbtrank-html' : '';
-          const cleanUrl = `${prefix}/${activeSlug}/answerkey`;
-          if (window.location.pathname !== cleanUrl) {
-            window.history.replaceState({ slug: activeSlug }, '', cleanUrl);
-          }
-        }
-      } catch(e) {}
-    } else {
-      document.title = `Answer Key Calculator | CBT RANK`;
-      document.getElementById('banner-exam-title').textContent = `Answer Key Calculator`;
-      document.getElementById('banner-exam-sub').textContent = `Paste your official answer key URL and add your exam details.`;
-      document.getElementById('info-how-to-title').textContent = `⭐ How to Check Your Marks & Rank on CBTRank`;
-    }
+    initExamData();
 
     // Mobile Hamburger
     const hamburger = document.getElementById('hamburger');
