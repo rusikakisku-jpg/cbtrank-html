@@ -38,29 +38,41 @@
       var path = window.location.pathname;
       var parts = path.split('/').filter(Boolean);
       
-      var slug = '';
-      for (var i = 0; i < parts.length; i++) {
-        var segment = parts[i].toLowerCase();
-        if (segment === 'answerkey' || segment === 'answerkey.html') {
-          if (i > 0) {
-            var prev = parts[i - 1];
-            if (prev !== 'cbtrank-html' && prev !== 'index' && prev !== 'index.html') {
-              slug = prev;
-            }
-          }
-          break;
-        }
-      }
-
       var basePrefix = '/';
       if (parts.length > 0 && parts[0] === 'cbtrank-html') {
         basePrefix = '/cbtrank-html/';
+        parts.shift();
+      }
+
+      var lastSegment = parts.length > 0 ? parts[parts.length - 1].toLowerCase() : '';
+      
+      // Check if URL is exam slug format (e.g. /slug/answerkey)
+      var slug = '';
+      if (lastSegment === 'answerkey' || lastSegment === 'answerkey.html') {
+        if (parts.length >= 2) {
+          slug = parts[parts.length - 2];
+        }
       }
 
       if (slug) {
         window.location.replace(basePrefix + 'answerkey.html?exam=' + encodeURIComponent(slug));
+        return;
+      }
+
+      var knownPages = {
+        'answerkey': 'answerkey.html',
+        'about-us': 'about-us.html',
+        'contact-us': 'contact-us.html',
+        'privacy-policy': 'privacy-policy.html',
+        'terms-and-conditions': 'terms-and-conditions.html',
+        'disclaimer': 'disclaimer.html',
+        'result': 'result.html'
+      };
+
+      if (knownPages[lastSegment]) {
+        window.location.replace(basePrefix + knownPages[lastSegment]);
       } else {
-        window.location.replace(basePrefix + 'answerkey.html');
+        window.location.replace(basePrefix);
       }
     })();
   </script>
