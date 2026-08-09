@@ -858,6 +858,14 @@
       'rrb-alp-cbt1': 'RRB ALP CBT-1 Marks & Rank Calculator'
     };
 
+    function slugToTitle(slug) {
+      if (!slug) return '';
+      return slug
+        .split('-')
+        .map(w => w.toUpperCase().length <= 3 ? w.toUpperCase() : w.charAt(0).toUpperCase() + w.slice(1))
+        .join(' ');
+    }
+
     if (activeSlug && examTitles[activeSlug]) {
       activeTitle = examTitles[activeSlug];
     } else if (activeSlug) {
@@ -870,17 +878,20 @@
           }
         }
       } catch(e) {}
+      if (!activeTitle) {
+        activeTitle = slugToTitle(activeSlug);
+      }
     }
 
-    if (activeTitle) {
+    if (activeSlug && activeTitle) {
       document.title = `${activeTitle} | CBT RANK`;
       document.getElementById('banner-exam-title').textContent = activeTitle;
       document.getElementById('banner-exam-sub').textContent = `Paste your ${activeTitle} official answer key URL and add your exam details.`;
       document.getElementById('info-how-to-title').textContent = `⭐ How to Check Your "${activeTitle}" Marks & Rank on CBTRank`;
 
-      // Rewrite address bar URL to clean slug format (e.g. /osssc-ri-ari-amin-icds-sfs-junior-assistant/answerkey)
+      // Rewrite address bar URL to clean slug format (e.g. /rrb-technician-grade-3-2024/answerkey)
       try {
-        if (activeSlug && window.history && window.history.replaceState) {
+        if (window.history && window.history.replaceState) {
           const isGitHubPages = window.location.pathname.startsWith('/cbtrank-html');
           const prefix = isGitHubPages ? '/cbtrank-html' : '';
           const cleanUrl = `${prefix}/${activeSlug}/answerkey`;
