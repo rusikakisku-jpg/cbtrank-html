@@ -865,11 +865,29 @@
           } else if (lastSeg === 'answerkey' || lastSeg === 'answerkey.html') {
             rawSlug = pathParts[pathParts.length - 2];
           }
+        } else if (pathParts.length === 1) {
+          const seg = pathParts[0].toLowerCase();
+          if (seg !== 'answerkey' && seg !== 'answerkey.html' && seg !== 'index.html') {
+            rawSlug = pathParts[0];
+          }
         }
       }
 
+      // Check if an active exam object exists in sessionStorage from index.html navigation click
+      if (!rawSlug) {
+        try {
+          const rawCached = sessionStorage.getItem('cbtrank_active_exam');
+          if (rawCached) {
+            const cachedObj = JSON.parse(rawCached);
+            if (cachedObj && cachedObj.slug) {
+              rawSlug = cachedObj.slug;
+            }
+          }
+        } catch(e) {}
+      }
+
       // Securely sanitize the slug parameter
-      const activeSlug = sanitizeSlug(rawSlug);
+      let activeSlug = sanitizeSlug(rawSlug);
 
       // CASE 1: Direct Answer Key access without any slug (/answerkey or answerkey.html)
       if (!activeSlug) {
@@ -890,7 +908,10 @@
         const rawCached = sessionStorage.getItem('cbtrank_active_exam');
         if (rawCached) {
           const cachedExam = JSON.parse(rawCached);
-          if (cachedExam && cachedExam.slug === activeSlug && cachedExam.location_type_id) {
+          if (cachedExam && (cachedExam.slug === activeSlug || !activeSlug) && cachedExam.location_type_id) {
+            if (!activeSlug && cachedExam.slug) {
+              activeSlug = sanitizeSlug(cachedExam.slug);
+            }
             initialLocId = (cachedExam.location_type_id === 'RRB Zones' || cachedExam.location_type_id == 1) ? 1 : 2;
 
             // 0ms Instant cached rendering for exam-specific location label and options
