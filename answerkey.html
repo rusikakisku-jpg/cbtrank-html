@@ -721,9 +721,10 @@
       const stateSelect = document.getElementById('state');
       if (!stateSelect) return;
 
+      const targetId = locTypeId || 2;
       const WORKER_BASE = "https://cbtrank.rusikakisku.workers.dev";
       try {
-        const locRes = await fetch(`${WORKER_BASE}/locations?id=${locTypeId}`);
+        const locRes = await fetch(`${WORKER_BASE}/locations?id=${targetId}`);
 
         if (locRes.ok) {
           const locData = await locRes.json();
@@ -733,23 +734,27 @@
           if (typeof locData === 'object' && locData !== null && !Array.isArray(locData)) {
             const keys = Object.keys(locData);
             if (keys.length > 0) {
-              dynamicGroupName = keys[0];
+              dynamicGroupName = keys[0]; // e.g. "States/UT" or "RRB Zone" or custom group
               locationsList = locData[dynamicGroupName] || [];
             }
           } else if (Array.isArray(locData)) {
             locationsList = locData;
           }
 
-          if (!dynamicGroupName) dynamicGroupName = "State / UT";
+          if (!dynamicGroupName) {
+            dynamicGroupName = Number(targetId) === 1 ? "RRB Zone" : "States/UT";
+          }
 
+          // 1. Show dynamic group name as Form Label (e.g. "States/UT *" or "RRB Zone *")
           if (stateLabel) {
             stateLabel.innerHTML = `${escapeHtml(dynamicGroupName)} <span style="color:#ef4444">*</span>`;
           }
 
+          // 2. Render dynamic locations into Dropdown Select Box
           if (locationsList.length > 0) {
             stateSelect.innerHTML = `<option value="">Select ${escapeHtml(dynamicGroupName)}</option>` +
               locationsList.map(l => {
-                const nameStr = (typeof l === 'string') ? l : (l.name || '');
+                const nameStr = (typeof l === 'string') ? l : (l.name || l.title || '');
                 return `<option value="${escapeHtml(nameStr)}">${escapeHtml(nameStr)}</option>`;
               }).join('');
           }
