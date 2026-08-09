@@ -836,25 +836,6 @@
         }
       }
 
-      // 1. Initial 0ms Instant Location Resolution
-      let locTypeId = 2;
-      if (activeSlug && /^rrb-/i.test(activeSlug)) {
-        locTypeId = 1;
-      }
-      try {
-        const rawCached = sessionStorage.getItem('cbtrank_active_exam');
-        if (rawCached) {
-          const cachedExam = JSON.parse(rawCached);
-          if (cachedExam && cachedExam.slug === activeSlug && cachedExam.location_type_id) {
-            locTypeId = Number(cachedExam.location_type_id);
-          }
-        }
-      } catch(e) {}
-
-      // Trigger instant 0ms rendering immediately
-      loadDynamicLocations(locTypeId);
-      loadDynamicLanguages();
-
       let activeExamObj = null;
       const WORKER_BASE = "https://cbtrank.rusikakisku.workers.dev";
 
@@ -866,30 +847,77 @@
             const resData = await res.json();
             if (resData && resData.success && resData.data) {
               activeExamObj = resData.data;
-              const exactDbLocTypeId = Number(activeExamObj.location_type_id || locTypeId);
-              if (exactDbLocTypeId !== locTypeId) {
-                loadDynamicLocations(exactDbLocTypeId);
-              }
             }
           }
         } catch (e) {}
+
+        // Fallback to sessionStorage if offline
+        if (!activeExamObj) {
+          try {
+            const rawCached = sessionStorage.getItem('cbtrank_active_exam');
+            if (rawCached) {
+              const cachedExam = JSON.parse(rawCached);
+              if (cachedExam && cachedExam.slug === activeSlug) {
+                activeExamObj = cachedExam;
+              }
+            }
+          } catch(e) {}
+        }
       }
 
-      // If an active slug was in URL but does NOT exist in Database or Session, redirect directly to Homepage!
+      // 1. If an active slug was in URL but does NOT exist in Database or Session, render 404 Page Not Found view!
       if (activeSlug && !activeExamObj) {
+        document.title = `404 Page Not Found | CBT RANK`;
         const isGitHubPages = window.location.pathname.startsWith('/cbtrank-html');
         const homeTarget = isGitHubPages ? '/cbtrank-html/' : '/';
-        window.location.replace(homeTarget);
+        
+        const cardBody = document.querySelector('.card-body') || document.getElementById('anskey-form');
+        if (cardBody) {
+          cardBody.innerHTML = `
+            <div style="padding: 50px 20px; text-align: center;">
+              <div style="font-size: 3.5rem; line-height: 1; margin-bottom: 16px;">🔍</div>
+              <h2 style="font-size: 1.5rem; font-weight: 900; color: #0f172a; margin-bottom: 8px;">404 - Exam Page Not Found</h2>
+              <p style="color: #64748b; font-size: 0.95rem; max-width: 480px; margin: 0 auto 24px; line-height: 1.5;">
+                The requested exam page <strong>"${escapeHtml(activeSlug)}"</strong> does not exist or has been removed from our database.
+              </p>
+              <a href="${homeTarget}" style="display: inline-block; background: #0044cc; color: #ffffff; padding: 12px 28px; border-radius: 10px; font-weight: 700; font-size: 0.95rem; text-decoration: none; box-shadow: 0 4px 12px rgba(0,68,204,0.25);">
+                &larr; Go to Homepage
+              </a>
+            </div>
+          `;
+        }
+        document.getElementById('banner-exam-title').textContent = `404 Not Found`;
+        document.getElementById('banner-exam-sub').textContent = `The exam page you are looking for could not be found.`;
         return;
       }
 
-      let activeTitle = '';
-      if (activeExamObj) {
-        activeTitle = activeExamObj.title || '';
-      }
+      // 2. Load Dynamic Paper Languages
+      loadDynamicLanguages();
 
-      // Render Title, Subtitle, and Clean Address Bar URL
-      if (activeSlug && activeTitle) {
+      if (activeExamObj) {
+        const activeTitle = activeExamObj.title || '';
+        const groupLabel = activeExamObj.location_type_id || 'State / UT';
+        const locArray = Array.isArray(activeExamObj.location_id) ? activeExamObj.location_id : [];
+
+        // Render Location Label & Select Options directly from Exam Object Data
+        const stateLabel = document.querySelector('label[for="state"]') || document.getElementById('state-label');
+        const stateSelect = document.getElementById('state');
+
+        if (stateLabel) {
+          stateLabel.innerHTML = `${escapeHtml(groupLabel)} <span style="color:#ef4444">*</span>`;
+        }
+
+        if (stateSelect && locArray.length > 0) {
+          stateSelect.innerHTML = `<option value="">Select ${escapeHtml(groupLabel)}</option>` +
+            locArray.map(locName => {
+              const nameStr = (typeof locName === 'string') ? locName : (locName.name || locName.title || '');
+              return `<option value="${escapeHtml(nameStr)}">${escapeHtml(nameStr)}</option>`;
+            }).join('');
+        } else {
+          loadDynamicLocations(2);
+        }
+
+        // Render Title, Subtitle, and Clean Address Bar URL
         document.title = `${activeTitle} | CBT RANK`;
         document.getElementById('banner-exam-title').textContent = `Answer Key Calculator`;
         document.getElementById('banner-exam-sub').textContent = `Paste your ${activeTitle} official answer key URL and add your exam details.`;
@@ -906,6 +934,9 @@
           }
         } catch(e) {}
       } else {
+        // Direct /answerkey visit without slug
+        loadDynamicLocations(2);
+
         document.title = `Answer Key Calculator | CBT RANK`;
         document.getElementById('banner-exam-title').textContent = `Answer Key Calculator`;
         document.getElementById('banner-exam-sub').textContent = `Paste your official answer key URL and add your exam details.`;
