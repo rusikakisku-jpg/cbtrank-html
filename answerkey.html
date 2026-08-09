@@ -888,6 +888,17 @@
         }
         document.getElementById('banner-exam-title').textContent = `404 Not Found`;
         document.getElementById('banner-exam-sub').textContent = `The exam page you are looking for could not be found.`;
+
+        // Clean address bar URL rewrite for 404 state
+        try {
+          if (window.history && window.history.replaceState) {
+            const prefix = isGitHubPages ? '/cbtrank-html' : '';
+            const cleanUrl = `${prefix}/${activeSlug}/answerkey`;
+            if (window.location.pathname !== cleanUrl) {
+              window.history.replaceState({ slug: activeSlug }, '', cleanUrl);
+            }
+          }
+        } catch(e) {}
         return;
       }
 
