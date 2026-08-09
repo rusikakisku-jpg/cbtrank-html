@@ -829,6 +829,13 @@
     async function initExamData() {
       const urlParams = new URLSearchParams(window.location.search);
       let activeSlug = urlParams.get('exam') || '';
+      try {
+        if (!activeSlug && sessionStorage.getItem('cbtrank_pending_slug')) {
+          activeSlug = sessionStorage.getItem('cbtrank_pending_slug');
+          sessionStorage.removeItem('cbtrank_pending_slug');
+        }
+      } catch(e) {}
+
       if (!activeSlug) {
         const pathParts = window.location.pathname.split('/').filter(Boolean);
         if (pathParts.length > 0 && pathParts[0] === 'cbtrank-html') pathParts.shift();
@@ -842,6 +849,18 @@
             activeSlug = pathParts[pathParts.length - 2];
           }
         }
+      }
+
+      // Synchronous 0ms Address Bar URL Cleaner (BEFORE ANY ASYNC FETCH!)
+      if (activeSlug && window.history && window.history.replaceState) {
+        try {
+          const isGitHubPages = window.location.pathname.startsWith('/cbtrank-html');
+          const prefix = isGitHubPages ? '/cbtrank-html' : '';
+          const cleanUrl = `${prefix}/answerkey/${activeSlug}`;
+          if (window.location.pathname !== cleanUrl) {
+            window.history.replaceState({ slug: activeSlug }, '', cleanUrl);
+          }
+        } catch(e) {}
       }
 
       let activeExamObj = null;

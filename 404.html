@@ -59,7 +59,8 @@
       }
 
       if (slug) {
-        window.location.replace(basePrefix + 'answerkey.html?exam=' + encodeURIComponent(slug));
+        try { sessionStorage.setItem('cbtrank_pending_slug', slug); } catch(e) {}
+        window.location.replace(basePrefix + 'answerkey.html');
         return;
       }
 
