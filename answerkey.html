@@ -405,8 +405,15 @@
           <!-- Answer Key URL -->
           <div class="form-group">
             <label for="ans_key_url">Answer Key URL <span class="star">*</span></label>
-            <input type="url" id="ans_key_url" class="form-input font-mono" placeholder="" required>
+            <input type="url" id="ans_key_url" class="form-input font-mono" placeholder="https://rrb.digialm.com/..." required>
             <p class="help-text">Use the official answer key link (the page where questions are visible).</p>
+          </div>
+
+          <!-- Optional HTML Source Paste (for WAF-blocked URLs) -->
+          <div class="form-group" id="html-paste-group" style="display:none;">
+            <label for="ans_key_html">Paste Answer Key HTML Source <span style="color:#64748b;font-weight:500;">(Optional — if URL is blocked)</span></label>
+            <textarea id="ans_key_html" class="form-input" rows="3" placeholder="Press Ctrl+U on answer key page → Ctrl+A → Ctrl+C → Paste here" style="height:auto;padding:10px 12px;font-family:monospace;font-size:0.75rem;resize:vertical;"></textarea>
+            <p class="help-text">Only needed if the direct URL fetch fails due to security restrictions.</p>
           </div>
 
           
@@ -516,7 +523,9 @@
             <span id="btn-text">Calculate Marks &amp; Rank</span>
           </button>
 
-          
+          <div style="text-align:center;">
+            <button type="button" class="demo-fill-btn" id="btn-demo-fill">📋 Load Demo Sample</button>
+          </div>
 
         </form>
       </div>
@@ -712,6 +721,18 @@
   </div>
 
   <script>
+    /* ============================================================
+       UTILITY: escapeHtml — Prevent XSS in dynamic content
+    ============================================================ */
+    function escapeHtml(str) {
+      if (str === null || str === undefined) return '';
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
     
     /* -------------------------------------------------------------
        100% DYNAMIC CLOUDFLARE D1 LOCATION RESOLUTION (0 Hardcoded Rules!)
@@ -836,96 +857,12 @@
     }
 
     /* ============================================================
-       EXAM DATA DEBUG INSPECTOR DIALOGUE MODAL
+       EXAM DATA DEBUG INSPECTOR — DISABLED IN PRODUCTION
     ============================================================ */
     function showExamDataDebugModal(source, examObj, locArray) {
-      let modalEl = document.getElementById('debug-exam-modal');
-      if (!modalEl) {
-        modalEl = document.createElement('div');
-        modalEl.id = 'debug-exam-modal';
-        modalEl.style.cssText = `
-          position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-          background: rgba(15, 23, 42, 0.75); backdrop-filter: blur(6px);
-          z-index: 99999; display: flex; align-items: center; justify-content: center;
-          padding: 16px; opacity: 0; pointer-events: none; transition: opacity 0.25s ease;
-        `;
-        document.body.appendChild(modalEl);
-      }
-
-      const safeObj = examObj || {};
-      const locList = Array.isArray(locArray) ? locArray : [];
-      const sampleLocs = locList.slice(0, 4).map(l => (typeof l === 'string') ? l : (l.name || l.title || '')).join(', ');
-
-      modalEl.innerHTML = `
-        <div style="background: #ffffff; border-radius: 18px; max-width: 580px; width: 100%; overflow: hidden; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.35); border: 1.5px solid #3b82f6; font-family: 'Inter', sans-serif; animation: popIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);">
-          <div style="background: linear-gradient(135deg, #0f172a, #1e1b4b); color: #ffffff; padding: 16px 20px; display: flex; justify-content: space-between; align-items: center;">
-            <div style="display: flex; align-items: center; gap: 10px;">
-              <span style="font-size: 1.3rem;">📊</span>
-              <div>
-                <h3 style="font-size: 1.05rem; font-weight: 800; margin: 0; color: #ffffff;">Exam Data Debug Inspector</h3>
-                <span style="font-size: 0.7rem; color: #93c5fd; font-weight: 600;">Data Flow Verification</span>
-              </div>
-            </div>
-            <button id="close-debug-modal" style="background: rgba(255,255,255,0.15); border: none; color: #ffffff; font-size: 1.1rem; font-weight: 800; width: 32px; height: 32px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center;">✕</button>
-          </div>
-          <div style="padding: 20px; max-height: 75vh; overflow-y: auto;">
-            <div style="background: #e0f2fe; border: 1px solid #7dd3fc; border-left: 4px solid #0284c7; padding: 10px 14px; border-radius: 8px; font-size: 0.82rem; color: #0369a1; margin-bottom: 14px; font-weight: 700;">
-              🔍 <strong>Source:</strong> ${escapeHtml(source)}
-            </div>
-            
-            <table style="width: 100%; border-collapse: collapse; font-size: 0.85rem; margin-bottom: 16px;">
-              <tr style="border-bottom: 1px solid #e2e8f0;">
-                <td style="padding: 9px 0; font-weight: 700; color: #64748b; width: 40%;">Exam Title:</td>
-                <td style="padding: 9px 0; font-weight: 800; color: #0f172a;">${escapeHtml(safeObj.title || 'N/A')}</td>
-              </tr>
-              <tr style="border-bottom: 1px solid #e2e8f0;">
-                <td style="padding: 9px 0; font-weight: 700; color: #64748b;">Exam Slug:</td>
-                <td style="padding: 9px 0; font-family: monospace; font-weight: 700; color: #2563eb;">${escapeHtml(safeObj.slug || 'N/A')}</td>
-              </tr>
-              <tr style="border-bottom: 1px solid #e2e8f0;">
-                <td style="padding: 9px 0; font-weight: 700; color: #64748b;">location_type_id (Label):</td>
-                <td style="padding: 9px 0; font-weight: 800; color: #059669; background: #ecfdf5; padding: 4px 8px; border-radius: 6px; display: inline-block;">${escapeHtml(safeObj.location_type_id || 'N/A')}</td>
-              </tr>
-              <tr style="border-bottom: 1px solid #e2e8f0;">
-                <td style="padding: 9px 0; font-weight: 700; color: #64748b;">location_id (Dropdown List):</td>
-                <td style="padding: 9px 0; font-weight: 700; color: #0f172a;">
-                  <span style="background: #f1f5f9; padding: 2px 8px; border-radius: 6px; font-weight: 800; color: #2563eb;">${locList.length} Items Loaded</span>
-                  <div style="font-size: 0.76rem; color: #475569; margin-top: 4px; line-height: 1.4; max-height: 60px; overflow-y: auto; background: #fafafa; padding: 6px; border-radius: 6px; border: 1px solid #f1f5f9;">${escapeHtml(sampleLocs)}${locList.length > 4 ? '...' : ''}</div>
-                </td>
-              </tr>
-              <tr style="border-bottom: 1px solid #e2e8f0;">
-                <td style="padding: 9px 0; font-weight: 700; color: #64748b;">Marking Rules:</td>
-                <td style="padding: 9px 0; font-weight: 800; color: #0f172a;">Right: +${safeObj.marks_right || 1} | Wrong: -${safeObj.marks_wrong || 0}</td>
-              </tr>
-            </table>
-
-            <details style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 10px;">
-              <summary style="font-size: 0.8rem; font-weight: 700; color: #334155; cursor: pointer;">📋 View Raw JSON Object</summary>
-              <pre style="font-family: monospace; font-size: 0.72rem; color: #38bdf8; background: #0f172a; padding: 12px; border-radius: 8px; overflow-x: auto; margin-top: 8px; max-height: 180px;">${escapeHtml(JSON.stringify(safeObj, null, 2))}</pre>
-            </details>
-          </div>
-          <div style="background: #f8fafc; border-top: 1px solid #e2e8f0; padding: 12px 20px; text-align: right;">
-            <button id="btn-close-debug-modal-bottom" style="background: #2563eb; color: #ffffff; border: none; padding: 9px 24px; border-radius: 10px; font-weight: 700; font-size: 0.88rem; cursor: pointer; box-shadow: 0 4px 12px rgba(37,99,235,0.25);">Close Debug Info</button>
-          </div>
-        </div>
-      `;
-
-      setTimeout(() => {
-        modalEl.style.opacity = '1';
-        modalEl.style.pointerEvents = 'auto';
-      }, 50);
-
-      const closeHandler = () => {
-        modalEl.style.opacity = '0';
-        modalEl.style.pointerEvents = 'none';
-      };
-
-      document.getElementById('close-debug-modal')?.addEventListener('click', closeHandler);
-      document.getElementById('btn-close-debug-modal-bottom')?.addEventListener('click', closeHandler);
-      modalEl.addEventListener('click', (e) => {
-        if (e.target === modalEl) closeHandler();
-      });
+      // Debug modal removed for production
     }
+
 
     /* ============================================================
        100% DYNAMIC SINGLE EXAM BY SLUG API RESOLVER & DUAL ROUTER
@@ -1166,14 +1103,7 @@
 
     initExamData();
 
-    // Mobile Hamburger
-    const hamburger = document.getElementById('hamburger');
-    const mobileDrawer = document.getElementById('mobile-drawer');
-    hamburger.addEventListener('click', () => {
-      const isOpen = hamburger.classList.toggle('open');
-      if (isOpen) mobileDrawer.classList.add('open');
-      else mobileDrawer.classList.remove('open');
-    });
+    // Mobile Hamburger is handled by components.js
 
     // Toast Logic
     const toast = document.getElementById('toast-container');
@@ -1194,14 +1124,24 @@
       toast.classList.remove('show');
     });
 
-    // Demo Fill
+    // Demo Fill — loads an RRB NTPC sample answer key for testing
     document.getElementById('btn-demo-fill')?.addEventListener('click', () => {
-      document.getElementById('ans_key_url').value = 'https://cdn.digialm.com/per/g01/pub/2083/touch/AssessmentResponseHTML.html';
+      document.getElementById('ans_key_url').value = 'https://rrb.digialm.com/per/g06/pub/33128/touchstone/AssessmentQPHTMLMode1/33128O2673/33128O2673S25D19095/17791176142984750/227253160788488_33128O2673S25D19095E3.html';
       document.getElementById('category').value = 'UR';
       document.getElementById('gender').value = 'male';
-      document.getElementById('state').value = 'Delhi';
+      const stateEl = document.getElementById('state');
+      if (stateEl) {
+        const delhiOpt = Array.from(stateEl.options).find(o => o.value === 'Delhi' || o.value.includes('Delhi'));
+        if (delhiOpt) stateEl.value = delhiOpt.value;
+      }
       document.getElementById('consentCheck').checked = true;
       document.getElementById('submitBtn').disabled = false;
+      // Show the HTML paste box with the demo HTML
+      const htmlGroup = document.getElementById('html-paste-group');
+      if (htmlGroup) htmlGroup.style.display = 'block';
+      const htmlTA = document.getElementById('ans_key_html');
+      if (htmlTA) htmlTA.value = `<div class="main-info-pnl"><img alt="" src="https://g06.tcsion.com/EForms/images/onlineAppForm/form100181/banner.jpg"><table border="1"><tbody><tr><td>Registration Number</td><td>N72503119626</td></tr><tr><td>Roll Number</td><td>227253160788488</td></tr><tr><td>Candidate Name</td><td>DEMO CANDIDATE</td></tr><tr><td>Community</td><td>ST</td></tr><tr><td>Test Centre Name</td><td>Demo Institute of Technology</td></tr><tr><td>Test Date</td><td>08/05/2026</td></tr><tr><td>Test Time</td><td>9:00 AM - 10:30 AM</td></tr><tr><td>Subject</td><td>RRB NTPC UnderGraduate CBT I</td></tr></tbody></table></div><div class="grp-cntnr"><div class="section-cntnr"><div class="section-lbl"><span class="bold">Section : General Awareness</span></div><div class="question-pnl"><table><tbody><tr><td>Chosen Option :</td><td>2</td></tr></tbody></table><table class="questionRowTbl"><tbody><tr><td class="wrngAns">1. Option A</td></tr><tr><td class="rightAns">2. Option B</td></tr><tr><td>3. Option C</td></tr><tr><td>4. Option D</td></tr></tbody></table></div></div></div>`;
+      showToast('✅ Demo Sample Loaded! Click "Calculate Marks & Rank" to test.');
     });
 
     // Consent Checkbox handler
@@ -1578,6 +1518,9 @@
       // Fetch response sheet HTML (Check Textarea -> Direct Fetch -> AllOrigins Proxy -> CorsProxy)
       let htmlText = (document.getElementById('ans_key_html')?.value || '').trim();
 
+      // Show HTML paste group so user can paste HTML if fetching fails
+      const htmlPasteGroup = document.getElementById('html-paste-group');
+
       if (!htmlText) {
         try {
           const res = await fetch(urlVal);
@@ -1607,8 +1550,9 @@
       }
 
       if (!htmlText) {
-        showToast('Digialm Security WAF Active: Please paste your Answer Key HTML Source Code (Ctrl+U -> Ctrl+A -> Ctrl+C) in the box below to calculate!');
-        document.getElementById('ans_key_html').focus();
+        if (htmlPasteGroup) htmlPasteGroup.style.display = 'block';
+        showToast('⚠️ URL blocked by security. Please paste your Answer Key HTML source code (Ctrl+U → Ctrl+A → Ctrl+C) in the box that appeared below the URL field.');
+        document.getElementById('ans_key_html')?.focus();
         btnText.textContent = 'Calculate Marks & Rank';
         submitBtn.disabled = false;
         return;
@@ -1667,18 +1611,9 @@
       if (e.target === modal) modal.classList.remove('open');
     });
 
-    // Demo Sample Link Fill
-    document.getElementById('btn-demo-fill')?.addEventListener('click', () => {
-      document.getElementById('ans_key_url').value = 'https://rrb.digialm.com/per/g06/pub/33128/touchstone/AssessmentQPHTMLMode1/33128O2673/33128O2673S25D19095/17791176142984750/227253160788488_33128O2673S25D19095E3.html';
-      document.getElementById('category').value = 'UR';
-      document.getElementById('gender').value = 'male';
-      document.getElementById('state').value = 'Delhi';
-      document.getElementById('ans_key_html').value = `<div class="main-info-pnl"><img alt="" src="https://g06.tcsion.com/EForms/images/onlineAppForm/form100181/banner.jpg"><table border="1"><tbody><tr><td>Registration Number</td><td>N72503119626</td></tr><tr><td>Roll Number</td><td>227253160788488</td></tr><tr><td>Candidate Name</td><td>MANGAL CHARAN KISKU</td></tr><tr><td>Community</td><td>ST</td></tr><tr><td>Test Centre Name</td><td>Utkal Institute Of Engineering And Technology</td></tr><tr><td>Test Date</td><td>08/05/2026</td></tr><tr><td>Test Time</td><td>9:00 AM - 10:30 AM</td></tr><tr><td>Subject</td><td>RRB NTPC UnderGraduate CBT I</td></tr></tbody></table></div><div class="grp-cntnr"><div class="section-cntnr"><div class="section-lbl"><span class="bold">Section : General Awareness</span></div><div class="question-pnl"><table><tbody><tr><td>Chosen Option :</td><td>2</td></tr></tbody></table><table class="questionRowTbl"><tbody><tr><td class="wrngAns">1. Option A</td></tr><tr><td class="rightAns">2. Option B</td></tr><tr><td>3. Option C</td></tr><tr><td>4. Option D</td></tr></tbody></table></div></div></div>`;
-      showToast('Demo Sample Loaded! Click "Calculate Marks & Rank" to test.');
-    });
 
-    // Footer Copy
-    document.getElementById('footer-copy').textContent = `© ${new Date().getFullYear()} CBTRANK.COM | All Rights Reserved`;
+
+    // Footer copy is handled by components.js
   </script>
 </body>
 </html>
