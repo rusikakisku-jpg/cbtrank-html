@@ -18,12 +18,12 @@
   }
 
   const homeUrl = rootPrefix;
-  const answerkeyUrl = rootPrefix + 'answerkey.html';
-  const aboutUrl = rootPrefix + 'about-us.html';
-  const contactUrl = rootPrefix + 'contact-us.html';
-  const privacyUrl = rootPrefix + 'privacy-policy.html';
-  const termsUrl = rootPrefix + 'terms-and-conditions.html';
-  const disclaimerUrl = rootPrefix + 'disclaimer.html';
+  const answerkeyUrl = rootPrefix + 'answerkey';
+  const aboutUrl = rootPrefix + 'about-us';
+  const contactUrl = rootPrefix + 'contact-us';
+  const privacyUrl = rootPrefix + 'privacy-policy';
+  const termsUrl = rootPrefix + 'terms-and-conditions';
+  const disclaimerUrl = rootPrefix + 'disclaimer';
 
   /* ============================================================
      1. HEADER / NAVBAR COMPONENT (Dynamic Root-Aware Paths)
@@ -136,6 +136,20 @@
         });
       });
     }
+
+    // Automatic address bar URL cleanup (Strips .html extension for 100% SEO-friendly clean URLs)
+    try {
+      if (window.history && window.history.replaceState) {
+        let currentPath = window.location.pathname;
+        if (/\.html$/i.test(currentPath)) {
+          let cleanPath = currentPath.replace(/\.html$/i, '');
+          if (cleanPath.endsWith('/index')) {
+            cleanPath = cleanPath.substring(0, cleanPath.length - 5);
+          }
+          window.history.replaceState({}, '', cleanPath + window.location.search);
+        }
+      }
+    } catch (e) {}
   });
 
 })();
