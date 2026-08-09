@@ -716,46 +716,72 @@
     /* -------------------------------------------------------------
        100% DYNAMIC CLOUDFLARE D1 LOCATION RESOLUTION (0 Hardcoded Rules!)
     ------------------------------------------------------------- */
+    const STATIC_RRB_ZONES = [
+      "Ahmedabad", "Ajmer", "Bengaluru", "Bhopal", "Bhubaneswar", "Bilaspur",
+      "Chandigarh", "Chennai", "Gorakhpur", "Guwahati", "Jammu-Srinagar", "Kolkata",
+      "Malda", "Mumbai", "Muzaffarpur", "Patna", "Prayagraj", "Ranchi",
+      "Secunderabad", "Siliguri", "Thiruvananthapuram"
+    ];
+
+    const STATIC_STATES_UT = [
+      "Andaman and Nicobar Islands", "Andhra Pradesh", "Arunachal Pradesh", "Assam",
+      "Bihar", "Chandigarh", "Chhattisgarh", "Dadra & Nagar Haveli and Daman & Diu",
+      "Delhi", "Goa", "Gujarat", "Haryana", "Himachal Pradesh", "Jammu & Kashmir",
+      "Jharkhand", "Karnataka", "Kerala", "Ladakh", "Lakshadweep", "Madhya Pradesh",
+      "Maharashtra", "Manipur", "Meghalaya", "Mizoram", "Nagaland", "Odisha",
+      "Puducherry", "Punjab", "Rajasthan", "Sikkim", "Tamil Nadu", "Telangana",
+      "Tripura", "Uttar Pradesh", "Uttarakhand", "West Bengal"
+    ];
+
     async function loadDynamicLocations(locTypeId) {
       const stateLabel = document.querySelector('label[for="state"]') || document.getElementById('state-label');
       const stateSelect = document.getElementById('state');
       if (!stateSelect) return;
 
-      const targetId = locTypeId || 2;
+      const targetId = Number(locTypeId || 2);
+      const isRRB = targetId === 1;
+      const dynamicGroupName = isRRB ? "RRB Zone" : "States/UT";
+      const fallbackList = isRRB ? STATIC_RRB_ZONES : STATIC_STATES_UT;
+
+      // 1. Instant 0ms Fallback Rendering
+      if (stateLabel) {
+        stateLabel.innerHTML = `${escapeHtml(dynamicGroupName)} <span style="color:#ef4444">*</span>`;
+      }
+      stateSelect.innerHTML = `<option value="">Select ${escapeHtml(dynamicGroupName)}</option>` +
+        fallbackList.map(nameStr => `<option value="${escapeHtml(nameStr)}">${escapeHtml(nameStr)}</option>`).join('');
+
+      // 2. Background Cloudflare Worker API Sync
       const WORKER_BASE = "https://cbtrank.rusikakisku.workers.dev";
       try {
         const locRes = await fetch(`${WORKER_BASE}/locations?id=${targetId}`);
-
         if (locRes.ok) {
           const locData = await locRes.json();
-          let dynamicGroupName = "";
+          let apiGroupName = "";
           let locationsList = [];
 
           if (typeof locData === 'object' && locData !== null && !Array.isArray(locData)) {
             const keys = Object.keys(locData);
             if (keys.length > 0) {
-              dynamicGroupName = keys[0]; // e.g. "States/UT" or "RRB Zone" or custom group
-              locationsList = locData[dynamicGroupName] || [];
+              apiGroupName = keys[0];
+              locationsList = locData[apiGroupName] || [];
             }
           } else if (Array.isArray(locData)) {
             locationsList = locData;
           }
 
-          if (!dynamicGroupName) {
-            dynamicGroupName = Number(targetId) === 1 ? "RRB Zone" : "States/UT";
-          }
+          if (!apiGroupName) apiGroupName = dynamicGroupName;
 
-          // 1. Show dynamic group name as Form Label (e.g. "States/UT *" or "RRB Zone *")
           if (stateLabel) {
-            stateLabel.innerHTML = `${escapeHtml(dynamicGroupName)} <span style="color:#ef4444">*</span>`;
+            stateLabel.innerHTML = `${escapeHtml(apiGroupName)} <span style="color:#ef4444">*</span>`;
           }
 
-          // 2. Render dynamic locations into Dropdown Select Box
           if (locationsList.length > 0) {
-            stateSelect.innerHTML = `<option value="">Select ${escapeHtml(dynamicGroupName)}</option>` +
+            const currentSelected = stateSelect.value;
+            stateSelect.innerHTML = `<option value="">Select ${escapeHtml(apiGroupName)}</option>` +
               locationsList.map(l => {
                 const nameStr = (typeof l === 'string') ? l : (l.name || l.title || '');
-                return `<option value="${escapeHtml(nameStr)}">${escapeHtml(nameStr)}</option>`;
+                const isSel = (currentSelected && currentSelected === nameStr) ? ' selected' : '';
+                return `<option value="${escapeHtml(nameStr)}"${isSel}>${escapeHtml(nameStr)}</option>`;
               }).join('');
           }
         }
@@ -810,6 +836,25 @@
         }
       }
 
+      // 1. Initial 0ms Instant Location Resolution
+      let locTypeId = 2;
+      if (activeSlug && /^rrb-/i.test(activeSlug)) {
+        locTypeId = 1;
+      }
+      try {
+        const rawCached = sessionStorage.getItem('cbtrank_active_exam');
+        if (rawCached) {
+          const cachedExam = JSON.parse(rawCached);
+          if (cachedExam && cachedExam.slug === activeSlug && cachedExam.location_type_id) {
+            locTypeId = Number(cachedExam.location_type_id);
+          }
+        }
+      } catch(e) {}
+
+      // Trigger instant 0ms rendering immediately
+      loadDynamicLocations(locTypeId);
+      loadDynamicLanguages();
+
       let activeExamObj = null;
       const WORKER_BASE = "https://cbtrank.rusikakisku.workers.dev";
 
@@ -821,42 +866,24 @@
             const resData = await res.json();
             if (resData && resData.success && resData.data) {
               activeExamObj = resData.data;
+              const exactDbLocTypeId = Number(activeExamObj.location_type_id || locTypeId);
+              if (exactDbLocTypeId !== locTypeId) {
+                loadDynamicLocations(exactDbLocTypeId);
+              }
             }
           }
         } catch (e) {}
-
-        // Fallback to sessionStorage if offline
-        if (!activeExamObj) {
-          try {
-            const rawCached = sessionStorage.getItem('cbtrank_active_exam');
-            if (rawCached) {
-              const cachedExam = JSON.parse(rawCached);
-              if (cachedExam && cachedExam.slug === activeSlug) {
-                activeExamObj = cachedExam;
-              }
-            }
-          } catch(e) {}
-        }
       }
 
-      let locTypeId = 2;
       let activeTitle = '';
-
       if (activeExamObj) {
         activeTitle = activeExamObj.title || '';
-        locTypeId = Number(activeExamObj.location_type_id || 2);
       } else if (activeSlug) {
-        // Fallback for unlisted custom slug
         activeTitle = activeSlug
           .split('-')
           .map(w => w.toUpperCase().length <= 3 ? w.toUpperCase() : w.charAt(0).toUpperCase() + w.slice(1))
           .join(' ');
-        locTypeId = /^rrb-/i.test(activeSlug) ? 1 : 2;
       }
-
-      // Load Dynamic Locations & Languages from Cloudflare Worker
-      loadDynamicLocations(locTypeId);
-      loadDynamicLanguages();
 
       // Render Title, Subtitle, and Clean Address Bar URL
       if (activeSlug && activeTitle) {
