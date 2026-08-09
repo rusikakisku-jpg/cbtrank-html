@@ -990,29 +990,29 @@
         } catch(e) {}
       }
 
-      // If an active slug was supplied but does NOT exist in Database or Session, render 404 Page Not Found view!
+      // If an active slug was supplied but does NOT exist in Database or Session, render full 404 Page Not Found view!
       if (!activeExamObj) {
         document.title = `404 Page Not Found | CBT RANK`;
         const isGitHubPages = window.location.pathname.startsWith('/cbtrank-html');
         const homeTarget = isGitHubPages ? '/cbtrank-html/' : '/';
         
-        const cardBody = document.querySelector('.card-body') || document.getElementById('anskey-form');
-        if (cardBody) {
-          cardBody.innerHTML = `
-            <div style="padding: 50px 20px; text-align: center;">
-              <div style="font-size: 3.5rem; line-height: 1; margin-bottom: 16px;">🔍</div>
-              <h2 style="font-size: 1.5rem; font-weight: 900; color: #0f172a; margin-bottom: 8px;">404 - Exam Page Not Found</h2>
-              <p style="color: #64748b; font-size: 0.95rem; max-width: 480px; margin: 0 auto 24px; line-height: 1.5;">
-                The requested exam page <strong>"${escapeHtml(activeSlug)}"</strong> does not exist or has been removed from our database.
-              </p>
-              <a href="${homeTarget}" style="display: inline-block; background: #0044cc; color: #ffffff; padding: 12px 28px; border-radius: 10px; font-weight: 700; font-size: 0.95rem; text-decoration: none; box-shadow: 0 4px 12px rgba(0,68,204,0.25);">
-                &larr; Go to Homepage
-              </a>
+        const mainContainer = document.getElementById('main-content') || document.querySelector('main');
+        if (mainContainer) {
+          mainContainer.innerHTML = `
+            <div style="min-height: 60vh; display: flex; align-items: center; justify-content: center; padding: 40px 16px;">
+              <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 20px; box-shadow: 0 20px 40px rgba(15,23,42,0.08); padding: 48px 24px; text-align: center; max-width: 520px; width: 100%;">
+                <div style="font-size: 4rem; line-height: 1; margin-bottom: 16px;">🔍</div>
+                <h1 style="font-size: 1.8rem; font-weight: 900; color: #0f172a; margin-bottom: 10px; letter-spacing: -0.03em;">404 - Exam Page Not Found</h1>
+                <p style="color: #64748b; font-size: 0.95rem; line-height: 1.6; margin: 0 auto 28px; max-width: 440px;">
+                  The requested exam page <strong style="color: #ef4444;">"${escapeHtml(activeSlug)}"</strong> does not exist or has been removed from our database.
+                </p>
+                <a href="${homeTarget}" style="display: inline-flex; align-items: center; justify-content: center; gap: 8px; background: linear-gradient(90deg, #2563eb 0%, #1d4ed8 100%); color: #ffffff; padding: 13px 28px; border-radius: 12px; font-weight: 700; font-size: 0.95rem; text-decoration: none; box-shadow: 0 6px 18px rgba(37,99,235,0.3); transition: transform 0.2s ease;">
+                  &larr; Return to Homepage
+                </a>
+              </div>
             </div>
           `;
         }
-        document.getElementById('banner-exam-title').textContent = `404 Not Found`;
-        document.getElementById('banner-exam-sub').textContent = `The exam page you are looking for could not be found.`;
         return;
       }
 
