@@ -851,7 +851,25 @@
         }
       }
 
-      // Synchronous 0ms Address Bar URL Cleaner (BEFORE ANY ASYNC FETCH!)
+      // 0ms Synchronous Location & Address Bar Initialization (BEFORE ANY ASYNC FETCH!)
+      let initialLocId = 2;
+      if (activeSlug && /^rrb-/i.test(activeSlug)) {
+        initialLocId = 1;
+      }
+      try {
+        const rawCached = sessionStorage.getItem('cbtrank_active_exam');
+        if (rawCached) {
+          const cachedExam = JSON.parse(rawCached);
+          if (cachedExam && cachedExam.slug === activeSlug && cachedExam.location_type_id) {
+            initialLocId = (cachedExam.location_type_id === 'RRB Zones' || cachedExam.location_type_id == 1) ? 1 : 2;
+          }
+        }
+      } catch(e) {}
+
+      // Trigger 0ms Instant Rendering Immediately
+      loadDynamicLocations(initialLocId);
+      loadDynamicLanguages();
+
       if (activeSlug && window.history && window.history.replaceState) {
         try {
           const isGitHubPages = window.location.pathname.startsWith('/cbtrank-html');
@@ -929,12 +947,9 @@
         return;
       }
 
-      // 2. Load Dynamic Paper Languages
-      loadDynamicLanguages();
-
       if (activeExamObj) {
         const activeTitle = activeExamObj.title || '';
-        const groupLabel = activeExamObj.location_type_id || 'State / UT';
+        const groupLabel = activeExamObj.location_type_id || (initialLocId === 1 ? 'RRB Zones' : 'State / UT');
         const locArray = Array.isArray(activeExamObj.location_id) ? activeExamObj.location_id : [];
 
         // Render Location Label & Select Options directly from Exam Object Data
