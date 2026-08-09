@@ -222,6 +222,37 @@
       .section-title { font-size: 1.25rem; }
       .exam-card a { padding: 14px 16px; }
     }
+
+    /* SKELETON LOADER ANIMATION */
+    .skeleton-card {
+      background: #ffffff;
+      border: 1.5px solid #e2e8f0;
+      border-radius: 16px;
+      padding: 16px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 12px;
+    }
+    .skeleton-left { flex: 1; }
+    .skeleton-line {
+      height: 16px;
+      border-radius: 8px;
+      background: linear-gradient(90deg, #f1f5f9 25%, #cbd5e1 50%, #f1f5f9 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.5s infinite;
+    }
+    .skeleton-line.title { width: 60%; height: 18px; margin-bottom: 10px; }
+    .skeleton-line.sub { width: 85%; height: 13px; }
+    .skeleton-badge {
+      width: 24px; height: 24px; border-radius: 50%;
+      background: linear-gradient(90deg, #f1f5f9 25%, #cbd5e1 50%, #f1f5f9 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.5s infinite;
+      flex-shrink: 0;
+    }
+    @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
   </style>
   <script src="components.js"></script>
 </head>
@@ -330,45 +361,8 @@
     ============================================================ */
     const WORKER_BASE = "https://cbtrank.rusikakisku.workers.dev";
 
-    // Default Fallback Array for 0ms initial load
-    let EXAMS = [
-      {
-        "id": 45,
-        "title": "OSSSC RI,ARI,AMIN,ICDS,SFS,Junior Assistant",
-        "subtitle": "Check Your Answer Key of OSSSC RI,ARI,AMIN,ICDS,SFS,Junior Assistant",
-        "slug": "osssc-ri-ari-amin-icds-sfs-junior-assistant",
-        "is_latest": 1,
-        "is_visible": 1,
-        "location_type_id": 2,
-        "marks_right": 1,
-        "marks_wrong": 0.25,
-        "set_on_top": 1,
-        "answerkey_login_link": "https://cdn3.digialm.com/EForms/loginAction.do?subAction=ViewLoginPage&formId=100576&orgId=33040"
-      },
-      {
-        "id": 44,
-        "title": "RRB NTPC UG 2026 CBT-1",
-        "subtitle": "Check Your Answer Key of RRB NTPC UG 2026 CBT-1",
-        "slug": "rrb-ntpc-ug-2026-cbt-1",
-        "is_latest": 1,
-        "is_visible": 1,
-        "location_type_id": 1,
-        "marks_right": 1,
-        "marks_wrong": 0.33,
-        "set_on_top": 1
-      }
-    ];
-
-    // Load LocalStorage Cache instantly (0ms delay)
-    try {
-      const cachedExams = localStorage.getItem('cbtrank_exams_cache');
-      if (cachedExams) {
-        const parsed = JSON.parse(cachedExams);
-        if (Array.isArray(parsed) && parsed.length > 0) {
-          EXAMS = parsed;
-        }
-      }
-    } catch(e) {}
+    // Direct Live Array from Cloudflare Worker API
+    let EXAMS = [];
 
     const BLOGS = [
       { id: 1, title: 'RRB NTPC CBT-2 Cutoff Marks & Score Normalization Process Explained', slug: 'rrb-ntpc-cbt2-cutoff-normalization-guide', image: 'https://images.unsplash.com/photo-1434030216411-0b793f4b4173?auto=format&fit=crop&w=400&q=70', description: 'Comprehensive guide on how Railways calculates normalized marks across multiple shift CBT exams.', created_at: '01 Aug, 2026' },
@@ -397,11 +391,25 @@
       } catch(e) {}
     }
 
+    function renderSkeletonLoader() {
+      const list = document.getElementById('exam-list');
+      if (!list) return;
+      list.innerHTML = Array(4).fill(0).map(() => `
+        <div class="skeleton-card">
+          <div class="skeleton-left">
+            <div class="skeleton-line title"></div>
+            <div class="skeleton-line sub"></div>
+          </div>
+          <div class="skeleton-badge"></div>
+        </div>
+      `).join('');
+    }
+
     function renderExams() {
       const list = document.getElementById('exam-list');
       if (!list) return;
       if (!EXAMS || !Array.isArray(EXAMS) || EXAMS.length === 0) {
-        list.innerHTML = '<div class="empty-state">अभी कोई updates उपलब्ध नहीं हैं।</div>';
+        renderSkeletonLoader();
         return;
       }
 
@@ -492,7 +500,6 @@
           const liveExams = await res.json();
           if (Array.isArray(liveExams) && liveExams.length > 0) {
             EXAMS = liveExams;
-            try { localStorage.setItem('cbtrank_exams_cache', JSON.stringify(liveExams)); } catch(e) {}
             renderExams();
           }
         }
