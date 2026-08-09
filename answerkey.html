@@ -880,12 +880,12 @@
 
       // Rewrite address bar URL to clean slug format (e.g. /osssc-ri-ari-amin-icds-sfs-junior-assistant/answerkey)
       try {
-        if (activeSlug && window.history && window.history.pushState) {
+        if (activeSlug && window.history && window.history.replaceState) {
           const isGitHubPages = window.location.pathname.startsWith('/cbtrank-html');
           const prefix = isGitHubPages ? '/cbtrank-html' : '';
           const cleanUrl = `${prefix}/${activeSlug}/answerkey`;
           if (window.location.pathname !== cleanUrl) {
-            window.history.pushState({ slug: activeSlug }, '', cleanUrl);
+            window.history.replaceState({ slug: activeSlug }, '', cleanUrl);
           }
         }
       } catch(e) {}
