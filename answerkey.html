@@ -875,14 +875,17 @@
         } catch (e) {}
       }
 
+      // If an active slug was in URL but does NOT exist in Database or Session, redirect directly to Homepage!
+      if (activeSlug && !activeExamObj) {
+        const isGitHubPages = window.location.pathname.startsWith('/cbtrank-html');
+        const homeTarget = isGitHubPages ? '/cbtrank-html/' : '/';
+        window.location.replace(homeTarget);
+        return;
+      }
+
       let activeTitle = '';
       if (activeExamObj) {
         activeTitle = activeExamObj.title || '';
-      } else if (activeSlug) {
-        activeTitle = activeSlug
-          .split('-')
-          .map(w => w.toUpperCase().length <= 3 ? w.toUpperCase() : w.charAt(0).toUpperCase() + w.slice(1))
-          .join(' ');
       }
 
       // Render Title, Subtitle, and Clean Address Bar URL
